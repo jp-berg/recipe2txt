@@ -2,3 +2,9 @@ rezepte.txt
 TODO.txt
 __pycache__/
 argparse_test.py
+testfiles/data/*
+testfiles/recipes.txt
+.project
+.pydevproject
+
+
