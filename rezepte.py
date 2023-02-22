@@ -11,7 +11,6 @@ import traceback
 from timer import Timer
 network_timer = Timer()
 parsing_timer = Timer()
-fileIO_timer = Timer()
 total_timer = Timer()
 
 program_name = "RezeptZuTXT"
@@ -194,20 +193,17 @@ if __name__ == "__main__":
     for url in to_scrape:
         recipe = url2recipe(url)
         if recipe:
-            fileIO_timer.start()
             with open(recipe_file, 'a') as file:
                 file.write(recipe)
 
             known_urls.add(url)
             with open(known_urls_file, 'a') as file:
                 file.write(url)
-            fileIO_timer.end()
         print()
     
     total_timer.end()
     print("Total time spend on network:", network_timer.total())
     print("Total time spend on parsing:", parsing_timer.total())
-    print("Total time spend on fileIO:", fileIO_timer.total())
     print("Total time spend:", total_timer.total())
 
         
