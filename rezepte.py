@@ -6,8 +6,10 @@ from recipe_scrapers import scrape_html
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, ElementNotFoundInHtml
 from xdg import xdg_cache_home, xdg_data_home
 import requests
+import traceback
 
 program_name = "RezeptZuTXT"
+debug = True
 
 def ensure_existence_dir(*pathelements):
     path = os.path.join(*pathelements)
@@ -23,10 +25,6 @@ def ensure_existence_file(filename, *pathelements):
         with open(path, 'w') as file:
             pass
     return path
-    
-
-
-debug = True
 
 known_urls_name = "knownURLs.txt"
 recipes_name = "recipes.txt"
@@ -48,60 +46,51 @@ recipe_file = ensure_existence_file(recipes_name, workdir)
 between_recipes = "\n\n\n\n\n"
 head_sep = "\n\n"
 
-def extract_info(scraped):
-    count = 0
-    
+NA = "N/A"
+def getInfo(name, func, data):
     try:
-        name = scraped.title()
-    except (TypeError, AttributeError):
-        print("No title found")
-        name = NA
-        count += 1
-    
-    try:
-        total_time = str(scraped.total_time())
-    except (SchemaOrgException, ElementNotFoundInHtml, AttributeError):
-        print("No time found")
-        total_time = NA
-        count += 1
+        info = str(func(data))
+        if not info or info.isspace():
+            print(name.capitalize(), "contains nothing")
+            info = NA
+        return info
+    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError):
+        print("No", name, "found")
     except NotImplementedError:
-        print("Website not fully supported")
-        total_time = NA
-        count += 1
+        print(name.capitalize(), "not implemented for this website")
+    except Exception as e:
+        print("Error while extracting", name)
+        if(debug):
+            traceback.print_exception(e)
+            
+    return NA
+
+extraction_instructions = [
+    ("title", lambda data:data.title()),
+    ("total time", lambda data: data.total_time()),
+    ("yields", lambda data: data.yields()),
+    ("ingredients", lambda data: "\n".join(data.ingredients())),
+    ("instructions", lambda data: "\n\n".join(data.instructions_list()))
+]
+
+def extract_info(scraped):
     
-    try:
-        yields = scraped.yields()
-    except Exception:
-        print("No servings amount found")
-        yields = NA
-        count += 1
+    info = {}
+    for instruction in extraction_instructions:
+        info[instruction[0]] = getInfo(*instruction, scraped)
     
-    try:
-        ingredients = "\n".join(scraped.ingredients())
-    except AttributeError:
-        print("No ingredient list found")
-        ingredients = NA
-        count += 1
-        
-    try:
-        instructions = "\n\n".join(scraped.instructions_list())
-    except AttributeError:
-        print("No instructions found")
-        instructions = NA
-        count += 1
-    
-    if count == 5:
-        print("Nothing could be extracted. Skipping...")
+    if info["ingredients"] is NA and info["instructions"] is NA:
+        print("Nothing worthwhile could be extracted. Skipping...")
         recipe = None
     else:
-        recipe = "\n".join([name,
+        recipe = "\n".join([info["title"],
                         head_sep,
-                        total_time + "min    " + yields + "\n",
-                        ingredients,
+                        info["total time"] + " min    " + info["yields"] + "\n",
+                        info["ingredients"],
                         "\n\n",
-                        instructions,
+                        info["instructions"],
                         "\n",
-                        "von: " + url,
+                        "from: " + url,
                         between_recipes])
     return recipe
 
@@ -120,12 +109,16 @@ def url2recipe(url):
     
     try:
         s = scrape_html(html = html, org_url = url)
+        infos = extract_info(s)
     except (WebsiteNotImplementedError,
            NoSchemaFoundInWildMode):
         print("Unknown Website. Extraction not supported. Skipping...")
         return None
+    except AttributeError:
+        print("Error while parsing website. Skipping...")
+        return None
     
-    return extract_info(s)
+    return infos
 
 to_scrape = set()
 def addURL(url):
