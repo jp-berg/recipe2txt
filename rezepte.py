@@ -8,6 +8,12 @@ from xdg import xdg_cache_home, xdg_data_home
 import requests
 import traceback
 
+from timer import Timer
+network_timer = Timer()
+parsing_timer = Timer()
+fileIO_timer = Timer()
+total_timer = Timer()
+
 program_name = "RezeptZuTXT"
 debug = True
 
@@ -97,12 +103,16 @@ def extract_info(scraped):
 def url2recipe(url):        
     print(url[:-1])
 
+    network_timer.start()
     try:
         html = requests.get(url, timeout = 1).content
     except (requests.exceptions.Timeout, requests.exceptions.TooManyRedirects, requests.exceptions.ConnectionError):
         print("Issue with reaching website. Skipping...")
         return None
+    finally:
+        network_timer.end()
     
+    parsing_timer.start()
     try:
         s = scrape_html(html = html, org_url = url)
         infos = extract_info(s)
@@ -113,6 +123,8 @@ def url2recipe(url):
     except AttributeError:
         print("Error while parsing website. Skipping...")
         return None
+    finally:
+        parsing_timer.end()
     
     return infos
 
@@ -158,7 +170,7 @@ def urls2queue(uri):
         
 
 if __name__ == "__main__":
-        
+    total_timer.start()
     if not os.path.isfile(recipe_file):
         print(recipe_file + " is not a file. Creating...")
         with open(recipe_file, 'w') as file:
@@ -182,13 +194,21 @@ if __name__ == "__main__":
     for url in to_scrape:
         recipe = url2recipe(url)
         if recipe:
+            fileIO_timer.start()
             with open(recipe_file, 'a') as file:
                 file.write(recipe)
 
             known_urls.add(url)
             with open(known_urls_file, 'a') as file:
                 file.write(url)
+            fileIO_timer.end()
         print()
+    
+    total_timer.end()
+    print("Total time spend on network:", network_timer.total())
+    print("Total time spend on parsing:", parsing_timer.total())
+    print("Total time spend on fileIO:", fileIO_timer.total())
+    print("Total time spend:", total_timer.total())
 
         
 

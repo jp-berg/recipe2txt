@@ -1,0 +1,314 @@
+Not an URL: htps://en.wikibooks.org/wiki/Cookbook:Chewy_Ginger_Cookies
+
+Not an URL: https://enwikibooksorg/wiki/Cookbook:Chewy_Ginger_Cookies
+
+https://eatsmarter.de/rezepte/ofenkartoffeln-mit-brokkoli
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://downshiftology.com/recipes/jambalaya/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.bigoven.com/recipe/cauliflower-pork-fried-rice/2969547
+No title found
+No total time found
+No yields found
+No ingredients found
+No instructions found
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.ambitiouskitchen.com/slow-cooker-yellow-chicken-curry/
+
+https://briceletbaklava.ch/2023/02/pain-d-argovie-aargauer-brot.html
+Unknown Website. Extraction not supported. Skipping...
+
+https://eatwhattonight.com/2022/06/fried-egg-with-braised-minced-sauce/
+Issue with reaching website. Skipping...
+
+https://www.ah.nl/allerhande/recept/R-R1196827/butter-chicken-met-rijst
+
+https://www.allrecipes.com/recipe/229559/best-ever-meat-loaf/
+Issue with reaching website. Skipping...
+
+https://www.castironketo.net/blog/keto-cheesy-cabbage-sausage-skillet/
+
+https://www.coop.se/recept/carbonara/
+No title found
+Total time not implemented for this website
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.chefnini.com/cookie-tartelette-chocolat-caramel/
+Unknown Website. Extraction not supported. Skipping...
+
+https://www.closetcooking.com/cajun-chicken-pasta/
+
+https://www.eatingbirdfood.com/healthy-white-bean-chicken-chili/
+
+https://www.epicurious.com/recipes-menus/breakfast-ideas-without-eggs
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://ninjatestkitchen.eu/recipe/smoked-brussels-sprouts-with-balsamic-glaze/
+
+https://www.epicurious.com/recipes/food/views/spring-greens-and-leek-gratin
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://bakingmischief.com/penne-alla-vodka-for-one/
+Issue with reaching website. Skipping...
+
+https://www.ethanchlebowski.com/cooking-techniques-recipes/crunchy-chicken-quesadilla
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.archanaskitchen.com/fondant-potatoes-recipe
+Issue with reaching website. Skipping...
+
+https://biancazapatka.com/en/crispy-tofu-asian/
+
+https://eatsmarter.com/recipes/shell-pasta-on-tomato-sauce
+Issue with reaching website. Skipping...
+
+https://www.atelierdeschefs.fr/recettes/16799/brochettes-d'agneau-grillees-au-zaatar-pommes-de-terre-libanaises/
+No yields found
+
+http://en.wikibooks.org/wiki/Cookbook:Chewy_Ginger_Cookies
+No total time found
+No yields found
+
+https://www.bbc.co.uk/food/recipes/fish_tacos_33979
+No total time found
+No yields found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.food.com/recipe/crispy-cinnamon-streusel-banana-nut-cream-cheese-bread-110299
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://creativecanning.com/canning-boston-baked-beans/
+
+https://altonbrown.com/recipes/boston-brown-bread/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.bettycrocker.com/recipes/cranberry-nut-coffee-cake/b05b0b0c-a2b1-460a-ab49-0d77e178566b
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.countryliving.com/food-drinks/a16570861/chicken-meatball-and-vegetable-noodle-soup-recipe/
+Issue with reaching website. Skipping...
+
+https://cookpad.com/de/rezepte/16813406-sacher-torte-original-rezept-von-meine-om
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.ditchthecarbs.com/easy-low-carb-keto-oatmeal-recipe-5-ingredients/
+
+https://cookeatshare.com/recipes/southern-cornbread-dressing-816246
+No title found
+Yields not implemented for this website
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.davidlebovitz.com/category/recipes/tarts/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://comidinhasdochef.com/almoco-de-preguicoso/
+Issue with reaching website. Skipping...
+
+https://www.cuisineaz.com/diaporamas/10-recettes-de-gratins-divins-a-la-viande-hachee-3162/interne/1.aspx
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.cookstr.com/Breakfast-Recipes/Avocado-Toast-Koslow
+No title found
+Error while extracting yields
+Traceback (most recent call last):
+  File "/home/pc/sciebo/Dokumente/Programming/Rezepte/rezepte.py", line 58, in getInfo
+    info = str(func(data))
+  File "/home/pc/sciebo/Dokumente/Programming/Rezepte/rezepte.py", line 77, in <lambda>
+    ("yields", lambda data: data.yields()),
+  File "/home/pc/.local/lib/python3.10/site-packages/recipe_scrapers/plugins/exception_handling.py", line 64, in decorated_method_wrapper
+    return decorated(self, *args, **kwargs)
+  File "/home/pc/.local/lib/python3.10/site-packages/recipe_scrapers/plugins/schemaorg_fill.py", line 47, in decorated_method_wrapper
+    return decorated(self, *args, **kwargs)
+  File "/home/pc/.local/lib/python3.10/site-packages/recipe_scrapers/cookstr.py", line 31, in yields
+    raise Exception("Servings amount not found")
+Exception: Servings amount not found
+No ingredients found
+No instructions found
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.cucchiaio.it/ricetta/torta-in-teglia-ai-mirtilli/
+
+https://akispetretzikis.com/
+Error while parsing website. Skipping...
+
+https://www.bonappetit.com/recipe/green-pea-fritters-recipe
+No title found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://copykat.com/taco-bell-nacho-fries/
+
+https://www.finedininglovers.com/recipes/main-course/gnocchetti-salsiccia-broccolini
+No title found
+No total time found
+No ingredients found
+No instructions found
+Nothing worthwhile could be extracted. Skipping...
+
+http://www.afghankitchenrecipes.com/recipe/qabili-murg-palau-rice-dish-with-chicken/
+
+https://www.bbcgoodfood.com/recipes/air-fryer-buffalo-cauliflower-wings
+Issue with reaching website. Skipping...
+
+https://www.averiecooks.com/samoa-cheesecake/
+
+https://www.chefkoch.de/rezepte/1693561277708713/Rouladen.html
+
+https://www.acouplecooks.com/pasta-pomodoro/
+
+https://www.fifteenspatulas.com/shrimp-and-grits/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://emmikochteinfach.de/chili-con-carne-rezept-schnell-und-einfach/
+
+https://cybercook.com.br/receitas/receitas-regionais
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://alltommat.expressen.se/recept/chokladkladdkaka-med-hasselnotter-och-apelsin/
+
+https://www.baking-sense.com/2019/05/16/homemade-sourdough-bagels/
+
+https://domesticate-me.com/kale-brussels-sprout-and-apple-salad/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://amazingribs.com/tested-recipes/chicken-recipes/sous-vide-club-sandwich/#recipe
+
+https://cookieandkate.com/basque-cheesecake-recipe/
+
+https://www.bettybossi.ch/de/Rezept/ShowRezept/BB_SAGE221001_0234A-40-d
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.eatingwell.com/article/8029908/justine-doiron-crispy-quinoa-recipe/
+No title found
+No total time found
+No yields found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.cookinglight.com/recipes/basic-risotto-recipe
+Issue with reaching website. Skipping...
+
+https://ninjatestkitchen.eu/recipe/bbq-pulled-chicken-sliders-with-sweet-potato-wedges/
+
+https://altonbrown.com/cook/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.arla.se/recept/chili-con-carne/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://eatsmarter.de/rezepte/kokos-tofu-auf-ananas-wirsing-gemuese-0
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://food52.com/recipes/81853-best-chicken-pot-pie-recipe
+
+https://www.delish.com/cooking/recipe-ideas/a42710894/grandma-pizza-recipe/
+Issue with reaching website. Skipping...
+
+https://www.bowlofdelicious.com/six-minute-seared-ahi-tuna-steaks/
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.budgetbytes.com/cajun-sausage-and-vegetables/
+
+https://www.cdkitchen.com/recipes/recs/450/Baked-Lemon-Chicken82430.shtml
+No title found
+No total time found
+Ingredients contains nothing
+Instructions contains nothing
+Nothing worthwhile could be extracted. Skipping...
+
+https://www.chefkoch.de/rezepte/3231051480706185/Seelachsfilet-mit-Speck-und-Kartoffel-Erbsen-Pueree.html
+
+https://recipes.farmhousedelivery.com/grain-free-vietnamese-bun-noodle-bowl/
+Issue with reaching website. Skipping...
+
+Total time spend on network: 134.13417047198163
+Total time spend on parsing: 6.338895042979857
+Total time spend on fileIO: 0.010557281988440081
+Total time spend: 140.48944479599595
