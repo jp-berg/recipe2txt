@@ -120,8 +120,12 @@ def url2recipe(url):
     
     return infos
 
+
+
 to_scrape = set()
 def addURL(url):
+    if not url.startswith("http"):
+        url = "http://"+url
     if validators.url(url):
         if url in known_urls:
             print("Already scraped:", url)
