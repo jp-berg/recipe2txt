@@ -94,11 +94,7 @@ def extract_info(scraped):
                         between_recipes])
     return recipe
 
-def url2recipe(url):
-    start_tracking_part = url.find("?")
-    if(start_tracking_part > -1):
-        url = url[:start_tracking_part]
-        
+def url2recipe(url):        
     print(url[:-1])
 
     try:
@@ -120,13 +116,21 @@ def url2recipe(url):
     
     return infos
 
-
+def removeTracking(url, *identifiers):
+    for i in identifiers:
+        start_tracking_part = url.find(i)
+        if(start_tracking_part > -1):
+            tmp = url[:start_tracking_part]
+            if validators.url(tmp):
+                url = tmp
+    return url
 
 to_scrape = set()
 def addURL(url):
     if not url.startswith("http"):
         url = "http://"+url
     if validators.url(url):
+        url = removeTracking(url, "/ref=", "?")
         if url in known_urls:
             print("Already scraped:", url)
         elif url in to_scrape:
