@@ -308,6 +308,7 @@ https://www.chefkoch.de/rezepte/3231051480706185/Seelachsfilet-mit-Speck-und-Kar
 https://recipes.farmhousedelivery.com/grain-free-vietnamese-bun-noodle-bowl/
 Issue with reaching website. Skipping...
 
+Total time spend processing URLs: 0.002416395000182092
 Total time spend on network: 134.13417047198163
 Total time spend on parsing: 6.338895042979857
 Total time spend on fileIO: 0.010557281988440081

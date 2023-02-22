@@ -12,6 +12,7 @@ from timer import Timer
 network_timer = Timer()
 parsing_timer = Timer()
 total_timer = Timer()
+url_processing_timer = Timer()
 
 program_name = "RezeptZuTXT"
 debug = True
@@ -185,7 +186,9 @@ if __name__ == "__main__":
         known_urls = set()
     
     if 1 == len(sys.argv):
+        url_processing_timer.start()
         urls2queue(url_file)
+        url_processing_timer.end()
     else:
         for uri in sys.argv[1:]:
             urls2queue(uri)
@@ -202,6 +205,7 @@ if __name__ == "__main__":
         print()
     
     total_timer.end()
+    print("Total time spend processing URLs:", url_processing_timer.total())
     print("Total time spend on network:", network_timer.total())
     print("Total time spend on parsing:", parsing_timer.total())
     print("Total time spend:", total_timer.total())
