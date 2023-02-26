@@ -15,6 +15,7 @@ total_timer = Timer()
 
 program_name = "RezeptZuTXT"
 debug = True
+args_are_files = True
 
 def ensure_existence_dir(*pathelements):
     path = os.path.join(*pathelements)
@@ -48,23 +49,20 @@ known_urls_file = ensure_existence_file(known_urls_name, default_data_directory)
 url_file = ensure_existence_file(default_urls_name, workdir)
 recipe_file = ensure_existence_file(recipes_name, workdir)
 
-between_recipes = "\n\n\n\n\n"
-head_sep = "\n\n"
-
 NA = "N/A"
 def getInfo(name, func, data):
     try:
         info = str(func(data))
         if not info or info.isspace():
-            print(name.capitalize(), "contains nothing")
+            print("\t", name.capitalize(), "contains nothing")
             info = NA
         return info
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError):
-        print("No", name, "found")
+        print("\t", "No", name, "found")
     except NotImplementedError:
-        print(name.capitalize(), "not implemented for this website")
+        print("\t", name.capitalize(), "not implemented for this website")
     except Exception as e:
-        print("Error while extracting", name)
+        print("\t", "Error while extracting", name)
         if(debug):
             traceback.print_exception(e)
             
@@ -77,16 +75,24 @@ extraction_instructions = [
     ("ingredients", lambda data: "\n".join(data.ingredients())),
     ("instructions", lambda data: "\n\n".join(data.instructions_list()))
 ]
+between_recipes = "\n\n\n\n\n"
+head_sep = "\n\n"
 
-def extract_info(scraped):
-    
+def recipe2disk(url, recipe):
+    with open(recipe_file, 'a') as file:
+        file.write(recipe)
+
+    with open(known_urls_file, 'a') as file:
+        file.write(url)
+
+def parsed2recipe(url, scraped):
     info = {}
     for instruction in extraction_instructions:
         info[instruction[0]] = getInfo(*instruction, scraped)
     
     if info["ingredients"] is NA and info["instructions"] is NA:
-        print("Nothing worthwhile could be extracted. Skipping...")
-        recipe = None
+        print("\t", "Nothing worthwhile could be extracted. Skipping...")
+        return None
     else:
         recipe = "\n".join([info["title"],
                         head_sep,
@@ -97,35 +103,42 @@ def extract_info(scraped):
                         "\n",
                         "from: " + url,
                         between_recipes])
-    return recipe
-
-def url2recipe(url):        
-    print(url[:-1])
-
-    network_timer.start()
-    try:
-        html = requests.get(url, timeout = 1).content
-    except (requests.exceptions.Timeout, requests.exceptions.TooManyRedirects, requests.exceptions.ConnectionError):
-        print("Issue with reaching website. Skipping...")
-        return None
-    finally:
-        network_timer.end()
     
-    parsing_timer.start()
+    return recipe2disk(url, recipe)
+
+def html2recipe(url, content):
+    print("Processing", url)
     try:
-        s = scrape_html(html = html, org_url = url)
-        infos = extract_info(s)
+        parsed = scrape_html(html = content, org_url = url)
     except (WebsiteNotImplementedError,
-           NoSchemaFoundInWildMode):
-        print("Unknown Website. Extraction not supported. Skipping...")
+        NoSchemaFoundInWildMode):
+        print("\t", "Unknown Website. Extraction not supported. Skipping...")
         return None
     except AttributeError:
-        print("Error while parsing website. Skipping...")
+        print("\t", "Error while parsing website. Skipping...")
         return None
-    finally:
-        parsing_timer.end()
     
-    return infos
+    return parsed2recipe(url, parsed)
+
+def url2recipe(url):
+    
+    try:
+        
+        network_timer.start()
+        html = requests.get(url, timeout = 1).content
+        network_timer.end()
+        
+        parsing_timer.start()
+        recipe = html2recipe(url, html)
+        parsing_timer.end()
+        
+    except (requests.exceptions.Timeout, requests.exceptions.TooManyRedirects,
+        requests.exceptions.ConnectionError):
+        network_timer.end()
+        print("Issue with reaching ", url, ", skipping...")
+        
+        return None
+        
 
 def removeTracking(url, *identifiers):
     for i in identifiers:
@@ -136,70 +149,64 @@ def removeTracking(url, *identifiers):
                 url = tmp
     return url
 
-to_scrape = set()
-def addURL(url):
-    if not url.startswith("http"):
-        url = "http://"+url
-    if validators.url(url):
-        url = removeTracking(url, "/ref=", "?")
-        if url in known_urls:
-            print("Already scraped:", url)
-        elif url in to_scrape:
-            print("Already queued:", url)
+def processURLs(known_urls, urls):
+    processed = set()
+    for url in urls:
+        url.strip()
+        if not url.startswith("http"):
+            url = "http://"+url
+        if validators.url(url):
+            url = removeTracking(url, "/ref=", "?")
+            if url in known_urls:
+                print("Already scraped:", url)
+                continue
+            if url in processed:
+                print("Already queued:", url)
+            else:
+                processed.add(url)
         else:
-            to_scrape.add(url)
-        return True
-    else:
-        return False
+            print("Not an URL:", url)
+    return processed
 
-def urls2queue(uri):
-    if addURL(uri):
-        return
-
-    url_file = os.path.expanduser(uri)
-    if os.path.isfile(url_file):
-        with open(url_file, 'r') as file:
-            for url in file.readlines():
-                if not addURL(url):
-                    print("Not an URL:", url)
-        return
-
-    print("Not an URL or a file:", uri)
-        
-        
+def readfiles(*paths):
+    lines = []
+    for path in paths:
+        path = os.path.expanduser(path)
+        path = os.path.realpath(path)
+        if os.path.isfile(url_file):
+            with open(url_file, 'r') as file:
+                for line in file.readlines():
+                    lines.append(line)
+        else:
+            print("Not a file:", path)
+    return lines
 
 if __name__ == "__main__":
     total_timer.start()
+    
     if not os.path.isfile(recipe_file):
-        print(recipe_file + " is not a file. Creating...")
+        print(recipe_file + "is not a file. Creating...")
         with open(recipe_file, 'w') as file:
             file.write("          REZEPTE\n")
 
-    
     if os.path.isfile(known_urls_file):
         with open(known_urls_file, 'r') as file:
-            known_urls = file.readlines()
-
-        known_urls = set(known_urls)
+            known_urls = set(file.readlines())
     else:
         known_urls = set()
     
     if 1 == len(sys.argv):
-        urls2queue(url_file)
+        unprocessed = readfiles(url_file)
     else:
-        for uri in sys.argv[1:]:
-            urls2queue(uri)
-        
-    for url in to_scrape:
-        recipe = url2recipe(url)
-        if recipe:
-            with open(recipe_file, 'a') as file:
-                file.write(recipe)
-
-            known_urls.add(url)
-            with open(known_urls_file, 'a') as file:
-                file.write(url)
-        print()
+        if args_are_files:
+            unprocessed = readfiles(sys.argv[1:])
+        else:
+            unprocessed = sys.argv[1:]
+            
+    urls = processURLs(known_urls, unprocessed)
+    page_contents = [url2recipe(url) for url in urls]
+    
+    print()
     
     total_timer.end()
     print("Total time spend on network:", network_timer.total())
