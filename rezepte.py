@@ -11,6 +11,20 @@ import traceback
 program_name = "RezeptZuTXT"
 debug = True
 
+#level 0 -> silent
+#level 1 -> errors
+#level 2 -> events
+#level 3 -> setup
+if debug:
+    vlevel = 3
+else:
+    vlevel = 0
+
+def dprint(level, *args, sep=' ', end='\n', file=None, flush=False):
+    if level >= vlevel:
+        print(*arg, sep=sep, end=end, file=file, flush=flush)
+    
+
 def ensure_existence_dir(*pathelements):
     path = os.path.join(*pathelements)
     if path.startswith("~"):
