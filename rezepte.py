@@ -9,11 +9,6 @@ import aiohttp
 import asyncio
 import traceback
 
-from timer import Timer
-network_timer = Timer()
-parsing_timer = Timer()
-total_timer = Timer()
-
 program_name = "RezeptZuTXT"
 debug = True
 args_are_files = True
@@ -126,14 +121,10 @@ async def urls2recipes(url_queue, timeout):
         while not url_queue.empty():
             try:
                 url = await url_queue.get()
-                timer_id = network_timer.start_multi()
                 async with session.get(url) as response:
                     html = await response.text()
-                network_timer.end_multi(timer_id)
                 
-                parsing_timer.start()
                 recipe = html2recipe(url, html)
-                parsing_timer.end()
                 
             except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
                 network_timer.end_multi(timer_id)
@@ -190,7 +181,6 @@ async def fetch(urls):
     await(asyncio.gather(*tasks))
 
 if __name__ == "__main__":
-    total_timer.start()
     
     if not os.path.isfile(recipe_file):
         print(recipe_file + "is not a file. Creating...")
@@ -213,13 +203,6 @@ if __name__ == "__main__":
     
     urls = processURLs(known_urls, unprocessed)
     asyncio.run(fetch(urls))
-    
-    print()
-    
-    total_timer.end()
-    print("Total time spend on network:", network_timer.total())
-    print("Total time spend on parsing:", parsing_timer.total())
-    print("Total time spend:", total_timer.total())
 
         
 
