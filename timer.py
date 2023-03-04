@@ -51,6 +51,33 @@ class Timer:
         self.total_cache_stale = True
         
         self.multi_start_times.clear()
+
+if __name__ == '__main__':
+    # simple tests
+    from math import trunc
+    
+    t = Timer()
+    id1 = t.start_multi()
+    time.sleep(0.1)
+    id2 = t.start_multi()
+    time.sleep(0.1)
+    elapsed1 = t.end_multi(id1)
+    t.start()
+    time.sleep(0.1)
+    elapsed0 = t.end()
+    time.sleep(0.2)
+    elapsed2 = t.end_multi(id2)
+    
+    assert(trunc(elapsed0*1000) == 100)
+    assert(trunc(elapsed1*1000) == 200)
+    assert(trunc(elapsed2*1000) == 400)
+    assert(trunc(t.total()*100) == 70)
+    
+    try:
+        t.end_multi(-1)
+        assert(False)
+    except RuntimeError:
+        pass
         
     
             
