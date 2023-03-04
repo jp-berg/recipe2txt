@@ -5,7 +5,8 @@ from os import getcwd, makedirs
 from recipe_scrapers import scrape_html
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, ElementNotFoundInHtml
 from xdg import xdg_cache_home, xdg_data_home
-import requests
+import aiohttp
+import asyncio
 import traceback
 
 from timer import Timer
@@ -120,26 +121,24 @@ def html2recipe(url, content):
     
     return parsed2recipe(url, parsed)
 
-def url2recipe(url):
-    
-    try:
-        
-        network_timer.start()
-        html = requests.get(url, timeout = 1).content
-        network_timer.end()
-        
-        parsing_timer.start()
-        recipe = html2recipe(url, html)
-        parsing_timer.end()
-        
-    except (requests.exceptions.Timeout, requests.exceptions.TooManyRedirects,
-        requests.exceptions.ConnectionError):
-        network_timer.end()
-        print("Issue with reaching ", url, ", skipping...")
-        
-        return None
-        
-
+async def urls2recipes(url_queue, timeout):
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        while not url_queue.empty():
+            try:
+                url = await url_queue.get()
+                timer_id = network_timer.start_multi()
+                async with session.get(url) as response:
+                    html = await response.text()
+                network_timer.end_multi(timer_id)
+                
+                parsing_timer.start()
+                recipe = html2recipe(url, html)
+                parsing_timer.end()
+                
+            except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
+                network_timer.end_multi(timer_id)
+                print("Issue with reaching ", url, ", skipping...")
+                
 def removeTracking(url, *identifiers):
     for i in identifiers:
         start_tracking_part = url.find(i)
@@ -152,6 +151,7 @@ def removeTracking(url, *identifiers):
 def processURLs(known_urls, urls):
     processed = set()
     for url in urls:
+        url = url.replace(os.linesep, '')
         url.strip()
         if not url.startswith("http"):
             url = "http://"+url
@@ -181,6 +181,14 @@ def readfiles(*paths):
             print("Not a file:", path)
     return lines
 
+async def fetch(urls):
+    q = asyncio.Queue()
+    for url in urls: await q.put(url)
+    timeout = aiohttp.ClientTimeout(total = 10 * len(urls), connect = 1,
+                                    sock_connect=None, sock_read = None)
+    tasks = [asyncio.create_task(urls2recipes(q, timeout)) for i in range(3)]
+    await(asyncio.gather(*tasks))
+
 if __name__ == "__main__":
     total_timer.start()
     
@@ -202,9 +210,9 @@ if __name__ == "__main__":
             unprocessed = readfiles(sys.argv[1:])
         else:
             unprocessed = sys.argv[1:]
-            
+    
     urls = processURLs(known_urls, unprocessed)
-    page_contents = [url2recipe(url) for url in urls]
+    asyncio.run(fetch(urls))
     
     print()
     
