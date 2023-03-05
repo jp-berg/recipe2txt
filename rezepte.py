@@ -34,7 +34,7 @@ def while_context(context:Context) -> Context:
     tmp = "While " + tmp[0].lower() + tmp[1:] + ":"
     return Context((context[0],  tmp))
 
-def dprint(level:int, *args:str, sep:str=' ', end:str='\n', file=None, flush:bool=False, context:Context=nocontext) -> Context:
+def dprint(level:int, *args:str, sep:str=' ', end:str='\n', file:Any=None, flush:bool=False, context:Context=nocontext) -> Context:
     if level <= vlevel:
         if context[0] > vlevel:
             print(context[1], file=file, flush=flush, end=end)
@@ -78,7 +78,7 @@ recipe_file:Final[str] = ensure_existence_file(recipes_name, workdir)
 Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 URL = NewType('URL', str)
 NA:Final[str] = "N/A"
-def getInfo(name:str, func:Callable[[Parsed], Any], data, context:Context):
+def getInfo(name:str, func:Callable[[Parsed], str|int|float], data:Parsed, context:Context) -> str:
     try:
         info = str(func(data))
         if not info or info.isspace():
@@ -96,7 +96,7 @@ def getInfo(name:str, func:Callable[[Parsed], Any], data, context:Context):
             
     return NA
 
-extraction_instructions:Final[list[Tuple[str, Callable[[Parsed], Any]]]] = [
+extraction_instructions:Final[list[Tuple[str, Callable[[Parsed], str|int|float]]]] = [
     ("title", lambda data:data.title()),
     ("total time", lambda data: data.total_time()),
     ("yields", lambda data: data.yields()),
