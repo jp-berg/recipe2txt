@@ -9,7 +9,7 @@ from xdg import xdg_cache_home, xdg_data_home
 import aiohttp
 import asyncio
 import traceback
-from typing import Final, Callable, NewType, Tuple, Any
+from typing import Final, Callable, NewType, Tuple, NamedTuple, Any
 
 program_name:Final[str] = "RezeptZuTXT"
 debug:Final[bool] = True
@@ -75,6 +75,32 @@ known_urls_file:Final[str] = ensure_existence_file(known_urls_name, default_data
 url_file:Final[str] = ensure_existence_file(default_urls_name, workdir)
 recipe_file:Final[str] = ensure_existence_file(recipes_name, workdir)
 
+class Counts():
+    def __init__(self) -> None:
+        self.strings:int = 0
+        self.urls:int = 0
+        self.reached:int = 0
+        self.parsed_successfully: int = 0
+        self.parsed_partially:int = 0
+    
+    def __str__(self) -> str:
+        return """
+            \t [Absolute|Percentage of count above]
+            Total number of strings: {}
+            Identified as URLs: [{}|{:.2f}%]
+            URLs reached: [{}|{:.2f}%]
+            Recipes parsed partially: [{}|{:.2f}%]
+            Recipes parsed fully: [{}|{:.2f}%]
+            """.format(
+                self.strings,
+                self.urls, (self.urls/self.strings)*100,
+                self.reached, (self.reached/self.urls)*100,
+                self.parsed_partially, (self.parsed_partially/self.urls)*100,
+                self.parsed_successfully, (self.parsed_successfully/self.urls)*100
+                )
+    
+counts:Counts = Counts()
+
 Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 URL = NewType('URL', str)
 NA:Final[str] = "N/A"
@@ -133,6 +159,11 @@ def parsed2recipe(url:URL, parsed:Parsed, context:Context) -> None:
                         "from: " + url,
                         between_recipes])
     
+        if NA in info.values():
+            counts.parsed_partially +=1
+        else:
+            counts.parsed_successfully +=1
+    
     recipe2disk(url, recipe)
 
 def html2recipe(url:URL, content:str) -> None:
@@ -160,6 +191,7 @@ async def urls2recipes(url_queue:asyncio.queues.Queue, timeout:aiohttp.client.Cl
                 async with session.get(url) as response:
                     html = await response.text()
                 
+                counts.reached += 1
                 html2recipe(url, html)
                 
             except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
@@ -233,8 +265,11 @@ if __name__ == "__main__":
         else:
             unprocessed = sys.argv[1:]
     
+    counts.strings = len(unprocessed)
     urls:set[URL] = processURLs(known_urls, unprocessed)
+    counts.urls = len(urls)
     asyncio.run(fetch(urls))
+    print(counts)
 
         
 
