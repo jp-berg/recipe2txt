@@ -218,11 +218,6 @@ async def fetch(urls:set[URL]) -> None:
     await(asyncio.gather(*tasks))
 
 if __name__ == "__main__":
-    
-    if not os.path.isfile(recipe_file):
-        print(recipe_file + "is not a file. Creating...")
-        with open(recipe_file, 'w') as file:
-            file.write("          REZEPTE\n")
 
     known_urls:set[URL] = set()
     if os.path.isfile(known_urls_file):
