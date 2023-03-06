@@ -5,11 +5,11 @@ from os import getcwd, makedirs
 import recipe_scrapers
 from recipe_scrapers import scrape_html
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, ElementNotFoundInHtml
-from xdg import xdg_cache_home, xdg_data_home
+from xdg_base_dirs import xdg_cache_home, xdg_data_home
 import aiohttp
 import asyncio
 import traceback
-from typing import Final, Callable, NewType, Tuple, NamedTuple, Any
+from typing import Final, Callable, NewType, Tuple, Any
 
 program_name:Final[str] = "RezeptZuTXT"
 debug:Final[bool] = True
@@ -48,7 +48,7 @@ def ensure_existence_dir(*pathelements:str) -> str:
     path = os.path.realpath(path)
     if not os.path.isdir(path):
         dprint(4, "Creating directory:", path)
-    os.makedirs(path, exist_ok=True)
+    makedirs(path, exist_ok=True)
     return path
 
 def ensure_existence_file(filename:str, *pathelements:str) -> str:
