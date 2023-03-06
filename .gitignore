@@ -4,7 +4,10 @@ __pycache__/
 argparse_test.py
 testfiles/data/*
 testfiles/recipes.txt
+testfiles/markdown
 .project
 .pydevproject
+.idea
+.mypy_cache
 
 
