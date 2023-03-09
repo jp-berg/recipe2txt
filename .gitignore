@@ -1,4 +1,3 @@
-rezepte.txt
 TODO.txt
 __pycache__/
 argparse_test.py
@@ -9,5 +8,3 @@ tests/testfiles/markdown
 .pydevproject
 .idea
 .mypy_cache
-
-
