@@ -20,7 +20,7 @@ def while_context(context: Context) -> Context:
 # level 1 -> errors
 # level 2 -> proceedings
 # level 3 -> notice
-# level 4 -> setup
+# level 4 -> all
 def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = None, flush: bool = False,
            context: Context = nocontext) -> Context:
     assert vlevel != -1
