@@ -4,6 +4,11 @@ from os import makedirs
 from typing import NewType, Tuple, Final, Any
 
 vlevel: int = -1
+def set_vlevel(level: int) -> None:
+    if level < 0: level = 0
+    global vlevel
+    vlevel = level
+
 URL = NewType('URL', str)
 
 Context = NewType('Context', Tuple[int, str])

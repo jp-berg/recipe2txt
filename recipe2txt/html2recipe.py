@@ -1,7 +1,7 @@
 from typing import NewType, Final, Callable, Tuple, Optional
 import traceback
 
-from .utils.misc import dprint, Context, nocontext, URL, Counts
+from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts
 import recipe_scrapers
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, \
     ElementNotFoundInHtml
