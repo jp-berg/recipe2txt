@@ -28,7 +28,7 @@ def _get_info(instruction: Instruction, data: Parsed, context: Context) -> str:
         dprint(1, "\t", instruction.name.capitalize(), "not implemented for this website", context=context)
     except Exception as e:
         dprint(1, "\t", "Extraction error", instruction.name, context=context)
-        exception_trace = "\t" + "\n\t".join(traceback.format_exception(e))
+        exception_trace = "\t" + "\t".join(traceback.format_exception(e))
         dprint(4, exception_trace)
 
     return NA
