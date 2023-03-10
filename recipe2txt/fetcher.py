@@ -44,11 +44,11 @@ class Fetcher:
                 with open(self.known_urls_file, 'a') as file:
                     file.write(url)
 
-    async def fetch(self, urls: set[URL]) -> None:
+    async def fetch(self, urls: set[URL], connections: int = 4) -> None:
         q: asyncio.queues.Queue = asyncio.Queue()
         for url in urls: await q.put(url)
         timeout = aiohttp.ClientTimeout(total=10 * len(urls), connect=1,
                                         sock_connect=None, sock_read=None)
-        tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(3)]
+        tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(connections)]
         await(asyncio.gather(*tasks))
     
