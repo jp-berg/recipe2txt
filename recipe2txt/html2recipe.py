@@ -23,7 +23,8 @@ def _get_info(name: str, func: Callable[[Parsed], str], data: Parsed, context: C
         dprint(1, "\t", name.capitalize(), "not implemented for this website", context=context)
     except Exception as e:
         dprint(1, "\t", "Extraction error", name, context=context)
-        dprint(4, traceback.print_exception(e))
+        exception_trace = "\t" + "\n\t".join(traceback.format_exception(e))
+        dprint(4, exception_trace)
 
     return NA
 
@@ -82,4 +83,4 @@ def html2parsed(url: URL, content: str, context: Context) -> Optional[Parsed]:
         dprint(1, "\t", "Error while parsing website. Skipping...", context=context)
         return None
 
-    parsed2recipe(url, parsed, context)
+    return parsed

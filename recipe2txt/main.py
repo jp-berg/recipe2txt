@@ -7,7 +7,7 @@ import asyncio
 from .utils import misc
 from .utils.misc import Context, dprint, while_context, URL, Counts
 from typing import Final
-import html2recipe as h2r
+import recipe2txt.html2recipe as h2r
 
 program_name: Final[str] = "recipes2txt"
 
@@ -51,7 +51,7 @@ async def urls2recipes(url_queue: asyncio.queues.Queue, timeout: aiohttp.client.
                 dprint(1, "\t", "Issue reaching website, skipping...", context=context)
                 continue
 
-            p = h2r.html2parsed(url, html)
+            p = h2r.html2parsed(url, html, context)
             if not p: continue
             r = h2r.parsed2recipe(url, p, context, counts)
             if not r: continue
@@ -104,7 +104,6 @@ def main(args: list[str], debug: bool = False, args_are_files: bool = True, verb
 
     unprocessed: list[str]
     if args:
-        print("ARGS", args)
         if args_are_files:
             unprocessed = misc.read_files(*args)
         else:
@@ -115,6 +114,6 @@ def main(args: list[str], debug: bool = False, args_are_files: bool = True, verb
     counts.strings = len(unprocessed)
     urls: set[URL] = process_urls(known_urls, unprocessed)
     counts.urls = len(urls)
-    h2r.setup(counts)
     asyncio.run(fetch(urls))
     print(counts)
+    
