@@ -36,11 +36,6 @@ def file_setup(debug: bool = False) -> None:
     recipe_file = misc.ensure_existence_file(recipes_name, workdir)
 
 
-def _html2recipe(url: URL, content:str) -> None:
-    context: Context = dprint(4, "Processing", url)
-    context = while_context(context)
-
-
 async def urls2recipes(url_queue: asyncio.queues.Queue, timeout: aiohttp.client.ClientTimeout) -> None:
     async with aiohttp.ClientSession(timeout=timeout) as session:
         while not url_queue.empty():
