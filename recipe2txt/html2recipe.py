@@ -10,9 +10,9 @@ Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
 
 
-def _get_info(name: str, func: Callable[[Parsed], str | int | float], data: Parsed, context: Context) -> str:
+def _get_info(name: str, func: Callable[[Parsed], str], data: Parsed, context: Context) -> str:
     try:
-        info = str(func(data))
+        info = func(data)
         if not info or info.isspace():
             dprint(1, "\t", name.capitalize(), "contains nothing", context=context)
             info = NA
@@ -28,10 +28,10 @@ def _get_info(name: str, func: Callable[[Parsed], str | int | float], data: Pars
     return NA
 
 
-extraction_instructions: Final[list[Tuple[str, Callable[[Parsed], str | int | float]]]] = [
-    ("title", lambda data: data.title()),
-    ("total time", lambda data: data.total_time()),
-    ("yields", lambda data: data.yields()),
+extraction_instructions: Final[list[Tuple[str, Callable[[Parsed], str]]]] = [
+    ("title", lambda data: str(data.title())),
+    ("total time", lambda data: str(data.total_time())),
+    ("yields", lambda data: str(data.yields())),
     ("ingredients", lambda data: "\n".join(data.ingredients())),
     ("instructions", lambda data: "\n\n".join(data.instructions_list()))
 ]
