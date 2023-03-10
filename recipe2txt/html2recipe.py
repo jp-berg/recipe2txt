@@ -1,4 +1,4 @@
-from typing import NewType, Final, Callable, Tuple, Optional
+from typing import NewType, Final, Callable, Tuple, Optional, NamedTuple
 import traceback
 
 from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts
@@ -10,17 +10,22 @@ Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
 
 
-def _get_info(name: str, func: Callable[[Parsed], str], data: Parsed, context: Context) -> str:
+class Instruction(NamedTuple):
+    name: str
+    action: Callable[[Parsed], str]
+
+
+def _get_info(instruction: Instruction, data: Parsed, context: Context) -> str:
     try:
-        info = func(data)
+        info = instruction.action(data)
         if not info or info.isspace():
-            dprint(1, "\t", name.capitalize(), "contains nothing", context=context)
+            dprint(1, "\t", instruction.name.capitalize(), "contains nothing", context=context)
             info = NA
         return info
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError):
-        dprint(1, "\t", "No", name, "found", context=context)
+        dprint(1, "\t", "No", instruction.name, "found", context=context)
     except NotImplementedError:
-        dprint(1, "\t", name.capitalize(), "not implemented for this website", context=context)
+        dprint(1, "\t", instruction.name.capitalize(), "not implemented for this website", context=context)
     except Exception as e:
         dprint(1, "\t", "Extraction error", name, context=context)
         exception_trace = "\t" + "\n\t".join(traceback.format_exception(e))
@@ -29,12 +34,12 @@ def _get_info(name: str, func: Callable[[Parsed], str], data: Parsed, context: C
     return NA
 
 
-extraction_instructions: Final[list[Tuple[str, Callable[[Parsed], str]]]] = [
-    ("title", lambda data: str(data.title())),
-    ("total time", lambda data: str(data.total_time())),
-    ("yields", lambda data: str(data.yields())),
-    ("ingredients", lambda data: "\n".join(data.ingredients())),
-    ("instructions", lambda data: "\n\n".join(data.instructions_list()))
+extraction_instructions: Final[list[Instruction]] = [
+    Instruction("title", lambda data: str(data.title())),
+    Instruction("total time", lambda data: str(data.total_time())),
+    Instruction("yields", lambda data: str(data.yields())),
+    Instruction("ingredients", lambda data: "\n".join(data.ingredients())),
+    Instruction("instructions", lambda data: "\n\n".join(data.instructions_list()))
 ]
 between_recipes: Final[str] = "\n\n\n\n\n"
 head_sep: Final[str] = "\n\n"
@@ -46,8 +51,8 @@ def parsed2recipe(url: URL, parsed: Parsed,
                   ) -> Optional[str]:
     info = {}
     for instruction in extraction_instructions:
-        info[instruction[0]] = _get_info(*instruction, parsed, context=context)
-        if info[instruction[0]] is NA: context = nocontext
+        info[instruction.name] = _get_info(instruction, parsed, context=context)
+        if info[instruction.name] is NA: context = nocontext
 
     if info["ingredients"] is NA and info["instructions"] is NA:
         dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...", context=context)
