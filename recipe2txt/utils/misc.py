@@ -1,15 +1,23 @@
 import os.path
 import validators
 from os import makedirs
-from typing import NewType, Tuple, Final, Any
+from typing import NewType, Tuple, Final, Any, TypeGuard
 
 vlevel: int = -1
+
+
 def set_vlevel(level: int) -> None:
     if level < 0: level = 0
     global vlevel
     vlevel = level
 
+
 URL = NewType('URL', str)
+
+
+def is_url(value: str) -> TypeGuard[URL]:
+    return validators.url(value)
+
 
 Context = NewType('Context', Tuple[int, str])
 nocontext: Final[Context] = Context((-1, ""))

@@ -14,8 +14,8 @@ def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
         string.strip()
         if not string.startswith("http"):
             string = "http://" + string
-        if validators.url(string):
-            url: URL = URL(string)
+        if is_url(string):
+            url = string
             url = cutoff(url, "/ref=", "?")
             if url in known_urls:
                 dprint(3, "Already scraped:", url)
@@ -67,7 +67,8 @@ if __name__ == '__main__':
     known_urls: set[URL] = set()
     if os.path.isfile(known_urls_file):
         with open(known_urls_file, 'r') as file:
-            for url in file.readlines(): known_urls.add(URL(url))
+            known_urls = set([url for url in file.readlines() if is_url(url)])
+
 
     unprocessed: list[str]
     if args:
