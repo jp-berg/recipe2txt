@@ -1,7 +1,11 @@
 import asyncio
 import os.path
+import argparse
+import sys
 from os import linesep, getcwd
 from sys import argv
+from typing import NamedTuple
+
 from xdg_base_dirs import xdg_data_home
 from recipe2txt.fetcher import Fetcher
 from recipe2txt.utils.misc import *
@@ -56,6 +60,93 @@ def file_setup(debug: bool = False) -> None:
     recipe_file = ensure_existence_file(recipes_name, workdir)
 
 
+_parser = argparse.ArgumentParser(
+    prog=program_name,
+    description="Scrapes URLs of recipes into text files",
+    epilog="[NI] = 'Not implemented (yet)'"
+)
+
+_parser.add_argument("-u", "--url", nargs='+',
+                     help="[NI]List URLs whose recipes should be added to the recipe-file")
+_parser.add_argument("-f", "--file", nargs='+',
+                     help="[NI]List text-files containing URLs whose recipes should be added to the recipe-file")
+_parser.add_argument("-o", "--output",
+                     help="[NI]Specifies an output file")
+_parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
+                     help="[NI]Sets the 'chattiness of the program (low = 1, high = 4, quiet = 0")
+_parser.add_argument("-c", "--connections", type=int, default=4,
+                     help="[NI]Sets the number of simultaneous connections")
+_parser.add_argument("-ia", "--ignore-added", action="store_true",
+                     help="[NI]Writes recipe to file regardless if it has already been added")
+_parser.add_argument("-ic" "--ignore-cached", action="store_true",
+                     help="[NI]Downloads the requested recipes even if they have already been downloaded")
+_parser.add_argument("-hm", "--hours_minutes", action="store_true",
+                     help="[NI]Stores durations as hrs:min instead of min")
+_parser.add_argument("-se", "--servings", type=int, default=-1,
+                     help="[NI]Sets to how many servings the ingredient list should be converted" +
+                          " (if the number of servings is specified)")
+
+settings = _parser.add_mutually_exclusive_group()
+settings.add_argument("-sf", "--show-files", action="store_true",
+                     help="[NI]Shows data- and cache-files used by this program")
+settings.add_argument("-d", "--delete", action="store_true",
+                     help="[NI]Deletes all data- and cache-files used by this program")
+settings.add_argument("-so", "--standard-output-file",
+                     help="[NI]Sets a file where recipes should be written to if no " +
+                          "output-file is explicitly passed via '-o' or '--output'")
+
+
+def _p(name: str, obj: object, attr: str) -> None:
+    out: str = name + ": "
+    try:
+        val = getattr(obj, attr)
+        out += str(val)
+    except AttributeError:
+        out += "NOT FOUND"
+    print(out)
+
+
+def _report_args(a: argparse.Namespace) -> None:
+    _p("URL", a, "url")
+    _p("FILE", a, "file")
+    _p("Output", a, "output")
+    _p("Verbosity", a, "verbosity")
+    _p("Connections", a, "connections")
+    _p("Ignore added", a, "ignore_added")
+    _p("Ignore cached", a, "ignore_cached")
+    _p("Time in hrs:min", a, "hours_minutes")
+    _p("Servings", a, "servings")
+    _p("Show files", a, "show_files")
+    _p("Delete", a, "delete")
+    _p("Set standard output file to", a, "standard_output_file")
+
+
+def cli_mutex(a: argparse.Namespace) -> None:
+    if len(sys.argv) > 2:
+        flag_name: str = ""
+        if a.show_files:
+            flag_name = "--show-files"
+        elif a.delete:
+            flag_name = "--delete"
+        elif a.standard_output_file:
+            flag_name = "--standard-output-file"
+
+        if flag_name:
+            print(flag_name, "cannot be used with other flags", file=sys.stderr)
+            exit(1)
+
+
+class CLIArgs(NamedTuple):
+    urls: set[URL]
+    output: str
+    verbosity: int
+    connections: int
+    ignore_added: bool
+    ignore_cached: bool
+    hours_minutes: bool
+    servings: int
+
+
 if __name__ == '__main__':
 
     set_vlevel(4)
@@ -65,11 +156,14 @@ if __name__ == '__main__':
     debug: bool = True
 
     file_setup(debug)
+    a = _parser.parse_args()
+    _report_args(a)
+    cli_mutex(a)
+    exit(0)
     known_urls: set[URL] = set()
     if os.path.isfile(known_urls_file):
         with open(known_urls_file, 'r') as file:
             known_urls = set([url for url in file.readlines() if is_url(url)])
-
 
     unprocessed: list[str]
     if args:
@@ -90,4 +184,3 @@ if __name__ == '__main__':
 
     dprint(3, str(counts))
     exit(0)
-
