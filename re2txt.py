@@ -175,35 +175,45 @@ def mutex_args(a: argparse.Namespace) -> None:
     exit(os.EX_OK)
 
 
+def sancheck_args(a: argparse.Namespace) -> None:
+    if not (a.file or a.url):
+        _parse_error("Nothing to process: No file or url passed")
+    if a.connections < 1:
+        dprint(3, "Number of connections smaller than 1, setting to 1 ")
+        a.connections = 1
+    if a.servings < 1:
+        if a.servings != -123456789:
+            dprint(3, "Number of servings smaller than 1, setting to 1")
+            a.servings = 1
+
+
+def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
+    sancheck_args(a)
+    known_urls_file, recipe_file = file_setup(a.debug, a.output)
+    known_urls: set[URL] = set([line for line in read_files(known_urls_file) if is_url(line)])
+    unprocessed: list[str] = read_files(*a.file)
+    unprocessed += a.url
+    processed: set[URL] = process_urls(known_urls, unprocessed)
+    if not len(processed):
+        dprint(1, "No valid URL passed")
+        exit(os.EX_DATAERR)
+    counts = Counts()
+    counts.strings = len(unprocessed)
+
+    f = Fetcher(output=recipe_file, connections=a.connections,
+                counts=counts, known_urls_file=known_urls_file)
+
+    return processed, f
+
+
 if __name__ == '__main__':
     a = _parser.parse_args()
     set_vlevel(a.verbosity)
 
     dprint(4, "CLI-ARGS:", *args2strs(a), sep="\n\t")
     mutex_args(a)
+    urls, fetcher = process_params(a)
+    asyncio.run(fetcher.fetch(urls))
+
+    dprint(3, str(fetcher.get_counts()))
     exit(os.EX_OK)
-
-    known_urls: set[URL] = set()
-    if os.path.isfile(known_urls_file):
-        with open(known_urls_file, 'r') as file:
-            known_urls = set([url for url in file.readlines() if is_url(url)])
-
-    unprocessed: list[str]
-    if args:
-        if args_are_files:
-            unprocessed = read_files(*args)
-        else:
-            unprocessed = args
-    else:
-        unprocessed = read_files(url_file)
-
-    counts = Counts()
-    counts.strings = len(unprocessed)
-    urls: set[URL] = process_urls(known_urls, unprocessed)
-    counts.urls = len(urls)
-
-    f = Fetcher(counts, recipe_file, known_urls_file)
-    asyncio.run(f.fetch(urls))
-
-    dprint(3, str(counts))
-    exit(0)
