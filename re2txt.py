@@ -10,6 +10,7 @@ from recipe2txt.utils.misc import *
 def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
     processed: set[URL] = set()
     for string in strings:
+        c = while_context(dprint(3, "Processing'", string, "'"))
         string = string.replace(linesep, '')
         string.strip()
         if not string.startswith("http"):
@@ -18,14 +19,14 @@ def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
             url = string
             url = cutoff(url, "/ref=", "?")
             if url in known_urls:
-                dprint(3, "Already scraped:", url)
+                dprint(2, "Already scraped", context=c)
                 continue
             if url in processed:
-                dprint(3, "Already queued:", url)
+                dprint(2, "Already queued", context=c)
             else:
                 processed.add(url)
         else:
-            dprint(3, "Not an URL:", string)
+            dprint(1, "Not an URL", context=c)
     return processed
 
 
