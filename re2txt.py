@@ -95,29 +95,41 @@ settings.add_argument("-do", "--default-output-file",
                            "output-file is explicitly passed via '-o' or '--output'")
 
 
-def _p(name: str, obj: object, attr: str) -> None:
+def _parse_error(msg: str) -> None:
+    _parser.error(msg)
+
+
+def arg2str(name: str, obj: object) -> str:
+    attr = name
+    name = "--" + name.replace("_", "-")
     out: str = name + ": "
     try:
         val = getattr(obj, attr)
         out += str(val)
     except AttributeError:
         out += "NOT FOUND"
-    print(out)
+    return out
 
 
-def _report_args(a: argparse.Namespace) -> None:
-    _p("URL", a, "url")
-    _p("FILE", a, "file")
-    _p("Output", a, "output")
-    _p("Verbosity", a, "verbosity")
-    _p("Connections", a, "connections")
-    _p("Ignore added", a, "ignore_added")
-    _p("Ignore cached", a, "ignore_cached")
-    _p("Time in hrs:min", a, "hours_minutes")
-    _p("Servings", a, "servings")
-    _p("Show files", a, "show_files")
-    _p("Delete", a, "delete")
-    _p("Set standard output file to", a, "standard_output_file")
+_argnames: list[str] = [
+    "url",
+    "file",
+    "output",
+    "verbosity",
+    "connections",
+    "ignore_added",
+    "ignore_cached",
+    "hours_minutes",
+    "servings",
+    "debug",
+    "show_files",
+    "erase_appdata",
+    "standard_output_file"
+]
+
+
+def args2strs(a: argparse.Namespace) -> list[str]:
+    return [arg2str(name, a) for name in _argnames]
 
 
 def cli_mutex(a: argparse.Namespace) -> None:
@@ -136,18 +148,12 @@ def cli_mutex(a: argparse.Namespace) -> None:
 
 
 if __name__ == '__main__':
-
-    set_vlevel(4)
-
-    args: list[str] = argv[1:]
-    args_are_files: bool = True
-    debug: bool = True
-
-    file_setup(debug)
     a = _parser.parse_args()
-    _report_args(a)
-    cli_mutex(a)
-    exit(0)
+    set_vlevel(a.verbosity)
+
+    dprint(4, "CLI-ARGS:", *args2strs(a), sep="\n\t")
+    exit(os.EX_OK)
+
     known_urls: set[URL] = set()
     if os.path.isfile(known_urls_file):
         with open(known_urls_file, 'r') as file:
