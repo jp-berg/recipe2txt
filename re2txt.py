@@ -63,34 +63,36 @@ _parser = argparse.ArgumentParser(
     epilog="[NI] = 'Not implemented (yet)'"
 )
 
-_parser.add_argument("-u", "--url", nargs='+',
+_parser.add_argument("-u", "--url", nargs='+', default=[],
                      help="[NI]List URLs whose recipes should be added to the recipe-file")
-_parser.add_argument("-f", "--file", nargs='+',
+_parser.add_argument("-f", "--file", nargs='+', default=[],
                      help="[NI]List text-files containing URLs whose recipes should be added to the recipe-file")
-_parser.add_argument("-o", "--output",
+_parser.add_argument("-o", "--output", default="",
                      help="[NI]Specifies an output file")
 _parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
-                     help="[NI]Sets the 'chattiness of the program (low = 1, high = 4, quiet = 0")
+                     help="[NI]Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0")
 _parser.add_argument("-c", "--connections", type=int, default=4,
                      help="[NI]Sets the number of simultaneous connections")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
-_parser.add_argument("-ic" "--ignore-cached", action="store_true",
+_parser.add_argument("-ic", "--ignore-cached", action="store_true",
                      help="[NI]Downloads the requested recipes even if they have already been downloaded")
 _parser.add_argument("-hm", "--hours_minutes", action="store_true",
                      help="[NI]Stores durations as hrs:min instead of min")
-_parser.add_argument("-se", "--servings", type=int, default=-1,
+_parser.add_argument("-se", "--servings", type=int, default=-123456789, #magic number
                      help="[NI]Sets to how many servings the ingredient list should be converted" +
                           " (if the number of servings is specified)")
+_parser.add_argument("-d", "--debug", action="store_true",
+                     help="[NI]Activates debug-mode: Changes the directory for application data")
 
 settings = _parser.add_mutually_exclusive_group()
-settings.add_argument("-sf", "--show-files", action="store_true",
-                     help="[NI]Shows data- and cache-files used by this program")
-settings.add_argument("-d", "--delete", action="store_true",
-                     help="[NI]Deletes all data- and cache-files used by this program")
-settings.add_argument("-so", "--standard-output-file",
-                     help="[NI]Sets a file where recipes should be written to if no " +
-                          "output-file is explicitly passed via '-o' or '--output'")
+settings.add_argument("-sa", "--show-appdata", action="store_true",
+                      help="[NI]Shows data- and cache-files used by this program")
+settings.add_argument("-e", "--erase-appdata", action="store_true",
+                      help="[NI]Erases all data- and cache-files used by this program")
+settings.add_argument("-do", "--default-output-file",
+                      help="[NI]Sets a file where recipes should be written to if no " +
+                           "output-file is explicitly passed via '-o' or '--output'")
 
 
 def _p(name: str, obj: object, attr: str) -> None:
