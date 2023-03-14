@@ -41,7 +41,7 @@ recipes_name: Final[str] = "recipes.txt"
 default_urls_name: Final[str] = "urls.txt"
 
 
-def file_setup(debug: bool = False, output: str = "") -> Tuple[str, str]:
+def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
     workdir: str = os.getcwd()
     default_data_directory: str = os.path.join(xdg_data_home(), program_name)
     if debug:

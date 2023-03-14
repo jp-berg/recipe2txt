@@ -17,10 +17,10 @@ URL = NewType('URL', str)
 
 
 def is_url(value: str) -> TypeGuard[URL]:
-   if validators.url(value):
-       return True
-   else:
-       return False
+    if validators.url(value):
+        return True
+    else:
+        return False
 
 
 File = NewType('File', str)
@@ -28,6 +28,7 @@ File = NewType('File', str)
 
 def is_file(value: str) -> TypeGuard[File]:
     return os.path.isfile(value)
+
 
 Context = NewType('Context', Tuple[int, str])
 nocontext: Final[Context] = Context((-1, ""))
@@ -69,16 +70,16 @@ def ensure_existence_dir(*pathelements: str) -> str:
     return path
 
 
-def ensure_existence_file(filename: str, *pathelements: str) -> str:
+def ensure_existence_file(filename: str, *pathelements: str) -> File:
     path = os.path.join(ensure_existence_dir(*pathelements), filename)
     if not os.path.isfile(path):
         dprint(4, "Creating file:", path)
         with open(path, 'w') as file:
             pass
-    return path
+    return File(path)
 
 
-def ensure_existence_file_critical(filename: str, *pathelements: str) -> str:
+def ensure_existence_file_critical(filename: str, *pathelements: str) -> File:
     try:
         path = ensure_existence_file(filename, *pathelements)
     except OSError as e:
