@@ -132,19 +132,47 @@ def args2strs(a: argparse.Namespace) -> list[str]:
     return [arg2str(name, a) for name in _argnames]
 
 
-def cli_mutex(a: argparse.Namespace) -> None:
+def mutex_args_check(a: argparse.Namespace) -> None:
     if len(sys.argv) > 2:
+
         flag_name: str = ""
-        if a.show_files:
-            flag_name = "--show-files"
-        elif a.delete:
-            flag_name = "--delete"
-        elif a.standard_output_file:
-            flag_name = "--standard-output-file"
+        if a.show_appdata:
+            flag_name = "--show-appdata"
+        elif a.erase_appdata:
+            flag_name = "--erase-appdata"
+        elif a.default_output_file:
+            flag_name = "--default-output-file"
 
         if flag_name:
-            print(flag_name, "cannot be used with other flags", file=sys.stderr)
-            exit(1)
+            _parse_error(flag_name + " cannot be used with any other flags")
+
+
+def show_files() -> str:
+    print("[STUB]: show_files()")
+    return ""
+
+
+def erase_files() -> None:
+    print("[STUB]: erase_files()")
+    pass
+
+
+def set_recipe_file() -> None:
+    print("[STUB]: set_recipe_file()")
+    pass
+
+
+def mutex_args(a: argparse.Namespace) -> None:
+    if not (a.show_appdata or a.erase_appdata or a.default_output_file):
+        return
+    mutex_args_check(a)
+    if a.show_appdata:
+        show_files()
+    elif a.erase_appdata:
+        erase_files()
+    elif a.default_output_file:
+        set_recipe_file()
+    exit(os.EX_OK)
 
 
 if __name__ == '__main__':
@@ -152,6 +180,7 @@ if __name__ == '__main__':
     set_vlevel(a.verbosity)
 
     dprint(4, "CLI-ARGS:", *args2strs(a), sep="\n\t")
+    mutex_args(a)
     exit(os.EX_OK)
 
     known_urls: set[URL] = set()
