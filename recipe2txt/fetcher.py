@@ -1,16 +1,16 @@
 import aiohttp
 import asyncio
-from recipe2txt.utils.misc import Context, dprint, while_context, URL, Counts
+from recipe2txt.utils.misc import Context, dprint, while_context, URL, File, Counts
 import recipe2txt.html2recipe as h2r
 
 
 class Fetcher:
-    def __init__(self, output: str,
-                 known_urls_file: str,
+    def __init__(self, output: File,
+                 known_urls_file: File,
                  counts: Counts = Counts(),
                  connections: int = 1) -> None:
-        self.output: str = output
-        self.known_urls_file: str = known_urls_file
+        self.output: File = output
+        self.known_urls_file: File = known_urls_file
         self.connections: int = connections
         self.counts: Counts = counts
 

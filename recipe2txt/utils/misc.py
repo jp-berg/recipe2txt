@@ -23,6 +23,12 @@ def is_url(value: str) -> TypeGuard[URL]:
        return False
 
 
+File = NewType('File', str)
+
+
+def is_file(value: str) -> TypeGuard[File]:
+    return os.path.isfile(value)
+
 Context = NewType('Context', Tuple[int, str])
 nocontext: Final[Context] = Context((-1, ""))
 
