@@ -1,6 +1,5 @@
 import os.path
 import traceback
-
 import validators
 from os import makedirs
 from typing import NewType, Tuple, Final, Any, TypeGuard
@@ -15,7 +14,6 @@ def set_vlevel(level: int) -> None:
 
 
 URL = NewType('URL', str)
-
 
 
 def is_url(value: str) -> TypeGuard[URL]:
