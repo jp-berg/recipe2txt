@@ -1,4 +1,6 @@
 import os.path
+import traceback
+
 import validators
 from os import makedirs
 from typing import NewType, Tuple, Final, Any, TypeGuard
@@ -69,6 +71,18 @@ def ensure_existence_file(filename: str, *pathelements: str) -> str:
         dprint(4, "Creating file:", path)
         with open(path, 'w') as file:
             pass
+    return path
+
+
+def ensure_existence_file_critical(filename: str, *pathelements: str) -> str:
+    try:
+        path = ensure_existence_file(filename, *pathelements)
+    except OSError as e:
+        print("Error while creating output file {}: {}"
+              .format(full_path(full_path(*pathelements, filename)), getattr(e, 'message', repr(e))))
+        exception_trace = "".join(traceback.format_exception(e))
+        dprint(4, exception_trace)
+        exit(os.EX_IOERR)
     return path
 
 
