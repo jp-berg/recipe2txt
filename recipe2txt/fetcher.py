@@ -19,7 +19,7 @@ class Fetcher:
         else:
             raise ValueError("known_urls_file does not exist")
 
-    async def _urls2recipes(self, url_queue: asyncio.queues.Queue, timeout: aiohttp.client.ClientTimeout) -> None:
+    async def _urls2recipes(self, url_queue: asyncio.queues.Queue[URL], timeout: aiohttp.client.ClientTimeout) -> None:
         async with aiohttp.ClientSession(timeout=timeout) as session:
             while not url_queue.empty():
                 try:
@@ -45,7 +45,7 @@ class Fetcher:
                     file.write(url)
 
     async def fetch(self, urls: set[URL], connections: int = 4) -> None:
-        q: asyncio.queues.Queue = asyncio.Queue()
+        q: asyncio.queues.Queue[URL] = asyncio.Queue()
         for url in urls: await q.put(url)
         timeout = aiohttp.ClientTimeout(total=10 * len(urls), connect=1,
                                         sock_connect=None, sock_read=None)

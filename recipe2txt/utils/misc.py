@@ -15,8 +15,12 @@ def set_vlevel(level: int) -> None:
 URL = NewType('URL', str)
 
 
+
 def is_url(value: str) -> TypeGuard[URL]:
-    return validators.url(value)
+   if validators.url(value):
+       return True
+   else:
+       return False
 
 
 Context = NewType('Context', Tuple[int, str])
