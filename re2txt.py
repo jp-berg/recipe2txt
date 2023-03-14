@@ -40,24 +40,21 @@ known_urls_name: Final[str] = "knownURLs.txt"
 recipes_name: Final[str] = "recipes.txt"
 default_urls_name: Final[str] = "urls.txt"
 
-known_urls_file: str
-url_file: str
-recipe_file: str
 
-
-def file_setup(debug: bool = False) -> None:
-    global known_urls_file
-    global url_file
-    global recipe_file
-
-    workdir: str = os.path.expanduser(os.path.join("~", "Rezepte"))
+def file_setup(debug: bool = False, output: str = "") -> Tuple[str, str]:
+    workdir: str = os.getcwd()
     default_data_directory: str = os.path.join(xdg_data_home(), program_name)
     if debug:
-        workdir = os.path.join(getcwd(), "tests", "testfiles")
+        workdir = os.path.join(os.path.dirname(__file__), "tests", "testfiles")
         default_data_directory = os.path.join(workdir, "data")
-    known_urls_file = ensure_existence_file(known_urls_name, default_data_directory)
-    url_file = ensure_existence_file(default_urls_name, workdir)
-    recipe_file = ensure_existence_file(recipes_name, workdir)
+
+    known_urls_file = ensure_existence_file_critical(known_urls_name, default_data_directory)
+    if output:
+        output = ensure_existence_file_critical(output)
+    else:
+        output = ensure_existence_file_critical(recipes_name, workdir)
+
+    return known_urls_file, output
 
 
 _parser = argparse.ArgumentParser(
