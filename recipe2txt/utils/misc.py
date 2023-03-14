@@ -48,11 +48,15 @@ def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = 
     return Context((level, sep.join(args)))
 
 
-def ensure_existence_dir(*pathelements: str) -> str:
+def full_path(*pathelements: str) -> str:
     path = os.path.join(*pathelements)
-    if path.startswith("~"):
-        path = os.path.expanduser(path)
+    if path.startswith("~"): path = os.path.expanduser(path)
     path = os.path.realpath(path)
+    return path
+
+
+def ensure_existence_dir(*pathelements: str) -> str:
+    path = full_path(*pathelements)
     if not os.path.isdir(path):
         dprint(4, "Creating directory:", path)
     makedirs(path, exist_ok=True)
@@ -71,8 +75,7 @@ def ensure_existence_file(filename: str, *pathelements: str) -> str:
 def read_files(*paths: str) -> list[str]:
     lines = []
     for path in paths:
-        path = os.path.expanduser(path)
-        path = os.path.realpath(path)
+        path = full_path(path)
         if os.path.isfile(path):
             dprint(4, "Reading", path)
             with open(path, 'r') as file:
