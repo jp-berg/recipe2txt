@@ -136,17 +136,6 @@ def cli_mutex(a: argparse.Namespace) -> None:
             exit(1)
 
 
-class CLIArgs(NamedTuple):
-    urls: set[URL]
-    output: str
-    verbosity: int
-    connections: int
-    ignore_added: bool
-    ignore_cached: bool
-    hours_minutes: bool
-    servings: int
-
-
 if __name__ == '__main__':
 
     set_vlevel(4)
