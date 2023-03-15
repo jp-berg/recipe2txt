@@ -2,10 +2,8 @@ import asyncio
 import os.path
 import argparse
 import sys
-from os import linesep, getcwd
-from sys import argv
-from typing import NamedTuple
-
+from os import linesep
+from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
 from recipe2txt.fetcher import Fetcher
 from recipe2txt.utils.misc import *
