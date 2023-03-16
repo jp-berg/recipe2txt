@@ -33,6 +33,8 @@ def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
 
 
 program_name: Final[str] = "recipes2txt"
+default_data_directory: Final[str] = os.path.join(xdg_data_home(), program_name)
+debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "tests", "testfiles", "data")
 
 known_urls_name: Final[str] = "knownURLs.txt"
 recipes_name: Final[str] = "recipes.txt"
@@ -40,21 +42,22 @@ default_urls_name: Final[str] = "urls.txt"
 
 
 def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
-    workdir: str = os.getcwd()
-    default_data_directory: str = os.path.join(xdg_data_home(), program_name)
-    if debug:
-        workdir = os.path.join(os.path.dirname(__file__), "tests", "testfiles")
-        default_data_directory = os.path.join(workdir, "data")
+    global default_data_directory
+    global debug_data_directory
 
-    known_urls_file = ensure_accessible_file_critical(known_urls_name, default_data_directory)
+    if debug:
+        known_urls_file = ensure_accessible_file_critical(known_urls_name, debug_data_directory)
+    else:
+        known_urls_file = ensure_accessible_file_critical(known_urls_name, default_data_directory)
     dprint(4, "Urls read from:", known_urls_file)
+
     if output:
         base, filename = os.path.split(output)
         output = ensure_accessible_file_critical(filename, base)
     else:
-        output = ensure_accessible_file_critical(recipes_name, workdir)
-
+        output = ensure_accessible_file_critical(recipes_name, os.getcwd())
     dprint(4, "Output set to:", output)
+
     return known_urls_file, output
 
 
