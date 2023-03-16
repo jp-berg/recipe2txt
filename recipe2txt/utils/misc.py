@@ -1,13 +1,14 @@
 import os.path
+import sys
 import traceback
 import validators
 from os import makedirs
 from typing import NewType, Tuple, Final, Any, TypeGuard
 
 __all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
-         "Context", "nocontext", "while_context", "dprint",
-         "full_path", "ensure_existence_dir", "ensure_existence_file", "ensure_existence_file_critical",
-         "read_files", "Counts", "cutoff"]
+           "Context", "nocontext", "while_context", "dprint",
+           "full_path", "ensure_existence_dir", "ensure_accessible_file", "ensure_accessible_file_critical",
+           "read_files", "Counts", "cutoff"]
 vlevel: int = -1
 
 
@@ -62,6 +63,7 @@ def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = 
 def full_path(*pathelements: str) -> str:
     path = os.path.join(*pathelements)
     if path.startswith("~"): path = os.path.expanduser(path)
+    path = os.path.expandvars(path)
     path = os.path.realpath(path)
     return path
 
@@ -70,27 +72,26 @@ def ensure_existence_dir(*pathelements: str) -> str:
     path = full_path(*pathelements)
     if not os.path.isdir(path):
         dprint(4, "Creating directory:", path)
-    makedirs(path, exist_ok=True)
+        makedirs(path, exist_ok=True)
     return path
 
 
-def ensure_existence_file(filename: str, *pathelements: str) -> File:
+def ensure_accessible_file(filename: str, *pathelements: str) -> File:
     path = os.path.join(ensure_existence_dir(*pathelements), filename)
-    if not os.path.isfile(path):
-        dprint(4, "Creating file:", path)
-        with open(path, 'w') as file:
-            pass
+    with open(path, 'a') as file:
+        pass
     return File(path)
 
 
-def ensure_existence_file_critical(filename: str, *pathelements: str) -> File:
+def ensure_accessible_file_critical(filename: str, *pathelements: str) -> File:
     try:
-        path = ensure_existence_file(filename, *pathelements)
+        path = ensure_accessible_file(filename, *pathelements)
     except OSError as e:
-        print("Error while creating output file {}: {}"
-              .format(full_path(full_path(*pathelements, filename)), getattr(e, 'message', repr(e))))
+        print("Error while creating or accessing file {}: {}"
+              .format(full_path(full_path(*pathelements, filename)), getattr(e, 'message', repr(e))),
+              file=sys.stderr)
         exception_trace = "".join(traceback.format_exception(e))
-        dprint(4, exception_trace)
+        dprint(4, exception_trace, file=sys.stderr)
         exit(os.EX_IOERR)
     return path
 

@@ -46,12 +46,15 @@ def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
         workdir = os.path.join(os.path.dirname(__file__), "tests", "testfiles")
         default_data_directory = os.path.join(workdir, "data")
 
-    known_urls_file = ensure_existence_file_critical(known_urls_name, default_data_directory)
+    known_urls_file = ensure_accessible_file_critical(known_urls_name, default_data_directory)
+    dprint(4, "Urls read from:", known_urls_file)
     if output:
-        output = ensure_existence_file_critical(output)
+        base, filename = os.path.split(output)
+        output = ensure_accessible_file_critical(filename, base)
     else:
-        output = ensure_existence_file_critical(recipes_name, workdir)
+        output = ensure_accessible_file_critical(recipes_name, workdir)
 
+    dprint(4, "Output set to:", output)
     return known_urls_file, output
 
 
