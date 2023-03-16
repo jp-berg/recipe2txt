@@ -191,7 +191,11 @@ def sancheck_args(a: argparse.Namespace) -> None:
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     sancheck_args(a)
     known_urls_file, recipe_file = file_setup(a.debug, a.output)
-    known_urls: set[URL] = set([line for line in read_files(known_urls_file) if is_url(line)])
+    known_urls: set[URL]
+    if a.ignore_added:
+        known_urls = []
+    else:
+        known_urls: set[URL] = set([line for line in read_files(known_urls_file) if is_url(line)])
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = process_urls(known_urls, unprocessed)
