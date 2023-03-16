@@ -5,6 +5,7 @@ import sys
 from os import linesep
 from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
+from shutil import rmtree
 from recipe2txt.fetcher import Fetcher
 from recipe2txt.utils.misc import *
 
@@ -94,9 +95,9 @@ _parser.add_argument("-t", "--timeout", type=float, default=5.0,
 
 settings = _parser.add_mutually_exclusive_group()
 settings.add_argument("-sa", "--show-appdata", action="store_true",
-                      help="[NI]Shows data- and cache-files used by this program")
-settings.add_argument("-e", "--erase-appdata", action="store_true",
-                      help="[NI]Erases all data- and cache-files used by this program")
+                      help="Shows data- and cache-files used by this program")
+settings.add_argument("-erase", "--erase-appdata", action="store_true",
+                      help="Erases all data- and cache-files used by this program")
 settings.add_argument("-do", "--default-output-file",
                       help="[NI]Sets a file where recipes should be written to if no " +
                            "output-file is explicitly passed via '-o' or '--output'")
@@ -155,14 +156,24 @@ def mutex_args_check(a: argparse.Namespace) -> None:
             _parse_error(flag_name + " cannot be used with any other flags")
 
 
-def show_files() -> str:
-    print("[STUB]: show_files()")
-    return ""
+def show_files() -> None:
+    global default_data_directory
+    global debug_data_directory
+    files = [os.path.join(default_data_directory, file) for file in os.listdir(default_data_directory)] +\
+            [os.path.join(debug_data_directory, file) for file in os.listdir(debug_data_directory)]
+    print(*files, sep='\n')
 
 
 def erase_files() -> None:
-    print("[STUB]: erase_files()")
-    pass
+    global default_data_directory
+    if os.path.isdir(default_data_directory):
+        print("Deleting:", default_data_directory)
+        rmtree(default_data_directory)
+
+    global debug_data_directory
+    if os.path.isdir(debug_data_directory):
+        print("Deleting:", debug_data_directory)
+        rmtree(debug_data_directory)
 
 
 def set_recipe_file() -> None:
