@@ -8,11 +8,13 @@ class Fetcher:
     def __init__(self, output: File,
                  known_urls_file: File,
                  counts: Counts = Counts(),
-                 connections: int = 1) -> None:
+                 connections: int = 1,
+                 timeout: float = 10.0) -> None:
         self.output: File = output
         self.known_urls_file: File = known_urls_file
         self.connections: int = connections
         self.counts: Counts = counts
+        self.timeout: float = timeout
 
     def get_counts(self) -> Counts:
         return self.counts
@@ -46,7 +48,7 @@ class Fetcher:
         self.counts.urls += len(urls)
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
         for url in urls: await q.put(url)
-        timeout = aiohttp.ClientTimeout(total=10 * len(urls), connect=1,
+        timeout = aiohttp.ClientTimeout(total=10 * len(urls) * self.timeout, connect=self.timeout,
                                         sock_connect=None, sock_read=None)
         tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(self.connections)]
         await(asyncio.gather(*tasks))

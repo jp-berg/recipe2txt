@@ -85,6 +85,9 @@ _parser.add_argument("-se", "--servings", type=int, default=-123456789, #magic n
                           " (if the number of servings is specified)")
 _parser.add_argument("-d", "--debug", action="store_true",
                      help="Activates debug-mode: Changes the directory for application data")
+_parser.add_argument("-t", "--timeout", type=float, default=5.0,
+                     help="Sets the number of seconds the program waits for an individual website to respond" +
+                          "(eg. sets the connect-value of aiohttp.ClientTimeout)")
 
 settings = _parser.add_mutually_exclusive_group()
 settings.add_argument("-sa", "--show-appdata", action="store_true",
@@ -123,6 +126,7 @@ _argnames: list[str] = [
     "hours_minutes",
     "servings",
     "debug",
+    "timeout",
     "show_files",
     "erase_appdata",
     "standard_output_file"
@@ -186,6 +190,9 @@ def sancheck_args(a: argparse.Namespace) -> None:
         if a.servings != -123456789:
             dprint(3, "Number of servings smaller than 1, setting to 1")
             a.servings = 1
+    if a.timeout <= 0.0:
+        dprint(3, "Network timeout equal to or smaller than 0, setting to 0.1")
+        a.timeout = 0.1
 
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
@@ -206,7 +213,8 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     counts.strings = len(unprocessed)
 
     f = Fetcher(output=recipe_file, connections=a.connections,
-                counts=counts, known_urls_file=known_urls_file)
+                counts=counts, known_urls_file=known_urls_file,
+                timeout=a.timeout)
 
     return processed, f
 
