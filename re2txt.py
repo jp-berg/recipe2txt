@@ -63,7 +63,7 @@ def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
             output_location_file = os.path.join(default_data_directory, default_output_location_name)
         if os.path.isfile(output_location_file):
             with open(output_location_file, 'r') as file:
-                output = file.readline()
+                output = file.readline().rstrip("\n")
             base, filename = os.path.split(output)
             output = ensure_accessible_file_critical(filename, base)
         else:
