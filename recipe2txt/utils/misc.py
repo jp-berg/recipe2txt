@@ -62,6 +62,7 @@ def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = 
 
 def full_path(*pathelements: str) -> str:
     path = os.path.join(*pathelements)
+    path = path.strip()
     if path.startswith("~"): path = os.path.expanduser(path)
     path = os.path.expandvars(path)
     path = os.path.realpath(path)
