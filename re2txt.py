@@ -62,7 +62,7 @@ def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
         else:
             output_location_file = os.path.join(default_data_directory, default_output_location_name)
         if os.path.isfile(output_location_file):
-            with open(os.path.join(default_data_directory, default_output_location_name), 'r') as file:
+            with open(output_location_file, 'r') as file:
                 output = file.readline()
             base, filename = os.path.split(output)
             output = ensure_accessible_file_critical(filename, base)
@@ -114,7 +114,8 @@ settings.add_argument("-do", "--default-output-file", default="",
                       help="Sets a file where recipes should be written to if no " +
                            "output-file is explicitly passed via '-o' or '--output'." +
                            "Pass 'RESET' to reset the default output to the current working directory." +
-                           "Does not work in debug mode.")
+                           " Does not work in debug mode (default-output-file is automatically set by"
+                           " 'tests/testfiles/data/default_output_location.txt').")
 
 
 def _parse_error(msg: str) -> None:
