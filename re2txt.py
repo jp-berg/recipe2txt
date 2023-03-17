@@ -40,6 +40,7 @@ debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "test
 known_urls_name: Final[str] = "knownURLs.txt"
 recipes_name: Final[str] = "recipes.txt"
 default_urls_name: Final[str] = "urls.txt"
+default_output_location_name: Final[str] = "default_output_location.txt"
 
 
 def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
@@ -56,7 +57,17 @@ def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
         base, filename = os.path.split(output)
         output = ensure_accessible_file_critical(filename, base)
     else:
-        output = ensure_accessible_file_critical(recipes_name, os.getcwd())
+        if debug:
+            output_location_file = os.path.join(debug_data_directory, default_output_location_name)
+        else:
+            output_location_file = os.path.join(default_data_directory, default_output_location_name)
+        if os.path.isfile(output_location_file):
+            with open(os.path.join(default_data_directory, default_output_location_name), 'r') as file:
+                output = file.readline()
+            base, filename = os.path.split(output)
+            output = ensure_accessible_file_critical(filename, base)
+        else:
+            output = ensure_accessible_file_critical(recipes_name, os.getcwd())
     dprint(4, "Output set to:", output)
 
     return known_urls_file, output
@@ -73,7 +84,8 @@ _parser.add_argument("-u", "--url", nargs='+', default=[],
 _parser.add_argument("-f", "--file", nargs='+', default=[],
                      help="Text-files containing URLs (one per line) whose recipes should be added to the recipe-file")
 _parser.add_argument("-o", "--output", default="",
-                     help="Specifies an output file")
+                     help="Specifies an output file. If empty or not specified recipes will either be written into"
+                          "the current working directory or into the default output file (if set).")
 _parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
                      help="Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0")
 _parser.add_argument("-c", "--connections", type=int, default=4,
@@ -84,7 +96,7 @@ _parser.add_argument("-ic", "--ignore-cached", action="store_true",
                      help="[NI]Downloads the requested recipes even if they have already been downloaded")
 _parser.add_argument("-hm", "--hours_minutes", action="store_true",
                      help="[NI]Stores durations as hrs:min instead of min")
-_parser.add_argument("-se", "--servings", type=int, default=-123456789, #magic number
+_parser.add_argument("-se", "--servings", type=int, default=-123456789,  # magic number
                      help="[NI]Sets to how many servings the ingredient list should be converted" +
                           " (if the number of servings is specified)")
 _parser.add_argument("-d", "--debug", action="store_true",
@@ -98,9 +110,11 @@ settings.add_argument("-sa", "--show-appdata", action="store_true",
                       help="Shows data- and cache-files used by this program")
 settings.add_argument("-erase", "--erase-appdata", action="store_true",
                       help="Erases all data- and cache-files used by this program")
-settings.add_argument("-do", "--default-output-file",
-                      help="[NI]Sets a file where recipes should be written to if no " +
-                           "output-file is explicitly passed via '-o' or '--output'")
+settings.add_argument("-do", "--default-output-file", default="",
+                      help="Sets a file where recipes should be written to if no " +
+                           "output-file is explicitly passed via '-o' or '--output'." +
+                           "Pass 'RESET' to reset the default output to the current working directory." +
+                           "Does not work in debug mode.")
 
 
 def _parse_error(msg: str) -> None:
@@ -150,7 +164,8 @@ def mutex_args_check(a: argparse.Namespace) -> None:
         elif a.erase_appdata:
             flag_name = "--erase-appdata"
         elif a.default_output_file:
-            flag_name = "--default-output-file"
+            if len(sys.argv) > 3:
+                flag_name = "--default-output-file"
 
         if flag_name:
             _parse_error(flag_name + " cannot be used with any other flags")
@@ -159,9 +174,20 @@ def mutex_args_check(a: argparse.Namespace) -> None:
 def show_files() -> None:
     global default_data_directory
     global debug_data_directory
-    files = [os.path.join(default_data_directory, file) for file in os.listdir(default_data_directory)] +\
-            [os.path.join(debug_data_directory, file) for file in os.listdir(debug_data_directory)]
-    print(*files, sep='\n')
+
+    files = []
+    if os.path.isdir(default_data_directory):
+        files = [os.path.join(default_data_directory, file) for file in os.listdir(default_data_directory)]
+
+    files_debug = []
+    if os.path.isdir(debug_data_directory):
+        files_debug = [os.path.join(debug_data_directory, file) for file in os.listdir(debug_data_directory)]
+
+    files += files_debug
+    if files:
+        print(*files, sep='\n')
+    else:
+        print("No files found")
 
 
 def erase_files() -> None:
@@ -176,9 +202,36 @@ def erase_files() -> None:
         rmtree(debug_data_directory)
 
 
-def set_recipe_file() -> None:
-    print("[STUB]: set_recipe_file()")
-    pass
+def set_default_output(filepath: str) -> None:
+    if filepath == "RESET":
+        try:
+            os.remove(os.path.join(default_data_directory, default_output_location_name))
+            print("Removed default output location. When called without specifying the output-file recipes will"
+                  " now be written in the current working directory with the name", recipes_name)
+        except FileNotFoundError:
+            print("No default output set")
+            pass
+        except OSError as e:
+            print("Error while deleting file {}: {}"
+                  .format(full_path(full_path(filepath)), getattr(e, 'message', repr(e))),
+                  file=sys.stderr)
+            exit(os.EX_IOERR)
+    else:
+        base, name = os.path.split(filepath)
+        filepath = ensure_accessible_file_critical(name, base)
+
+        try:
+            ensure_existence_dir(default_data_directory)
+            with open(os.path.join(default_data_directory, default_output_location_name), 'a') as file:
+                file.write(filepath)
+                file.write("\n")
+            print("Set default output location to", filepath)
+        except OSError as e:
+            print("Error while creating or accessing file {}: {}"
+                  .format(filepath, getattr(e, 'message', repr(e))),
+                  file=sys.stderr)
+            exit(os.EX_IOERR)
+
 
 
 def mutex_args(a: argparse.Namespace) -> None:
@@ -190,7 +243,7 @@ def mutex_args(a: argparse.Namespace) -> None:
     elif a.erase_appdata:
         erase_files()
     elif a.default_output_file:
-        set_recipe_file()
+        set_default_output(a.default_output_file)
     exit(os.EX_OK)
 
 
@@ -214,9 +267,9 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     known_urls_file, recipe_file = file_setup(a.debug, a.output)
     known_urls: set[URL]
     if a.ignore_added:
-        known_urls = []
+        known_urls = set()
     else:
-        known_urls: set[URL] = set([line for line in read_files(known_urls_file) if is_url(line)])
+        known_urls = set([line for line in read_files(known_urls_file) if is_url(line)])
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = process_urls(known_urls, unprocessed)
