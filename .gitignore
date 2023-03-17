@@ -2,7 +2,7 @@ TODO.txt
 __pycache__/
 argparse_test.py
 tests/testfiles/data/knownURLs.txt
-tests/testfiles/recipes.txt
+tests/testfiles/recipe_test.txt
 tests/testfiles/markdown
 .project
 .pydevproject
