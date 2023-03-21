@@ -10,37 +10,40 @@ Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
 
 
-class Instruction(NamedTuple):
-    name: str
-    action: Callable[[Parsed], str]
-
-
-def _get_info(instruction: Instruction, data: Parsed, context: Context) -> str:
+def _get_info(method: str, data: Parsed, context: Context) -> str:
+    method_name = method.replace("_", " ")
     try:
-        info = instruction.action(data)
-        if not info or info.isspace():
-            dprint(1, "\t", instruction.name.capitalize(), "contains nothing", context=context)
-            info = NA
-        return info
+        info = getattr(data, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError):
-        dprint(1, "\t", "No", instruction.name, "found", context=context)
+        dprint(1, "\t", "No", method_name, "found", context=context)
+        return NA
     except NotImplementedError:
-        dprint(1, "\t", instruction.name.capitalize(), "not implemented for this website", context=context)
+        dprint(1, "\t", method_name.capitalize(), "not implemented for this website", context=context)
+        return NA
     except Exception as e:
-        dprint(1, "\t", "Extraction error", instruction.name, context=context)
+        dprint(1, "\t", "Extraction error", method_name, context=context)
         exception_trace = "\t" + "\t".join(traceback.format_exception(e))
         dprint(4, exception_trace)
+        return NA
 
-    return NA
+    if info:
+        if method == "total_time": info = str(info)
+        elif method == "ingredients": info = "\n".join(info)
+        elif method == "instructions_list": info = "\n\n".join(info)
+    if not info or info.isspace():
+        dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
+        return NA
+    return info
 
 
-extraction_instructions: Final[list[Instruction]] = [
-    Instruction("title", lambda data: str(data.title())),
-    Instruction("total time", lambda data: str(data.total_time())),
-    Instruction("yields", lambda data: str(data.yields())),
-    Instruction("ingredients", lambda data: "\n".join(data.ingredients())),
-    Instruction("instructions", lambda data: "\n\n".join(data.instructions_list()))
+methods: Final[list[str]]= [
+    "title",
+    "total_time",
+    "yields",
+    "ingredients",
+    "instructions_list"
 ]
+
 between_recipes: Final[str] = "\n\n\n\n\n"
 head_sep: Final[str] = "\n\n"
 
@@ -50,20 +53,20 @@ def parsed2recipe(url: URL, parsed: Parsed,
                   counts: Optional[Counts] = None
                   ) -> Optional[str]:
     info = {}
-    for instruction in extraction_instructions:
-        info[instruction.name] = _get_info(instruction, parsed, context=context)
-        if info[instruction.name] is NA: context = nocontext
+    for method in methods:
+        info[method] = _get_info(method, parsed, context=context)
+        if info[method] is NA: context = nocontext
 
-    if info["ingredients"] is NA and info["instructions"] is NA:
+    if info["ingredients"] is NA and info["instructions_list"] is NA:
         dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...", context=context)
         return None
     else:
         recipe = "\n".join([info["title"],
                             head_sep,
-                            info["total time"] + " min    " + info["yields"] + "\n",
+                            info["total_time"] + " min    " + info["yields"] + "\n",
                             info["ingredients"],
                             "\n\n",
-                            info["instructions"],
+                            info["instructions_list"],
                             "\n",
                             "from: " + url,
                             between_recipes])
