@@ -11,36 +11,32 @@ NA: Final[str] = "N/A"
 
 
 class Recipe(NamedTuple):
-    url: URL
-    host: str
     title: str
     total_time: str
-    image: str
+    yields: str
     ingredients: str
     instructions: str
-    yields: str
+    host: str
+    image: str
     nutrients: str
+    url: URL
 
-
-methods: Final[list[str]] = [
-    "host",
-    "title",
-    "total_time",
-    "image",
-    "ingredients",
-    "instructions",
-    "yields",
-    "nutrients"
-]
 
 on_display: Final[list[str]] = [
     "title",
     "total_time",
+    "yields",
     "ingredients",
-    "instructions",
-    "yields"
+    "instructions"
 ]
-for s in on_display: assert s in methods
+methods: Final[list[str]] = on_display + [
+    "host",
+    "image",
+    "nutrients"
+]
+recipe_attributes: Final[list[str]] = methods + [
+    "url"
+]
 
 
 def _get_info(method: str, data: Parsed, context: Context) -> str:
