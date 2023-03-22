@@ -65,7 +65,7 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
     if info:
         if method == "total_time":
             if info == 0:
-                info = NA
+                info = None
             else:
                 info = str(info)
         elif method == "ingredients": info = "\n".join(info)
