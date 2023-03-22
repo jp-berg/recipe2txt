@@ -13,7 +13,7 @@ from recipe2txt.utils.misc import *
 def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
     processed: set[URL] = set()
     for string in strings:
-        c = while_context(dprint(3, "Processing'", string, "'"))
+        c = while_context(dprint(3, "Processing", string))
         string = string.replace(linesep, '')
         string.strip()
         if not string.startswith("http"):
