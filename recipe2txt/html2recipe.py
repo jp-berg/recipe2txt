@@ -22,18 +22,42 @@ class Recipe(NamedTuple):
     nutrients: str
 
 
+methods: Final[list[str]] = [
+    "host",
+    "title",
+    "total_time",
+    "image",
+    "ingredients",
+    "instructions",
+    "yields",
+    "nutrients"
+]
+
+on_display: Final[list[str]] = [
+    "title",
+    "total_time",
+    "ingredients",
+    "instructions",
+    "yields"
+]
+for s in on_display: assert s in methods
+
+
 def _get_info(method: str, data: Parsed, context: Context) -> str:
+    error_level = 1
+    if method not in on_display: error_level = 3
+
     method_name = method.replace("_", " ")
     try:
         info = getattr(data, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError):
-        dprint(1, "\t", "No", method_name, "found", context=context)
+        dprint(error_level, "\t", "No", method_name, "found", context=context)
         return NA
     except NotImplementedError:
-        dprint(1, "\t", method_name.capitalize(), "not implemented for this website", context=context)
+        dprint(error_level, "\t", method_name.capitalize(), "not implemented for this website", context=context)
         return NA
     except Exception as e:
-        dprint(1, "\t", "Extraction error", method_name, context=context)
+        dprint(error_level, "\t", "Extraction error", method_name, context=context)
         exception_trace = "\t" + "\t".join(traceback.format_exception(e))
         dprint(4, exception_trace)
         return NA
@@ -51,17 +75,6 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
         return NA
     return info
 
-
-methods: Final[list[str]] = [
-    "host",
-    "title",
-    "total_time",
-    "image",
-    "ingredients",
-    "instructions",
-    "yields",
-    "nutrients"
-]
 
 between_recipes: Final[str] = "\n\n\n\n\n"
 head_sep: Final[str] = "\n\n"
