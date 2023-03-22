@@ -36,11 +36,12 @@ class Fetcher:
 
                 p = h2r.html2parsed(url, html, context)
                 if not p: continue
-                r = h2r.parsed2recipe(url, p, context, self.counts)
-                if not r: continue
+                r = h2r.parsed2recipe(url, p, context)
+                t = h2r.recipe2txt(r, self.counts)
+                if not t: continue
 
                 with open(self.output, 'a') as file:
-                    file.write(r)
+                    file.write(t)
                 with open(self.known_urls_file, 'a') as file:
                     file.write(url)
 

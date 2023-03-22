@@ -1,13 +1,25 @@
-from typing import NewType, Final, Callable, Tuple, Optional, NamedTuple
+from typing import NewType, Final, Optional, NamedTuple
 import traceback
 
-from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts
+from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str
 import recipe_scrapers
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, \
     ElementNotFoundInHtml
 
 Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
+
+
+class Recipe(NamedTuple):
+    url: URL
+    host: str
+    title: str
+    total_time: str
+    image: str
+    ingredients: str
+    instructions: str
+    yields: str
+    nutrients: str
 
 
 def _get_info(method: str, data: Parsed, context: Context) -> str:
@@ -27,57 +39,65 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
         return NA
 
     if info:
-        if method == "total_time": info = str(info)
+        if method == "total_time":
+            if info == 0:
+                info = NA
+            else:
+                info = str(info)
         elif method == "ingredients": info = "\n".join(info)
-        elif method == "instructions_list": info = "\n\n".join(info)
-    if not info or info.isspace():
+        elif method == "nutrients": info = dict2str(info)
+    if not info or info.isspace() or info == "None":
         dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
         return NA
     return info
 
 
-methods: Final[list[str]]= [
+methods: Final[list[str]] = [
+    "host",
     "title",
     "total_time",
-    "yields",
+    "image",
     "ingredients",
-    "instructions_list"
+    "instructions",
+    "yields",
+    "nutrients"
 ]
 
 between_recipes: Final[str] = "\n\n\n\n\n"
 head_sep: Final[str] = "\n\n"
 
 
-def parsed2recipe(url: URL, parsed: Parsed,
-                  context: Context,
-                  counts: Optional[Counts] = None
-                  ) -> Optional[str]:
-    info = {}
+def parsed2recipe(url: URL, parsed: Parsed, context: Context) -> Recipe:
+    infos = []
     for method in methods:
-        info[method] = _get_info(method, parsed, context=context)
-        if info[method] is NA: context = nocontext
+        infos.append(_get_info(method, parsed, context))
+        if infos[-1] is NA: context = nocontext
+    recipe = Recipe(url=url, host=infos[0], title=infos[1], total_time=infos[2],
+                    image=infos[3], ingredients=infos[4], instructions=infos[5],
+                    yields=infos[6], nutrients=infos[7])
+    return recipe
 
-    if info["ingredients"] is NA and info["instructions_list"] is NA:
-        dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...", context=context)
+
+def recipe2txt(recipe: Recipe, counts: Optional[Counts] = None) -> Optional[str]:
+    if recipe.ingredients is NA and recipe.instructions is NA:
+        dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...")
         return None
     else:
-        recipe = "\n".join([info["title"],
-                            head_sep,
-                            info["total_time"] + " min    " + info["yields"] + "\n",
-                            info["ingredients"],
-                            "\n\n",
-                            info["instructions_list"],
-                            "\n",
-                            "from: " + url,
-                            between_recipes])
-
+        txt = "\n".join([recipe.title,
+                         head_sep,
+                         recipe.total_time + " min    " + recipe.yields + "\n",
+                         recipe.ingredients,
+                         "\n\n",
+                         recipe.instructions.replace("\n", "\n"),
+                         "\n",
+                         "from: " + recipe.url,
+                         between_recipes])
         if counts:
-            if NA in info.values():
+            if NA in [recipe.title, recipe.total_time, recipe.yields, recipe.ingredients, recipe.instructions]:
                 counts.parsed_partially += 1
             else:
                 counts.parsed_successfully += 1
-
-    return recipe
+        return txt
 
 
 def html2parsed(url: URL, content: str, context: Context) -> Optional[Parsed]:
