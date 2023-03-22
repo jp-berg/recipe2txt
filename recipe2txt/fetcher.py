@@ -31,7 +31,7 @@ class Fetcher:
                     self.counts.reached += 1
 
                 except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                    dprint(1, "\t", "Issue reaching website, skipping...", context=context)
+                    dprint(1, "\t", "Issue reaching", url, ", skipping...")
                     continue
 
                 p = h2r.html2parsed(url, html, context)
