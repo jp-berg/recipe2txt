@@ -8,7 +8,7 @@ from typing import NewType, Tuple, Final, Any, TypeGuard
 __all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
            "Context", "nocontext", "while_context", "dprint",
            "full_path", "ensure_existence_dir", "ensure_accessible_file", "ensure_accessible_file_critical",
-           "read_files", "Counts", "cutoff"]
+           "read_files", "Counts", "cutoff", "dict2str"]
 vlevel: int = -1
 
 
@@ -144,3 +144,10 @@ def cutoff(url: URL, *identifiers: str) -> URL:
             if validators.url(tmp):
                 url = URL(tmp)
     return url
+
+
+def dict2str(dictionary: dict) -> str:
+    items = []
+    for item in dictionary.items():
+        items.append("{}: {}".format(*item))
+    return "\n".join(items)
