@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import NewType, Final, Optional, NamedTuple
 import traceback
 
@@ -10,6 +11,15 @@ Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
 
 
+class RecipeStatus(Enum):
+    UNREACHABLE = 0
+    UNKNOWN = 1
+    INCOMPLETE_ESSENTIAL = 2
+    INCOMPLETE_ON_DISPLAY = 3
+    COMPLETE_ON_DISPLAY = 4
+    COMPLETE = 5
+
+
 class Recipe(NamedTuple):
     title: str
     total_time: str
@@ -20,14 +30,17 @@ class Recipe(NamedTuple):
     image: str
     nutrients: str
     url: URL
+    status: RecipeStatus
 
 
-on_display: Final[list[str]] = [
+essential: Final[list[str]] = [
+    "ingredients",
+    "instructions"
+]
+on_display: Final[list[str]] = essential + [
     "title",
     "total_time",
     "yields",
-    "ingredients",
-    "instructions"
 ]
 methods: Final[list[str]] = on_display + [
     "host",
@@ -35,7 +48,8 @@ methods: Final[list[str]] = on_display + [
     "nutrients"
 ]
 recipe_attributes: Final[list[str]] = methods + [
-    "url"
+    "url",
+    "status"
 ]
 
 
@@ -76,19 +90,33 @@ between_recipes: Final[str] = "\n\n\n\n\n"
 head_sep: Final[str] = "\n\n"
 
 
+def gen_status(infos: list[str]) -> RecipeStatus:
+    for i in range(len(essential)):
+        if infos[i] == NA:
+            return RecipeStatus.INCOMPLETE_ESSENTIAL
+    for i in range(len(essential), len(on_display)):
+        if infos[i] == NA:
+            return RecipeStatus.INCOMPLETE_ON_DISPLAY
+    for i in range(len(on_display), len(methods)):
+        if infos[i] == NA:
+            return RecipeStatus.COMPLETE_ON_DISPLAY
+    return RecipeStatus.COMPLETE
+
+
 def parsed2recipe(url: URL, parsed: Parsed, context: Context) -> Recipe:
     infos = []
     for method in methods:
         infos.append(_get_info(method, parsed, context))
         if infos[-1] is NA: context = nocontext
-    recipe = Recipe(url=url, host=infos[0], title=infos[1], total_time=infos[2],
-                    image=infos[3], ingredients=infos[4], instructions=infos[5],
-                    yields=infos[6], nutrients=infos[7])
+    status = gen_status(infos)
+    recipe = Recipe(url=url, status=status, ingredients=infos[0], instructions=infos[1],
+                    title=infos[2], total_time=infos[3], yields=infos[4],
+                    host=infos[5], image=infos[6], nutrients=infos[7])
     return recipe
 
 
 def recipe2txt(recipe: Recipe, counts: Optional[Counts] = None) -> Optional[str]:
-    if recipe.ingredients is NA and recipe.instructions is NA:
+    if recipe.status is RecipeStatus.INCOMPLETE_ESSENTIAL:
         dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...")
         return None
     else:
