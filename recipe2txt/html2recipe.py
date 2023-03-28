@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import NewType, Final, Optional, NamedTuple
+from importlib_metadata import version
 import traceback
 
 from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str
@@ -9,6 +10,7 @@ from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoun
 
 Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
+SCRAPER_VERSION: Final[str] = version('recipe_scrapers')
 
 
 class RecipeStatus(Enum):
