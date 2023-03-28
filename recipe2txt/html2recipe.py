@@ -24,16 +24,17 @@ class RecipeStatus(IntEnum):
 
 
 class Recipe(NamedTuple):
-    title: str
-    total_time: str
-    yields: str
-    ingredients: str
-    instructions: str
-    host: str
-    image: str
-    nutrients: str
-    url: URL
-    status: RecipeStatus
+    ingredients: str = NA
+    instructions: str = NA
+    title: str = NA
+    total_time: str = NA
+    yields: str = NA
+    host: str = NA
+    image: str = NA
+    nutrients: str = NA
+    url: URL = URL("https://notinitialized.no")
+    status: RecipeStatus = RecipeStatus.NOT_INITIALIZED
+    scraper_version: str = '0.0'
 
 
 essential: Final[list[str]] = [
@@ -52,7 +53,8 @@ methods: Final[list[str]] = on_display + [
 ]
 recipe_attributes: Final[list[str]] = methods + [
     "url",
-    "status"
+    "status",
+    "scraper_version"
 ]
 
 
