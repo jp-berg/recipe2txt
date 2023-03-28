@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple
 from importlib_metadata import version
 import traceback
@@ -13,7 +13,8 @@ NA: Final[str] = "N/A"
 SCRAPER_VERSION: Final[str] = version('recipe_scrapers')
 
 
-class RecipeStatus(Enum):
+class RecipeStatus(IntEnum):
+    NOT_INITIALIZED = -1
     UNREACHABLE = 0
     UNKNOWN = 1
     INCOMPLETE_ESSENTIAL = 2
