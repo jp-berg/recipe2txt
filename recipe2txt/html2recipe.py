@@ -114,7 +114,8 @@ def parsed2recipe(url: URL, parsed: Parsed, context: Context) -> Recipe:
         infos.append(_get_info(method, parsed, context))
         if infos[-1] is NA: context = nocontext
     status = gen_status(infos)
-    recipe = Recipe(url=url, status=status, ingredients=infos[0], instructions=infos[1],
+    recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
+                    ingredients=infos[0], instructions=infos[1],
                     title=infos[2], total_time=infos[3], yields=infos[4],
                     host=infos[5], image=infos[6], nutrients=infos[7])
     return recipe
