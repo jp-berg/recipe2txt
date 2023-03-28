@@ -2,19 +2,20 @@ import aiohttp
 import asyncio
 from recipe2txt.utils.misc import Context, dprint, while_context, URL, File, Counts
 import recipe2txt.html2recipe as h2r
+import recipe2txt.sql as sql
 
 
 class Fetcher:
     def __init__(self, output: File,
-                 known_urls_file: File,
+                 database: sql.AccessibleDatabase,
                  counts: Counts = Counts(),
                  connections: int = 1,
                  timeout: float = 10.0) -> None:
         self.output: File = output
-        self.known_urls_file: File = known_urls_file
         self.connections: int = connections
         self.counts: Counts = counts
         self.timeout: float = timeout
+        self.db: sql.Database = sql.Database(database, output)
 
     def get_counts(self) -> Counts:
         return self.counts
@@ -32,25 +33,33 @@ class Fetcher:
 
                 except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
                     dprint(1, "\t", "Issue reaching", url, ", skipping...")
+                    self.db.insert_recipe_unreachable(url)
                     continue
 
                 p = h2r.html2parsed(url, html, context)
-                if not p: continue
+                if not p:
+                    self.db.insert_recipe_unknown(url)
+                    continue
                 r = h2r.parsed2recipe(url, p, context)
-                t = h2r.recipe2txt(r, self.counts)
-                if not t: continue
-
-                with open(self.output, 'a') as file:
-                    file.write(t)
-                with open(self.known_urls_file, 'a') as file:
-                    file.write(url)
+                self.db.insert_recipe(r)
 
     async def fetch(self, urls: set[URL]) -> None:
         self.counts.urls += len(urls)
+        urls = self.db.urls_to_fetch(urls)
+        self.counts.require_fetching += len(urls)
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
         for url in urls: await q.put(url)
         timeout = aiohttp.ClientTimeout(total=10 * len(urls) * self.timeout, connect=self.timeout,
                                         sock_connect=None, sock_read=None)
         tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(self.connections)]
         await(asyncio.gather(*tasks))
-    
+
+        recipes = []
+        for recipe in self.db.get_recipes():
+            r = h2r.recipe2txt(recipe, self.counts)
+            if r:
+                recipes.append(r)
+
+        with open(self.output, "w") as file:
+            dprint(3, "Writing recipes to", self.output)
+            file.writelines(recipes)
