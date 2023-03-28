@@ -11,7 +11,7 @@ from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 
 
-def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
+def process_urls(strings: list[str]) -> set[URL]:
     processed: set[URL] = set()
     for string in strings:
         c = while_context(dprint(3, "Processing", string))
@@ -22,9 +22,6 @@ def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
         if is_url(string):
             url = string
             url = cutoff(url, "/ref=", "?")
-            if url in known_urls:
-                dprint(2, "Already scraped", context=c)
-                continue
             if url in processed:
                 dprint(2, "Already queued", context=c)
             else:
@@ -273,7 +270,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     db_file, recipe_file = file_setup(a.debug, a.output)
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
-    processed: set[URL] = process_urls(known_urls, unprocessed)
+    processed: set[URL] = process_urls(unprocessed)
     if not len(processed):
         dprint(1, "No valid URL passed")
         exit(os.EX_DATAERR)
