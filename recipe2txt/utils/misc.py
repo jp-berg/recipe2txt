@@ -8,7 +8,7 @@ from typing import NewType, Tuple, Final, Any, TypeGuard
 __all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
            "Context", "nocontext", "while_context", "dprint",
            "full_path", "ensure_existence_dir", "ensure_accessible_file", "ensure_accessible_file_critical",
-           "read_files", "Counts", "cutoff", "dict2str"]
+           "read_files", "Counts", "cutoff", "dict2str", "head_str"]
 vlevel: int = -1
 
 
@@ -154,3 +154,10 @@ def dict2str(dictionary: dict) -> str:
     for item in dictionary.items():
         items.append("{}: {}".format(*item))
     return "\n".join(items)
+
+
+def head_str(o: Any, max_length: int = 50) -> str:
+    s = str(o)
+    if len(s) > max_length:
+        s = s[:max_length-3].rstrip() + "..."
+    return s.replace("\n", " ")
