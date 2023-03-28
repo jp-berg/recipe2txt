@@ -60,7 +60,7 @@ recipe_attributes: Final[list[str]] = methods + [
 
 def _get_info(method: str, data: Parsed, context: Context) -> str:
     error_level = 1
-    if method not in on_display: error_level = 3
+    if method not in on_display: error_level = 2
 
     method_name = method.replace("_", " ")
     try:
