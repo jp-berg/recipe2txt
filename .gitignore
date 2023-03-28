@@ -4,6 +4,7 @@ argparse_test.py
 tests/testfiles/data/knownURLs.txt
 tests/testfiles/recipe_test.txt
 tests/testfiles/markdown
+tests/testfiles/data/recipes2txt.sqlite3
 .project
 .pydevproject
 .idea

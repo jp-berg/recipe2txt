@@ -6,8 +6,7 @@ UTILS = $(wildcard $(UTILS_DIR)/*.py)
 ALL_PY = $(SRC) $(UTILS) re2txt.py
 
 DEBUG_OUT = tests/testfiles/recipe_test.txt
-KNOWN_URLS = tests/testfiles/data/knownURLs.txt
-JUNK = $(DEBUG_OUT) $(KNOWN_URLS)
+JUNK = $(DEBUG_OUT)
 
 
 testrun: clean
