@@ -8,6 +8,7 @@ from xdg_base_dirs import xdg_data_home
 from shutil import rmtree
 from recipe2txt.fetcher import Fetcher
 from recipe2txt.utils.misc import *
+from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 
 
 def process_urls(known_urls: set[URL], strings: list[str]) -> set[URL]:
@@ -37,21 +38,26 @@ program_name: Final[str] = "recipes2txt"
 default_data_directory: Final[str] = os.path.join(xdg_data_home(), program_name)
 debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "tests", "testfiles", "data")
 
-known_urls_name: Final[str] = "knownURLs.txt"
+db_name: Final[str] = program_name + ".sqlite3"
 recipes_name: Final[str] = "recipes.txt"
 default_urls_name: Final[str] = "urls.txt"
 default_output_location_name: Final[str] = "default_output_location.txt"
 
 
-def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
+def file_setup(debug: bool = False, output: str = "") -> Tuple[AccessibleDatabase, File]:
     global default_data_directory
     global debug_data_directory
 
     if debug:
-        known_urls_file = ensure_accessible_file_critical(known_urls_name, debug_data_directory)
+        db_path = debug_data_directory
     else:
-        known_urls_file = ensure_accessible_file_critical(known_urls_name, default_data_directory)
-    dprint(4, "Urls read from:", known_urls_file)
+        db_path = default_data_directory
+    db_path = os.path.join(db_path, db_name)
+    if is_accessible_db(db_path):
+        db_file = db_path
+    else:
+        print("Database not accessible:", db_path, file=sys.stderr)
+        exit(os.EX_IOERR)
 
     if output:
         base, filename = os.path.split(output)
@@ -70,7 +76,7 @@ def file_setup(debug: bool = False, output: str = "") -> Tuple[File, File]:
             output = ensure_accessible_file_critical(recipes_name, os.getcwd())
     dprint(4, "Output set to:", output)
 
-    return known_urls_file, output
+    return db_file, output
 
 
 _parser = argparse.ArgumentParser(
@@ -234,7 +240,6 @@ def set_default_output(filepath: str) -> None:
             exit(os.EX_IOERR)
 
 
-
 def mutex_args(a: argparse.Namespace) -> None:
     if not (a.show_appdata or a.erase_appdata or a.default_output_file):
         return
@@ -265,12 +270,7 @@ def sancheck_args(a: argparse.Namespace) -> None:
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     sancheck_args(a)
-    known_urls_file, recipe_file = file_setup(a.debug, a.output)
-    known_urls: set[URL]
-    if a.ignore_added:
-        known_urls = set()
-    else:
-        known_urls = set([line for line in read_files(known_urls_file) if is_url(line)])
+    db_file, recipe_file = file_setup(a.debug, a.output)
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = process_urls(known_urls, unprocessed)
@@ -281,7 +281,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     counts.strings = len(unprocessed)
 
     f = Fetcher(output=recipe_file, connections=a.connections,
-                counts=counts, known_urls_file=known_urls_file,
+                counts=counts, database=db_file,
                 timeout=a.timeout)
 
     return processed, f
