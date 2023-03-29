@@ -269,6 +269,7 @@ def sancheck_args(a: argparse.Namespace) -> None:
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     sancheck_args(a)
     db_file, recipe_file = file_setup(a.debug, a.output)
+    mark_stage("Preparing arguments")
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = process_urls(unprocessed)
@@ -293,6 +294,6 @@ if __name__ == '__main__':
     mutex_args(a)
     urls, fetcher = process_params(a)
     asyncio.run(fetcher.fetch(urls))
-
+    mark_stage("Summary")
     dprint(3, str(fetcher.get_counts()))
     exit(os.EX_OK)

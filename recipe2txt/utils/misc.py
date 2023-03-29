@@ -8,7 +8,7 @@ from typing import NewType, Tuple, Final, Any, TypeGuard
 __all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
            "Context", "nocontext", "while_context", "dprint",
            "full_path", "ensure_existence_dir", "ensure_accessible_file", "ensure_accessible_file_critical",
-           "read_files", "Counts", "cutoff", "dict2str", "head_str"]
+           "read_files", "Counts", "cutoff", "dict2str", "head_str", "mark_stage"]
 vlevel: int = -1
 
 
@@ -58,6 +58,10 @@ def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = 
             print(context[1], file=file, flush=flush, end=end)
         print(*args, sep=sep, end=end, file=file, flush=flush)
     return Context((level, sep.join(args)))
+
+
+def mark_stage(name: str) -> None:
+    dprint(3, "\n", "---", name, "---", "\n")
 
 
 def full_path(*pathelements: str) -> str:
@@ -158,5 +162,5 @@ def dict2str(dictionary: dict) -> str:
 def head_str(o: Any, max_length: int = 50) -> str:
     s = str(o)
     if len(s) > max_length:
-        s = s[:max_length-3].rstrip() + "..."
+        s = s[:max_length - 3].rstrip() + "..."
     return s.replace("\n", " ")

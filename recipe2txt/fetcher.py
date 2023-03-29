@@ -1,6 +1,6 @@
 import aiohttp
 import asyncio
-from recipe2txt.utils.misc import Context, dprint, URL, File, Counts
+from recipe2txt.utils.misc import Context, dprint, URL, File, Counts, mark_stage
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 
@@ -51,6 +51,8 @@ class Fetcher:
         timeout = aiohttp.ClientTimeout(total=10 * len(urls) * self.timeout, connect=self.timeout,
                                         sock_connect=None, sock_read=None)
         tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(self.connections)]
+        if self.counts.require_fetching:
+            mark_stage("Fetching missing recipes")
         await(asyncio.gather(*tasks))
 
         titles = self.db.get_titles()
@@ -61,7 +63,8 @@ class Fetcher:
                 recipes.append(r)
 
         with open(self.output, "w") as file:
-            dprint(3, "Writing recipes to", self.output)
+            mark_stage("Writing to output")
+            dprint(3, "Writing to", self.output)
             file.writelines(titles)
             file.write("\n" + ("-"*10) + h2r.head_sep)
             file.writelines(recipes)
