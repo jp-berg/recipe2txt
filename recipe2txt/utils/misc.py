@@ -121,22 +121,21 @@ class Counts:
         self.parsed_partially: int = 0
 
     def __str__(self) -> str:
-        return """
-            [Absolute|Percentage of count above]
-            Total number of strings: {}
-            Identified as URLs: [{}|{:.2f}%]
-            URLs not yet (fully) saved: [{}|{:.2f}%]
-            URLs reached: [{}|{:.2f}%]
-            Recipes parsed partially: [{}|{:.2f}%]
-            Recipes parsed fully: [{}|{:.2f}%]
-            """.format(
-            self.strings,
-            self.urls, (self.urls / self.strings) * 100,
-            self.require_fetching, (self.require_fetching/self.urls) * 100,
-            self.reached, (self.reached / self.urls) * 100,
-            self.parsed_partially, (self.parsed_partially / self.urls) * 100,
-            self.parsed_successfully, (self.parsed_successfully / self.urls) * 100
-            )
+        s = "\n".join(["[Absolute|Percentage of count above]", "",
+                       "Total number of strings: {}",
+                       "Identified as URLs: [{}|{:.2f}%]",
+                       "URLs not yet (fully) saved: [{}|{:.2f}%]",
+                       "URLs reached: [{}|{:.2f}%]",
+                       "Recipes parsed partially: [{}|{:.2f}%]",
+                       "Recipes parsed fully: [{}|{:.2f}%]", ""]) \
+            .format(self.strings,
+                    self.urls, (self.urls / self.strings) * 100,
+                    self.require_fetching, (self.require_fetching / self.urls) * 100,
+                    self.reached, (self.reached / self.urls) * 100,
+                    self.parsed_partially, (self.parsed_partially / self.urls) * 100,
+                    self.parsed_successfully, (self.parsed_successfully / self.urls) * 100
+                    )
+        return s
 
 
 def cutoff(url: URL, *identifiers: str) -> URL:
