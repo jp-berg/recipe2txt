@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import NewType, Final, Optional, NamedTuple
+from typing import NewType, Final, Optional, NamedTuple, Any
 from importlib_metadata import version
 import traceback
 
@@ -35,6 +35,18 @@ class Recipe(NamedTuple):
     url: URL = URL("https://notinitialized.no")
     status: RecipeStatus = RecipeStatus.NOT_INITIALIZED
     scraper_version: str = '0.0'
+
+
+uninit_recipe: Final[Recipe] = Recipe()
+
+
+def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
+    if len(t) > len(recipe_attributes):
+        raise ValueError("Expected a Recipe-based tuple, but got something longer")
+    if None in t:
+        tmp = list(t)
+        t = (tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp)))
+    return t
 
 
 essential: Final[list[str]] = [

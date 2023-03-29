@@ -1,7 +1,7 @@
 import sqlite3
 from typing import Final, Tuple, Optional, TypeGuard, NewType
 from .utils.misc import *
-from .html2recipe import Recipe, NA, recipe_attributes, SCRAPER_VERSION, gen_status, RecipeStatus as RS
+from .html2recipe import Recipe, NA, recipe_attributes, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na
 
 _CREATE_TABLES: Final[str] = """
 CREATE TABLE IF NOT EXISTS recipes(
@@ -122,12 +122,13 @@ class Database:
 
     def get_recipe(self, url: URL) -> Optional[Recipe]:
         row = self.get_recipe_row(url)
+        row = none2na(row)
         r = Recipe(*row) # type: ignore
         return r
 
     def get_recipes(self) -> list[Recipe]:
         self.cur.execute(_GET_RECIPES, (self.filepath,))
-        recipes = [Recipe(*row) for row in self.cur.fetchall()]
+        recipes = [Recipe(*none2na(row)) for row in self.cur.fetchall()]
         return recipes
 
     def urls_to_fetch(self, wanted: set[URL]) -> set[URL]:
