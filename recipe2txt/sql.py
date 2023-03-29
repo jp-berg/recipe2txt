@@ -53,13 +53,16 @@ _ASSOCIATE_FILE_RECIPE: Final[str] = "INSERT OR IGNORE INTO contents (fileID, re
                                      " (SELECT fileID FROM files WHERE filepath = ?)," \
                                      " (SELECT recipeID FROM recipes WHERE url = ?))"
 
+_FILEPATHS_JOIN_RECIPES: Final[str] = " ((SELECT * FROM files WHERE filepath = ?) " \
+                                      " NATURAL JOIN contents NATURAL JOIN recipes) "
 _GET_RECIPE: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM recipes WHERE url = ?"
-_GET_RECIPES: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM ((SELECT * FROM files WHERE filepath = ?)" \
-                           " NATURAL JOIN contents NATURAL JOIN recipes) WHERE status >= " + \
-                           str(int(RS.INCOMPLETE_ON_DISPLAY))
+_GET_RECIPES: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM" + _FILEPATHS_JOIN_RECIPES +\
+                           "WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
 _GET_URLS_STATUS_VERSION: Final[str] = "SELECT url, status, scraper_version FROM recipes"
-_GET_CONTENT: Final[str] = "SELECT url FROM ((SELECT * FROM files WHERE filepath = ?)" \
-                           " NATURAL JOIN contents NATURAL JOIN recipes)"
+_GET_CONTENT: Final[str] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
+
+_GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
+                                " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY)) \
 
 
 AccessibleDatabase = NewType("AccessibleDatabase", str)
@@ -130,6 +133,10 @@ class Database:
         self.cur.execute(_GET_RECIPES, (self.filepath,))
         recipes = [Recipe(*none2na(row)) for row in self.cur.fetchall()]
         return recipes
+
+    def get_titles(self) -> list[str]:
+        titles = self.cur.execute(_GET_TITLES_HOSTS, (self.filepath,))
+        return [" - ".join(title) + "\n" for title in titles]
 
     def urls_to_fetch(self, wanted: set[URL]) -> set[URL]:
         self.cur.execute(_GET_URLS_STATUS_VERSION)

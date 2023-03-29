@@ -53,6 +53,7 @@ class Fetcher:
         tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(self.connections)]
         await(asyncio.gather(*tasks))
 
+        titles = self.db.get_titles()
         recipes = []
         for recipe in self.db.get_recipes():
             r = h2r.recipe2txt(recipe, self.counts)
@@ -61,4 +62,6 @@ class Fetcher:
 
         with open(self.output, "w") as file:
             dprint(3, "Writing recipes to", self.output)
+            file.writelines(titles)
+            file.write("\n" + ("-"*10) + h2r.head_sep)
             file.writelines(recipes)
