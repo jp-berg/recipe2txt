@@ -136,7 +136,7 @@ class Database:
         available = self.cur.fetchall()
         for url, status, version in available:
             if url in wanted and not fetch_again(status, version):
-                dprint(3, "Using cached version", url)
+                dprint(3, "Using cached version of", url)
                 if status <= RS.UNKNOWN: print(status)
                 wanted.remove(url)
                 if not wanted: break

@@ -125,7 +125,7 @@ class Counts:
             [Absolute|Percentage of count above]
             Total number of strings: {}
             Identified as URLs: [{}|{:.2f}%]
-            URLs not yet saved: [{}|{:.2f}%]
+            URLs not yet (fully) saved: [{}|{:.2f}%]
             URLs reached: [{}|{:.2f}%]
             Recipes parsed partially: [{}|{:.2f}%]
             Recipes parsed fully: [{}|{:.2f}%]

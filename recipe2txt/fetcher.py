@@ -1,6 +1,6 @@
 import aiohttp
 import asyncio
-from recipe2txt.utils.misc import Context, dprint, while_context, URL, File, Counts
+from recipe2txt.utils.misc import Context, dprint, URL, File, Counts
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 
@@ -26,21 +26,20 @@ class Fetcher:
                 try:
                     url = await url_queue.get()
                     context: Context = dprint(4, "Fetching", url)
-                    context = while_context(context)
                     async with session.get(url) as response:
                         html = await response.text()
                     self.counts.reached += 1
 
                 except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                    dprint(1, "\t", "Issue reaching", url, ", skipping...")
+                    dprint(1, "Issue reaching", url)
                     self.db.insert_recipe_unreachable(url)
                     continue
 
-                p = h2r.html2parsed(url, html, context)
+                p = h2r.html2parsed(url, html)
                 if not p:
                     self.db.insert_recipe_unknown(url)
                     continue
-                r = h2r.parsed2recipe(url, p, context)
+                r = h2r.parsed2recipe(url, p)
                 self.db.insert_recipe(r)
 
     async def fetch(self, urls: set[URL]) -> None:

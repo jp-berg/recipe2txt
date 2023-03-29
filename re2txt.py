@@ -14,20 +14,21 @@ from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 def process_urls(strings: list[str]) -> set[URL]:
     processed: set[URL] = set()
     for string in strings:
-        c = while_context(dprint(3, "Processing", string))
         string = string.replace(linesep, '')
         string.strip()
+        c = dprint(4, "Processing", string)
+        c = while_context(c)
         if not string.startswith("http"):
             string = "http://" + string
         if is_url(string):
             url = string
             url = cutoff(url, "/ref=", "?")
             if url in processed:
-                dprint(2, "Already queued", context=c)
+                dprint(2, "\t", "Already queued", context=c)
             else:
                 processed.add(url)
         else:
-            dprint(1, "Not an URL", context=c)
+            dprint(1, "\t", "Not an URL", context=c)
     return processed
 
 

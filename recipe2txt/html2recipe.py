@@ -3,7 +3,7 @@ from typing import NewType, Final, Optional, NamedTuple, Any
 from importlib_metadata import version
 import traceback
 
-from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str
+from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str, while_context
 import recipe_scrapers
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, \
     ElementNotFoundInHtml
@@ -120,7 +120,9 @@ def gen_status(infos: list[str]) -> RecipeStatus:
     return RecipeStatus.COMPLETE
 
 
-def parsed2recipe(url: URL, parsed: Parsed, context: Context) -> Recipe:
+def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
+    context = dprint(4, "Parsing", url)
+    context = while_context(context)
     infos = []
     for method in methods:
         infos.append(_get_info(method, parsed, context))
@@ -155,15 +157,15 @@ def recipe2txt(recipe: Recipe, counts: Optional[Counts] = None) -> Optional[str]
         return txt
 
 
-def html2parsed(url: URL, content: str, context: Context) -> Optional[Parsed]:
+def html2parsed(url: URL, content: str) -> Optional[Parsed]:
     try:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
-        dprint(1, "\t", "Unknown Website. Extraction not supported. Skipping...", context=context)
+        dprint(1, "Unknown Website. Extraction not supported for", url)
         return None
     except AttributeError:
-        dprint(1, "\t", "Error while parsing website. Skipping...", context=context)
+        dprint(1, "Error while parsing", url)
         return None
 
     return parsed
