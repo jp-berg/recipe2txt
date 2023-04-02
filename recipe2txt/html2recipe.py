@@ -45,7 +45,7 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
         raise ValueError("Expected a Recipe-based tuple, but got something longer")
     if None in t:
         tmp = list(t)
-        t = (tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp)))
+        t = tuple([tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp))])
     return t
 
 
