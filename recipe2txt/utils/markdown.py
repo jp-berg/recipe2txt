@@ -1,9 +1,9 @@
 import re
-from typing import Pattern, Final
+from typing import Pattern, Final, Optional
 from os import linesep
 
 __all__ = ["esc", "header", "quote", "italic", "bold", "s_th", "super", "code", "codeblock",
-           "page_sep", "image", "link", "unordered", "ordered", "table", "paragraph"]
+           "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
 
 
 indent: Final[str] = " " * 4
@@ -61,12 +61,17 @@ def page_sep() -> str:
     return linesep + "---" + linesep
 
 
-def image(path: str, description: str = "") -> str:
-    return "".join(["![", description, "](", path, ")"])
-
-
-def link(url: str, description: str = "") -> str:
+def link(url: str, description: Optional[str] = None) -> str:
+    if not description:
+        description = url
     return "".join(["[", description, "](", url, ")"])
+
+
+def section_link(header: str, description: Optional[str] = None) -> str:
+    ref = "#" + header.replace(" ", "-")
+    if not description:
+        description = header
+    return link(ref, description)
 
 
 def _indent(level: int) -> str:
