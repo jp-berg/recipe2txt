@@ -2,7 +2,7 @@ import re
 from typing import Pattern, Final, Optional
 from os import linesep
 
-__all__ = ["esc", "header", "quote", "italic", "bold", "s_th", "super", "code", "codeblock",
+__all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "super", "code", "codeblock",
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
 
 
@@ -10,6 +10,7 @@ indent: Final[str] = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
 not_escaped: Final[Pattern] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
+EMPTY_COMMENT: Final[str] = "\n<!-- -->\n" # Helpful to terminate lists in case two different lists follow each other
 
 
 def esc(string: str) -> str:
