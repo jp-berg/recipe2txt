@@ -1,6 +1,7 @@
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any
 from importlib_metadata import version
+from recipe2txt.utils.markdown import *
 import traceback
 
 from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str, while_context
@@ -135,26 +136,62 @@ def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
     return recipe
 
 
-def recipe2txt(recipe: Recipe, counts: Optional[Counts] = None) -> Optional[str]:
+def _re2md(recipe: Recipe) -> str:
+    title = esc(recipe.title)
+    url = esc(recipe.url)
+    host = italic(esc(recipe.host))
+    if host == NA:
+        host = None  # type: ignore
+
+    escaped = [esc(item) for item in recipe.ingredients.split("\n")]
+    ingredients = unordered(*escaped)
+
+    escaped = [esc(step) for step in recipe.instructions.split("\n")]
+    instructions = ordered(*escaped)
+
+    md = "".join([
+        header(title, 2),
+        paragraph(),
+        recipe.total_time + " min | " + recipe.yields,
+        paragraph(),
+        ingredients,
+        EMPTY_COMMENT,
+        instructions,
+        paragraph(),
+        italic("from:"), " ", link(url, host),
+        paragraph()
+    ])
+
+    return md
+
+
+def _re2txt(recipe: Recipe) -> str:
+    txt = "\n".join([recipe.title,
+                     head_sep,
+                     recipe.total_time + " min | " + recipe.yields + "\n",
+                     recipe.ingredients,
+                     "\n\n",
+                     recipe.instructions.replace("\n", "\n\n"),
+                     "\n",
+                     "from: " + recipe.url,
+                     between_recipes])
+    return txt
+
+
+def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[str]:
     if recipe.status is RecipeStatus.INCOMPLETE_ESSENTIAL:
         dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...")
         return None
+    if counts:
+        if recipe.status < RecipeStatus.INCOMPLETE_ON_DISPLAY:
+            counts.parsed_partially += 1
+        else:
+            counts.parsed_successfully += 1
+
+    if md:
+        return _re2md(recipe)
     else:
-        txt = "\n".join([recipe.title,
-                         head_sep,
-                         recipe.total_time + " min    " + recipe.yields + "\n",
-                         recipe.ingredients,
-                         "\n\n",
-                         recipe.instructions.replace("\n", "\n"),
-                         "\n",
-                         "from: " + recipe.url,
-                         between_recipes])
-        if counts:
-            if NA in [recipe.title, recipe.total_time, recipe.yields, recipe.ingredients, recipe.instructions]:
-                counts.parsed_partially += 1
-            else:
-                counts.parsed_successfully += 1
-        return txt
+        return _re2txt(recipe)
 
 
 def html2parsed(url: URL, content: str) -> Optional[Parsed]:
