@@ -135,9 +135,9 @@ class Database:
         recipes = [Recipe(*none2na(row)) for row in self.cur.fetchall()]
         return recipes
 
-    def get_titles(self) -> list[str]:
-        titles = self.cur.execute(_GET_TITLES_HOSTS, (self.filepath,))
-        return [" - ".join(title) + "\n" for title in titles]
+    def get_titles(self) -> list[tuple[str, str]]:
+        rows = self.cur.execute(_GET_TITLES_HOSTS, (self.filepath,))
+        return rows.fetchall()
 
     def urls_to_fetch(self, wanted: set[URL]) -> set[URL]:
         self.cur.execute(_GET_URLS_STATUS_VERSION)
