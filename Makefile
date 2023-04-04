@@ -5,12 +5,12 @@ SRC = $(wildcard $(SRC_DIR)/*.py)
 UTILS = $(wildcard $(UTILS_DIR)/*.py)
 ALL_PY = $(SRC) $(UTILS) re2txt.py
 
-DEBUG_OUT = tests/testfiles/recipe_test.txt
+DEBUG_OUT = tests/testfiles/recipe_test.txt tests/testfiles/recipe_test.md
 JUNK = $(DEBUG_OUT)
 
 
 testrun: clean
-	 python3 re2txt.py -v4 -d -f ./tests/testfiles/urls.txt
+	 python3 re2txt.py -v4 -d -md -f ./tests/testfiles/urls.txt
 
 clean:
 		rm  $(JUNK) || true

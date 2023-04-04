@@ -38,12 +38,13 @@ default_data_directory: Final[str] = os.path.join(xdg_data_home(), program_name)
 debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "tests", "testfiles", "data")
 
 db_name: Final[str] = program_name + ".sqlite3"
-recipes_name: Final[str] = "recipes.txt"
+recipes_name_txt: Final[str] = "recipes.txt"
+recipes_name_md: Final[str] = "recipes.md"
 default_urls_name: Final[str] = "urls.txt"
 default_output_location_name: Final[str] = "default_output_location.txt"
 
 
-def file_setup(debug: bool = False, output: str = "") -> Tuple[AccessibleDatabase, File]:
+def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File]:
     global default_data_directory
     global debug_data_directory
 
@@ -69,9 +70,15 @@ def file_setup(debug: bool = False, output: str = "") -> Tuple[AccessibleDatabas
         if os.path.isfile(output_location_file):
             with open(output_location_file, 'r') as file:
                 output = file.readline().rstrip("\n")
+                if markdown:
+                    output = file.readline().rstrip("\n")
             base, filename = os.path.split(output)
             output = ensure_accessible_file_critical(filename, base)
         else:
+            if markdown:
+                recipes_name = recipes_name_md
+            else:
+                recipes_name = recipes_name_txt
             output = ensure_accessible_file_critical(recipes_name, os.getcwd())
     dprint(4, "Output set to:", output)
 
@@ -109,6 +116,8 @@ _parser.add_argument("-d", "--debug", action="store_true",
 _parser.add_argument("-t", "--timeout", type=float, default=5.0,
                      help="Sets the number of seconds the program waits for an individual website to respond" +
                           "(eg. sets the connect-value of aiohttp.ClientTimeout)")
+_parser.add_argument("-md", "--markdown", action="store_true",
+                     help="Generates markdown-output instead of .txt")
 
 settings = _parser.add_mutually_exclusive_group()
 settings.add_argument("-sa", "--show-appdata", action="store_true",
@@ -151,6 +160,7 @@ _argnames: list[str] = [
     "servings",
     "debug",
     "timeout",
+    "markdown",
     "show_files",
     "erase_appdata",
     "standard_output_file"
@@ -213,7 +223,7 @@ def set_default_output(filepath: str) -> None:
         try:
             os.remove(os.path.join(default_data_directory, default_output_location_name))
             print("Removed default output location. When called without specifying the output-file recipes will"
-                  " now be written in the current working directory with the name", recipes_name)
+                  " now be written in the current working directory with the name", recipes_name_txt)
         except FileNotFoundError:
             print("No default output set")
             pass
@@ -269,7 +279,7 @@ def sancheck_args(a: argparse.Namespace) -> None:
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     sancheck_args(a)
-    db_file, recipe_file = file_setup(a.debug, a.output)
+    db_file, recipe_file = file_setup(a.debug, a.output, a.markdown)
     mark_stage("Preparing arguments")
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
@@ -282,7 +292,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
 
     f = Fetcher(output=recipe_file, connections=a.connections,
                 counts=counts, database=db_file,
-                timeout=a.timeout)
+                timeout=a.timeout, markdown=a.markdown)
 
     return processed, f
 

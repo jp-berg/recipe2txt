@@ -1,1 +1,2 @@
 ./tests/testfiles/recipe_test.txt
+./tests/testfiles/recipe_test.md
