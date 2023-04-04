@@ -69,9 +69,9 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
             output_location_file = os.path.join(default_data_directory, default_output_location_name)
         if os.path.isfile(output_location_file):
             with open(output_location_file, 'r') as file:
-                output = file.readline().rstrip("\n")
+                output = file.readline().rstrip(linesep)
                 if markdown:
-                    output = file.readline().rstrip("\n")
+                    output = file.readline().rstrip(linesep)
             base, filename = os.path.split(output)
             output = ensure_accessible_file_critical(filename, base)
         else:
@@ -201,7 +201,7 @@ def show_files() -> None:
 
     files += files_debug
     if files:
-        print(*files, sep='\n')
+        print(*files, sep=linesep)
     else:
         print("No files found")
 
@@ -240,7 +240,7 @@ def set_default_output(filepath: str) -> None:
             ensure_existence_dir(default_data_directory)
             with open(os.path.join(default_data_directory, default_output_location_name), 'a') as file:
                 file.write(filepath)
-                file.write("\n")
+                file.write(linesep)
             print("Set default output location to", filepath)
         except OSError as e:
             print("Error while creating or accessing file {}: {}"
@@ -301,7 +301,7 @@ if __name__ == '__main__':
     a = _parser.parse_args()
     set_vlevel(a.verbosity)
 
-    dprint(4, "CLI-ARGS:", *args2strs(a), sep="\n\t")
+    dprint(4, "CLI-ARGS:", *args2strs(a), sep=linesep + "\t")
     mutex_args(a)
     urls, fetcher = process_params(a)
     asyncio.run(fetcher.fetch(urls))

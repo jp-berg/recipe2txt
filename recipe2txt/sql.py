@@ -1,4 +1,5 @@
 import sqlite3
+from os import linesep
 from typing import Final, Tuple, Optional, TypeGuard, NewType
 from .utils.misc import *
 from .html2recipe import Recipe, NA, recipe_attributes, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na
@@ -187,7 +188,7 @@ class Database:
                 replaced_list = ["\t{}: {} => {}".format(attr, head_str(old_val), head_str(new_val))
                             for attr, old_val, new_val, is_replaced in zip(recipe_attributes, old_row, new_row, updated)
                             if is_replaced]
-                replaced = "\n" + "\n".join(replaced_list)
+                replaced = linesep + linesep.join(replaced_list)
                 dprint(3, "Updated " + recipe.url + "", replaced)
                 self.replace_recipe(r)
             else:

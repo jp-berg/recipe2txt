@@ -2,7 +2,7 @@ import os.path
 import sys
 import traceback
 import validators
-from os import makedirs
+from os import makedirs, linesep
 from typing import NewType, Tuple, Final, Any, TypeGuard
 
 __all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
@@ -50,7 +50,7 @@ def while_context(context: Context) -> Context:
 # level 2 -> warnings
 # level 3 -> notice
 # level 4 -> all
-def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = None, flush: bool = False,
+def dprint(level: int, *args: str, sep: str = ' ', end: str = linesep, file: Any = None, flush: bool = False,
            context: Context = nocontext) -> Context:
     assert vlevel != -1
     if level <= vlevel:
@@ -61,7 +61,7 @@ def dprint(level: int, *args: str, sep: str = ' ', end: str = '\n', file: Any = 
 
 
 def mark_stage(name: str) -> None:
-    dprint(3, "\n", "---", name, "---", "\n")
+    dprint(3, linesep, "---", name, "---", linesep)
 
 
 def full_path(*pathelements: str) -> str:
@@ -125,7 +125,7 @@ class Counts:
         self.parsed_partially: int = 0
 
     def __str__(self) -> str:
-        s = "\n".join(["[Absolute|Percentage of count above]", "",
+        s = linesep.join(["[Absolute|Percentage of count above]", "",
                        "Total number of strings: {}",
                        "Identified as URLs: [{}|{:.2f}%]",
                        "URLs not yet (fully) saved: [{}|{:.2f}%]",
@@ -156,11 +156,11 @@ def dict2str(dictionary: dict) -> str:
     items = []
     for item in dictionary.items():
         items.append("{}: {}".format(*item))
-    return "\n".join(items)
+    return linesep.join(items)
 
 
 def head_str(o: Any, max_length: int = 50) -> str:
     s = str(o)
     if len(s) > max_length:
         s = s[:max_length - 3].rstrip() + "..."
-    return s.replace("\n", " ")
+    return s.replace(linesep, " ")

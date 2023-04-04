@@ -2,6 +2,7 @@ from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any
 from importlib_metadata import version
 from recipe2txt.utils.markdown import *
+from os import linesep
 import traceback
 
 from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str, while_context
@@ -96,7 +97,7 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
                 info = None
             else:
                 info = str(info)
-        elif method == "ingredients": info = "\n".join(info)
+        elif method == "ingredients": info = linesep.join(info)
         elif method == "nutrients": info = dict2str(info)
     if not info or info.isspace() or info == "None":
         dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
@@ -104,8 +105,8 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
     return info
 
 
-between_recipes: Final[str] = "\n\n\n\n\n"
-head_sep: Final[str] = "\n\n"
+between_recipes: Final[str] = linesep*5
+head_sep: Final[str] = linesep*2
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
@@ -143,10 +144,10 @@ def _re2md(recipe: Recipe) -> str:
     if host == NA:
         host = None  # type: ignore
 
-    escaped = [esc(item) for item in recipe.ingredients.split("\n")]
+    escaped = [esc(item) for item in recipe.ingredients.split(linesep)]
     ingredients = unordered(*escaped)
 
-    escaped = [esc(step) for step in recipe.instructions.split("\n")]
+    escaped = [esc(step) for step in recipe.instructions.split(linesep)]
     instructions = ordered(*escaped)
 
     md = "".join([
@@ -166,13 +167,13 @@ def _re2md(recipe: Recipe) -> str:
 
 
 def _re2txt(recipe: Recipe) -> str:
-    txt = "\n".join([recipe.title,
+    txt = linesep.join([recipe.title,
                      head_sep,
-                     recipe.total_time + " min | " + recipe.yields + "\n",
+                     recipe.total_time + " min | " + recipe.yields + linesep,
                      recipe.ingredients,
-                     "\n\n",
-                     recipe.instructions.replace("\n", "\n\n"),
-                     "\n",
+                     linesep*2,
+                     recipe.instructions.replace(linesep, linesep*2),
+                     linesep,
                      "from: " + recipe.url,
                      between_recipes])
     return txt

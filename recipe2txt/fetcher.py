@@ -1,3 +1,5 @@
+from os import linesep
+
 import aiohttp
 import asyncio
 from recipe2txt.utils.misc import Context, dprint, URL, File, Counts, mark_stage
@@ -63,10 +65,10 @@ class Fetcher:
         titles = self.db.get_titles()
         if self.markdown:
             print(len(titles))
-            titles = [section_link(esc(name)) + " - " + esc(host) + "\n" for name, host in titles]
+            titles = [section_link(esc(name)) + " - " + esc(host) + linesep for name, host in titles]
             titles = ordered(*titles)
         else:
-            titles = [name + " - " + host + "\n" for name, host in titles]
+            titles = [name + " - " + host + linesep for name, host in titles]
         recipes = []
         for recipe in self.db.get_recipes():
             r = h2r.recipe2out(recipe, self.counts, md=self.markdown)
