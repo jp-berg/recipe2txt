@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 from recipe2txt.utils.misc import Context, dprint, URL, File, Counts, mark_stage
+from recipe2txt.utils.markdown import *
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 
@@ -10,12 +11,14 @@ class Fetcher:
                  database: sql.AccessibleDatabase,
                  counts: Counts = Counts(),
                  connections: int = 1,
-                 timeout: float = 10.0) -> None:
+                 timeout: float = 10.0,
+                 markdown: bool = False) -> None:
         self.output: File = output
         self.connections: int = connections
         self.counts: Counts = counts
         self.timeout: float = timeout
         self.db: sql.Database = sql.Database(database, output)
+        self.markdown = markdown
 
     def get_counts(self) -> Counts:
         return self.counts
@@ -54,11 +57,19 @@ class Fetcher:
         if self.counts.require_fetching:
             mark_stage("Fetching missing recipes")
         await(asyncio.gather(*tasks))
+        self.write()
 
+    def write(self):
         titles = self.db.get_titles()
+        if self.markdown:
+            print(len(titles))
+            titles = [section_link(esc(name)) + " - " + esc(host) + "\n" for name, host in titles]
+            titles = ordered(*titles)
+        else:
+            titles = [name + " - " + host + "\n" for name, host in titles]
         recipes = []
         for recipe in self.db.get_recipes():
-            r = h2r.recipe2txt(recipe, self.counts)
+            r = h2r.recipe2out(recipe, self.counts, md=self.markdown)
             if r:
                 recipes.append(r)
 
@@ -66,5 +77,8 @@ class Fetcher:
             mark_stage("Writing to output")
             dprint(3, "Writing to", self.output)
             file.writelines(titles)
-            file.write("\n" + ("-"*10) + h2r.head_sep)
+            file.write(paragraph())
+            file.write(("-"*10) + h2r.head_sep)
+            file.write(paragraph())
             file.writelines(recipes)
+
