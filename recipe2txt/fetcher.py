@@ -14,13 +14,15 @@ class Fetcher:
                  counts: Counts = Counts(),
                  connections: int = 1,
                  timeout: float = 10.0,
-                 markdown: bool = False) -> None:
+                 markdown: bool = False,
+                 ignore_cached: bool = False) -> None:
         self.output: File = output
         self.connections: int = connections
         self.counts: Counts = counts
         self.timeout: float = timeout
         self.db: sql.Database = sql.Database(database, output)
         self.markdown = markdown
+        self.ignore_cached = ignore_cached
 
     def get_counts(self) -> Counts:
         return self.counts
@@ -49,7 +51,8 @@ class Fetcher:
 
     async def fetch(self, urls: set[URL]) -> None:
         self.counts.urls += len(urls)
-        urls = self.db.urls_to_fetch(urls)
+        if not self.ignore_cached:
+            urls = self.db.urls_to_fetch(urls)
         self.counts.require_fetching += len(urls)
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
         for url in urls: await q.put(url)
