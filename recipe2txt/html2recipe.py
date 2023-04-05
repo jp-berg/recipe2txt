@@ -105,8 +105,8 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
     return info
 
 
-between_recipes: Final[str] = linesep*5
-head_sep: Final[str] = linesep*2
+between_recipes: Final[str] = linesep * 5
+head_sep: Final[str] = linesep * 2
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
@@ -168,14 +168,14 @@ def _re2md(recipe: Recipe) -> str:
 
 def _re2txt(recipe: Recipe) -> str:
     txt = linesep.join([recipe.title,
-                     head_sep,
-                     recipe.total_time + " min | " + recipe.yields + linesep,
-                     recipe.ingredients,
-                     linesep*2,
-                     recipe.instructions.replace(linesep, linesep*2),
-                     linesep,
-                     "from: " + recipe.url,
-                     between_recipes])
+                        head_sep,
+                        recipe.total_time + " min | " + recipe.yields + linesep,
+                        recipe.ingredients,
+                        linesep * 2,
+                        recipe.instructions.replace(linesep, linesep * 2),
+                        linesep,
+                        "from: " + recipe.url,
+                        between_recipes])
     return txt
 
 
