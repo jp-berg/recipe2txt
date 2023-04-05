@@ -42,12 +42,11 @@ class Fetcher:
                     self.db.insert_recipe_unreachable(url)
                     continue
 
-                p = h2r.html2parsed(url, html)
-                if not p:
+                if p := h2r.html2parsed(url, html):
+                    r = h2r.parsed2recipe(url, p)
+                    self.db.insert_recipe(r)
+                else:
                     self.db.insert_recipe_unknown(url)
-                    continue
-                r = h2r.parsed2recipe(url, p)
-                self.db.insert_recipe(r)
 
     async def fetch(self, urls: set[URL]) -> None:
         self.counts.urls += len(urls)
@@ -72,11 +71,9 @@ class Fetcher:
             titles = ordered(*titles)
         else:
             titles = [name + " - " + host + linesep for name, host in titles]
-        recipes = []
-        for recipe in self.db.get_recipes():
-            r = h2r.recipe2out(recipe, self.counts, md=self.markdown)
-            if r:
-                recipes.append(r)
+
+        recipes = [formatted for recipe in self.db.get_recipes()
+                   if (formatted:= h2r.recipe2out(recipe, self.counts, md=self.markdown))]
 
         with open(self.output, "w") as file:
             mark_stage("Writing to output")

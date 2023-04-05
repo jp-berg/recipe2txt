@@ -125,8 +125,7 @@ class Database:
         return r
 
     def get_recipe(self, url: URL) -> Optional[Recipe]:
-        row = self.get_recipe_row(url)
-        if row:
+        if row := self.get_recipe_row(url):
             row = none2na(row)
         r = Recipe(*row) # type: ignore
         return r
