@@ -3,7 +3,7 @@ import sys
 import traceback
 import validators
 from os import makedirs, linesep
-from typing import NewType, Tuple, Final, Any, TypeGuard
+from typing import NewType, Tuple, Final, Any, TypeGuard, Optional
 
 __all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
            "Context", "nocontext", "while_context", "dprint",
@@ -73,24 +73,38 @@ def full_path(*pathelements: str) -> str:
     return path
 
 
-def ensure_existence_dir(*pathelements: str) -> str:
+def ensure_existence_dir(*pathelements: str) -> Optional[str]:
     path = full_path(*pathelements)
     if not os.path.isdir(path):
-        dprint(4, "Creating directory:", path)
-        makedirs(path, exist_ok=True)
+        try:
+            dprint(4, "Creating directory:", path)
+            makedirs(path, exist_ok=True)
+        except PermissionError:
+            return None
     return path
 
 
-def ensure_accessible_file(filename: str, *pathelements: str) -> File:
-    path = os.path.join(ensure_existence_dir(*pathelements), filename)
-    with open(path, 'a') as file:
-        pass
+def ensure_accessible_file(filename: str, *pathelements: str) -> Optional[File]:
+    if dirpath := ensure_existence_dir(*pathelements):
+        path = os.path.join(dirpath, filename)
+    else:
+        return None
+    try:
+        with open(path, 'a'):
+            pass
+    except OSError:
+        return None
     return File(path)
 
 
 def ensure_accessible_file_critical(filename: str, *pathelements: str) -> File:
     try:
-        path = ensure_accessible_file(filename, *pathelements)
+        path = full_path(*pathelements)
+        os.makedirs(path, exist_ok=True)
+        path = os.path.join(path, filename)
+        with open(path, 'a'):
+            pass
+
     except OSError as e:
         print("Error while creating or accessing file {}: {}"
               .format(full_path(full_path(*pathelements, filename)), getattr(e, 'message', repr(e))),
@@ -98,7 +112,7 @@ def ensure_accessible_file_critical(filename: str, *pathelements: str) -> File:
         exception_trace = "".join(traceback.format_exception(e))
         dprint(4, exception_trace, file=sys.stderr)
         exit(os.EX_IOERR)
-    return path
+    return File(path)
 
 
 def read_files(*paths: str) -> list[str]:
