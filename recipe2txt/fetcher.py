@@ -32,7 +32,7 @@ class Fetcher:
             while not url_queue.empty():
                 try:
                     url = await url_queue.get()
-                    context: Context = dprint(4, "Fetching", url)
+                    dprint(4, "Fetching", url)
                     async with session.get(url) as response:
                         html = await response.text()
                     self.counts.reached += 1
