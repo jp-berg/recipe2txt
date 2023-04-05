@@ -103,14 +103,9 @@ _parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 
 _parser.add_argument("-c", "--connections", type=int, default=4,
                      help="Sets the number of simultaneous connections")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
-                     help="Writes recipe to file regardless if it has already been added")
+                     help="[NI]Writes recipe to file regardless if it has already been added")
 _parser.add_argument("-ic", "--ignore-cached", action="store_true",
                      help="[NI]Downloads the requested recipes even if they have already been downloaded")
-_parser.add_argument("-hm", "--hours_minutes", action="store_true",
-                     help="[NI]Stores durations as hrs:min instead of min")
-_parser.add_argument("-se", "--servings", type=int, default=-123456789,  # magic number
-                     help="[NI]Sets to how many servings the ingredient list should be converted" +
-                          " (if the number of servings is specified)")
 _parser.add_argument("-d", "--debug", action="store_true",
                      help="Activates debug-mode: Changes the directory for application data")
 _parser.add_argument("-t", "--timeout", type=float, default=5.0,
@@ -156,8 +151,6 @@ _argnames: list[str] = [
     "connections",
     "ignore_added",
     "ignore_cached",
-    "hours_minutes",
-    "servings",
     "debug",
     "timeout",
     "markdown",
@@ -268,10 +261,6 @@ def sancheck_args(a: argparse.Namespace) -> None:
     if a.connections < 1:
         dprint(3, "Number of connections smaller than 1, setting to 1 ")
         a.connections = 1
-    if a.servings < 1:
-        if a.servings != -123456789:
-            dprint(3, "Number of servings smaller than 1, setting to 1")
-            a.servings = 1
     if a.timeout <= 0.0:
         dprint(3, "Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
