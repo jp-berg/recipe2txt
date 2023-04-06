@@ -79,7 +79,7 @@ def ensure_existence_dir(*pathelements: str) -> Optional[str]:
         try:
             dprint(4, "Creating directory:", path)
             makedirs(path, exist_ok=True)
-        except PermissionError:
+        except OSError:
             return None
     return path
 
