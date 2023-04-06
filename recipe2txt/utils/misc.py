@@ -161,8 +161,8 @@ def cutoff(url: URL, *identifiers: str) -> URL:
         start_tracking_part = url.find(i)
         if start_tracking_part > -1:
             tmp = url[:start_tracking_part]
-            if validators.url(tmp):
-                url = URL(tmp)
+            if is_url(tmp):
+                url = tmp
     return url
 
 
