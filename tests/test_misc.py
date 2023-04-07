@@ -2,7 +2,7 @@ import unittest
 import recipe2txt.utils.misc as misc
 import os
 
-file_dir = os.path.dirname(__file__)
+file_dir = os.path.join(os.path.dirname(__file__), "testfiles", "tmp")
 work_dir = os.getcwd()
 misc.set_vlevel(0)
 
@@ -57,6 +57,30 @@ class FileTests(unittest.TestCase):
 
         for test in none_dirs:
             self.assertIsNone(misc.ensure_accessible_file(testfile, *test))
+
+    def test_read_files(self):
+        file1_content = ["one", "two", "three", "four"]
+        file2_content = ["five", "six", "seven", "eight"]
+
+        file1_path = os.path.join(file_dir, "testfile1.txt")
+        file2_path = os.path.join(file_dir, "testfile2.txt")
+        file_notafile_path = os.path.join(file_dir, "NOTAFILE")
+
+        with open(file1_path, "w") as file:
+            for line in file1_content:
+                file.write(line + os.linesep)
+        with open(file2_path, "w") as file:
+            for line in file2_content:
+                file.write((line + os.linesep))
+
+        l = misc.read_files(file1_path, file_notafile_path, file2_path)
+
+        for test, validation in zip(l, (file1_content + file2_content)):
+            with self.subTest(i=validation):
+                self.assertEqual(test.rstrip(), validation)
+
+        os.remove(file1_path)
+        os.remove(file2_path)
 
 
 class StrTests(unittest.TestCase):
