@@ -148,7 +148,9 @@ class Database:
             if url in wanted and not fetch_again(status, version):
                 dprint(3, "Using cached version of", url)
                 wanted.remove(url)
+                self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, url))
                 if not wanted: break
+        self.con.commit()
         return wanted
 
     def insert_recipe_unreachable(self, url: URL) -> Recipe:
@@ -199,6 +201,11 @@ class Database:
         self.cur.execute(_GET_CONTENT, (self.filepath,))
         urls = [URL(url[0]) for url in self.cur.fetchall()]
         return urls
+
+    def set_contents(self, urls: set[URL]) -> None:
+        file_url = [(self.filepath, url) for url in urls]
+        self.cur.executemany(_ASSOCIATE_FILE_RECIPE, file_url)
+        self.con.commit()
 
     def empty_db(self) -> None:
         self.cur.executescript(_DROP_ALL)
