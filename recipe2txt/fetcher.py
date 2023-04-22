@@ -1,11 +1,17 @@
+from enum import Enum
 from os import linesep
-
 import aiohttp
 import asyncio
 from recipe2txt.utils.misc import Context, dprint, URL, File, Counts, mark_stage
 from recipe2txt.utils.markdown import *
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
+
+
+class Cache(str, Enum):
+    default = "default"
+    only = "only"
+    ignore = "ignore"
 
 
 class Fetcher:
@@ -15,14 +21,14 @@ class Fetcher:
                  connections: int = 1,
                  timeout: float = 10.0,
                  markdown: bool = False,
-                 ignore_cached: bool = False) -> None:
+                 cache: Cache = Cache.default) -> None:
         self.output: File = output
         self.connections: int = connections
         self.counts: Counts = counts
         self.timeout: float = timeout
         self.db: sql.Database = sql.Database(database, output)
         self.markdown = markdown
-        self.ignore_cached = ignore_cached
+        self.cache = cache
 
     def get_counts(self) -> Counts:
         return self.counts
@@ -50,8 +56,13 @@ class Fetcher:
 
     async def fetch(self, urls: set[URL]) -> None:
         self.counts.urls += len(urls)
-        if not self.ignore_cached:
+        if self.cache is Cache.only:
+            self.db.set_contents(urls)
+            urls.clear()
+        elif self.cache is Cache.default:
             urls = self.db.urls_to_fetch(urls)
+        elif self.cache is Cache.ignore:
+            urls = urls
         self.counts.require_fetching += len(urls)
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
         for url in urls: await q.put(url)

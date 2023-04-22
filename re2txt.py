@@ -2,11 +2,12 @@ import asyncio
 import os.path
 import argparse
 import sys
+from enum import Enum
 from os import linesep
 from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
 from shutil import rmtree
-from recipe2txt.fetcher import Fetcher
+from recipe2txt.fetcher import Fetcher, Cache
 from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 
@@ -103,12 +104,16 @@ _parser.add_argument("-o", "--output", default="",
                           "the current working directory or into the default output file (if set).")
 _parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
                      help="Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0")
-_parser.add_argument("-c", "--connections", type=int, default=4,
+_parser.add_argument("-cn", "--connections", type=int, default=4,
                      help="Sets the number of simultaneous connections")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
-_parser.add_argument("-ic", "--ignore-cached", action="store_true",
-                     help="Downloads the requested recipes even if they have already been downloaded")
+_parser.add_argument("-c", "--cache", choices=["only", "ignore", "default"], default="default",
+                     help="Controls how the program should handle its cache: With 'only' no new data will be downloaded"
+                     ", the recipes will be generated from data that has been downloaded previously. If a recipe is not"
+                          " in the cache, it will not be written into the final output. 'ignore' will make the program"
+                          " ignore any saved data and download the requested recipes even if they have already been"
+                          " downloaded. The 'default' will fetch and merge missing data with the data already saved.")
 _parser.add_argument("-d", "--debug", action="store_true",
                      help="Activates debug-mode: Changes the directory for application data")
 _parser.add_argument("-t", "--timeout", type=float, default=5.0,
@@ -153,7 +158,7 @@ _argnames: list[str] = [
     "verbosity",
     "connections",
     "ignore_added",
-    "ignore_cached",
+    "cache",
     "debug",
     "timeout",
     "markdown",
@@ -285,7 +290,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     f = Fetcher(output=recipe_file, connections=a.connections,
                 counts=counts, database=db_file,
                 timeout=a.timeout, markdown=a.markdown,
-                ignore_cached=a.ignore_cached)
+                cache=Cache(a.cache))
 
     return processed, f
 
