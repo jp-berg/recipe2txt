@@ -64,6 +64,7 @@ _GET_CONTENT: Final[str] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
 _GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
                                 " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY)) \
+_DROP_ALL: Final[str] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; DROP TABLE IF EXISTS contents"
 
 
 AccessibleDatabase = NewType("AccessibleDatabase", str)
@@ -202,6 +203,8 @@ class Database:
         return urls
 
     def __del__(self):
+    def empty_db(self) -> None:
+        self.cur.executescript(_DROP_ALL)
         self.cur.close()
         self.con.close()
 
