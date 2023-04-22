@@ -165,17 +165,10 @@ class Database:
         updated = []
         if old_row:
             for old_val, new_val in zip(old_row, new_row):
-                if new_val and new_val != NA:
-                    if old_val and old_val != NA:
-                        if prefer_new:
-                            merged_row.append(new_val)
-                            updated.append(True)
-                        else:
-                            merged_row.append(old_val)
-                            updated.append(False)
-                    else:
-                        merged_row.append(new_val)
-                        updated.append(True)
+                if (new_val and new_val != NA) \
+                        and (prefer_new or not (old_val and old_val != NA)):
+                    merged_row.append(new_val)
+                    updated.append(True)
                 else:
                     merged_row.append(old_val)
                     updated.append(False)
