@@ -50,7 +50,6 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
         t = tuple([tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp))])
     return t
 
-
 essential: Final[list[str]] = [
     "ingredients",
     "instructions"
@@ -70,6 +69,17 @@ recipe_attributes: Final[list[str]] = methods + [
     "status",
     "scraper_version"
 ]
+
+
+def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
+    if len(t) != len(recipe_attributes):
+        raise ValueError("Wanted length of " + str(len(recipe_attributes)) + ", got " + str(len(t)))
+    assert(recipe_attributes[-2] == "status")
+    try:
+        status = RecipeStatus(int(t[-2]))
+    except ValueError:
+        status = RecipeStatus.NOT_INITIALIZED
+    return t[:-2] + (status, t[-1])
 
 
 def _get_info(method: str, data: Parsed, context: Context) -> str:
