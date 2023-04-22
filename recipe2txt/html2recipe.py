@@ -110,6 +110,9 @@ head_sep: Final[str] = linesep * 2
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
+    if len(infos) > len(methods):
+        raise ValueError("This function only analyzes attributes contained in html2recipe.methods."
+                         " Expected " + str(len(methods)) + " elements, got " + str(len(infos)))
     for i in range(len(essential)):
         if infos[i] == NA:
             return RecipeStatus.INCOMPLETE_ESSENTIAL
