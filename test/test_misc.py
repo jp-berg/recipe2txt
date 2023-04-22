@@ -1,23 +1,32 @@
 import unittest
 import recipe2txt.utils.misc as misc
 import os
+from .test_helpers import *
 
-file_dir = os.path.join(os.path.dirname(__file__), "testfiles", "tmp")
-work_dir = os.getcwd()
 misc.set_vlevel(0)
 
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
 testfile = "TESTFILE.txt"
 none_dirs = [["/dev", "null"] + testdirs]
-normal_dirs = [[work_dir] + testdirs, [file_dir] + testdirs]
+normal_dirs = [[folder] + testdirs for folder in tmpdirs]
 
 
 class FileTests(unittest.TestCase):
 
+    def setUp(self) -> None:
+        if not create_tmpdirs():
+            self.fail()
+
+    def tearDown(self) -> None:
+        if not delete_tmpdirs():
+            self.fail()
+
     def test_full_path(self):
         params = [
             (["~", "Documents", "File1"], os.path.expanduser(os.path.join("~", "Documents", "File1"))),
-            (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt"))]
+            (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt")),
+            ([".", "file"], os.path.join(os.getcwd(), "file"))
+        ]
 
         for test, validation in params:
             with self.subTest(i=test):
@@ -28,7 +37,7 @@ class FileTests(unittest.TestCase):
 
         for test, validation in params_path:
             with self.subTest(i=test):
-                self.assertEqual(misc.ensure_existence_dir(*test), validation)
+                self.assertTrue(os.path.samefile(misc.ensure_existence_dir(*test), validation))
                 os.removedirs(validation)
 
         for test in none_dirs:
@@ -37,10 +46,9 @@ class FileTests(unittest.TestCase):
 
     def test_ensure_accessible_file(self):
         params_path = [(test, os.path.join(*test, testfile)) for test in normal_dirs]
-
         for test, validation in params_path:
             with self.subTest(i=test):
-                self.assertEqual(misc.ensure_accessible_file(testfile, *test), validation)
+                self.assertTrue(os.path.samefile(misc.ensure_accessible_file(testfile, *test), validation))
                 if not os.path.isfile(validation):
                     self.fail("File", validation, "was not created")
                 try:
@@ -53,7 +61,8 @@ class FileTests(unittest.TestCase):
                     self.fail(e)
 
                 os.remove(validation)
-                os.removedirs(os.path.dirname(validation))
+                os.rmdir(validation := os.path.dirname(validation))
+                os.rmdir(os.path.dirname(validation))
 
         for test in none_dirs:
             self.assertIsNone(misc.ensure_accessible_file(testfile, *test))
@@ -62,9 +71,9 @@ class FileTests(unittest.TestCase):
         file1_content = ["one", "two", "three", "four"]
         file2_content = ["five", "six", "seven", "eight"]
 
-        file1_path = os.path.join(file_dir, "testfile1.txt")
-        file2_path = os.path.join(file_dir, "testfile2.txt")
-        file_notafile_path = os.path.join(file_dir, "NOTAFILE")
+        file1_path = os.path.join(test_project_tmpdir, "testfile1.txt")
+        file2_path = os.path.join(xdg_tmpdir, "testfile2.txt")
+        file_notafile_path = os.path.join(test_project_tmpdir, "NOTAFILE")
 
         with open(file1_path, "w") as file:
             for line in file1_content:
@@ -73,9 +82,9 @@ class FileTests(unittest.TestCase):
             for line in file2_content:
                 file.write((line + os.linesep))
 
-        l = misc.read_files(file1_path, file_notafile_path, file2_path)
+        str_list = misc.read_files(file1_path, file_notafile_path, file2_path)
 
-        for test, validation in zip(l, (file1_content + file2_content)):
+        for test, validation in zip(str_list, (file1_content + file2_content)):
             with self.subTest(i=validation):
                 self.assertEqual(test.rstrip(), validation)
 
@@ -112,4 +121,3 @@ class StrTests(unittest.TestCase):
         for obj, validation in objects:
             with self.subTest(i=obj):
                 self.assertEqual(misc.head_str(obj, 10), validation)
-
