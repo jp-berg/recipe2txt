@@ -10,7 +10,7 @@ JUNK = $(DEBUG_OUT)
 
 
 testrun: clean
-	 python3 re2txt.py -v4 -d -md -f ./tests/testfiles/urls.txt
+	 python3 re2txt.py -v4 -d -md -f ./test/testfiles/urls.txt
 	 
 test: testfiles
 	python3 -m unittest

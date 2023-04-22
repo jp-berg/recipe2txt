@@ -35,7 +35,7 @@ def process_urls(strings: list[str]) -> set[URL]:
 
 program_name: Final[str] = "recipes2txt"
 default_data_directory: Final[str] = os.path.join(xdg_data_home(), program_name)
-debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "tests", "testfiles", "data")
+debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "test", "testfiles", "data")
 
 db_name: Final[str] = program_name + ".sqlite3"
 recipes_name_txt: Final[str] = "recipes.txt"
