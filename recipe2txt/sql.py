@@ -176,7 +176,10 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                merged_row[-2] = gen_status(merged_row[:len(methods)])  # type: ignore
+                if not (old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN):
+                    merged_row[-2] = gen_status(merged_row[:len(methods)])  # type: ignore
+                else:
+                    merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore
                 replaced_list = ["\t{}: {} => {}".format(attr, head_str(old_val), head_str(new_val))
                                  for attr, old_val, new_val, is_replaced in
