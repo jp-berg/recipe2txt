@@ -88,12 +88,10 @@ def is_accessible_db(path: str) -> TypeGuard[AccessibleDatabase]:
 
 
 def fetch_again(status: RS, scraper_version: str) -> bool:
-    if status == RS.UNREACHABLE or status == RS.INCOMPLETE_ESSENTIAL:
+    if status in (RS.UNREACHABLE, RS.INCOMPLETE_ESSENTIAL, RS.NOT_INITIALIZED):
         return True
 
-    if (status == RS.UNKNOWN
-        or status == RS.INCOMPLETE_ON_DISPLAY
-        or status == RS.COMPLETE_ON_DISPLAY) \
+    if status in (RS.UNKNOWN, RS.INCOMPLETE_ON_DISPLAY, RS.COMPLETE_ON_DISPLAY) \
             and scraper_version < SCRAPER_VERSION:
         return True
 
