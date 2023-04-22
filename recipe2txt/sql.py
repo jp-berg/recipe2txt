@@ -57,13 +57,13 @@ _ASSOCIATE_FILE_RECIPE: Final[str] = "INSERT OR IGNORE INTO contents (fileID, re
 _FILEPATHS_JOIN_RECIPES: Final[str] = " ((SELECT * FROM files WHERE filepath = ?) " \
                                       " NATURAL JOIN contents NATURAL JOIN recipes) "
 _GET_RECIPE: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM recipes WHERE url = ?"
-_GET_RECIPES: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM" + _FILEPATHS_JOIN_RECIPES +\
+_GET_RECIPES: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
                            "WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
 _GET_URLS_STATUS_VERSION: Final[str] = "SELECT url, status, scraper_version FROM recipes"
 _GET_CONTENT: Final[str] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
 _GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
-                                " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY)) \
+                                " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
 _DROP_ALL: Final[str] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; DROP TABLE IF EXISTS contents"
 
 
@@ -185,8 +185,9 @@ class Database:
                 merged_row[-2] = gen_status(merged_row)  # type: ignore
                 r = Recipe(*merged_row)  # type: ignore
                 replaced_list = ["\t{}: {} => {}".format(attr, head_str(old_val), head_str(new_val))
-                            for attr, old_val, new_val, is_replaced in zip(recipe_attributes, old_row, new_row, updated)
-                            if is_replaced]
+                                 for attr, old_val, new_val, is_replaced in
+                                 zip(recipe_attributes, old_row, new_row, updated)
+                                 if is_replaced]
                 replaced = linesep + linesep.join(replaced_list)
                 dprint(3, "Updated " + recipe.url + "", replaced)
                 self.replace_recipe(r)
