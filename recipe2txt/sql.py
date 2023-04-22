@@ -176,7 +176,7 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                if not (old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN):
+                if not (RS(old_row[-2]) <= RS.UNKNOWN and RS(new_row[-2]) < RS.UNKNOWN):
                     merged_row[-2] = gen_status(merged_row[:len(methods)])  # type: ignore
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
