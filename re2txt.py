@@ -52,6 +52,9 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
         db_path = debug_data_directory
     else:
         db_path = default_data_directory
+    if not ensure_existence_dir(db_path):
+        print("Data directory cannot be created", file=sys.stderr)
+        exit(os.EX_IOERR)
     db_path = os.path.join(db_path, db_name)
     if is_accessible_db(db_path):
         db_file = db_path
