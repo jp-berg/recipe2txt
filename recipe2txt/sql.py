@@ -202,9 +202,9 @@ class Database:
         urls = [URL(url[0]) for url in self.cur.fetchall()]
         return urls
 
-    def __del__(self):
     def empty_db(self) -> None:
         self.cur.executescript(_DROP_ALL)
+
+    def close(self) -> None:
         self.cur.close()
         self.con.close()
-
