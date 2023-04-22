@@ -36,7 +36,7 @@ class Recipe(NamedTuple):
     nutrients: str = NA
     url: URL = URL("https://notinitialized.no")
     status: RecipeStatus = RecipeStatus.NOT_INITIALIZED
-    scraper_version: str = '0.0'
+    scraper_version: str = '-1'
 
 
 uninit_recipe: Final[Recipe] = Recipe()
