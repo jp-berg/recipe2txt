@@ -11,7 +11,14 @@ JUNK = $(DEBUG_OUT)
 
 testrun: clean
 	 python3 re2txt.py -v4 -d -md -f ./tests/testfiles/urls.txt
+	 
+test: testfiles
+	python3 -m unittest
+
+testfiles:
+	python3 -m test.testfiles.html2recipe.testfile_generator
 
 clean:
 		rm  $(JUNK) || true
 
+.PHONY: test testfiles
