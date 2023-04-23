@@ -104,7 +104,7 @@ _parser.add_argument("-o", "--output", default="",
                           "the current working directory or into the default output file (if set).")
 _parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
                      help="Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0")
-_parser.add_argument("-cn", "--connections", type=int, default=4,
+_parser.add_argument("-con", "--connections", type=int, default=4,
                      help="Sets the number of simultaneous connections")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
