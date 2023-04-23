@@ -2,7 +2,6 @@ import asyncio
 import os.path
 import argparse
 import sys
-from enum import Enum
 from os import linesep
 from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
