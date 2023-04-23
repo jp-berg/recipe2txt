@@ -108,6 +108,7 @@ class Database:
         self.cur.executescript(_CREATE_TABLES)
         self.filepath = output_file
         self.cur.execute(_INSERT_FILE, (output_file,))
+        self.con.commit()
 
     def new_recipe(self, recipe: Recipe) -> Recipe:
         self.cur.execute(_INSERT_RECIPE, tuple(recipe))
@@ -210,6 +211,7 @@ class Database:
 
     def empty_db(self) -> None:
         self.cur.executescript(_DROP_ALL)
+        self.con.commit()
 
     def close(self) -> None:
         self.cur.close()
