@@ -164,7 +164,7 @@ def _re2md(recipe: Recipe) -> str:
     instructions = ordered(*escaped)
 
     md = "".join([
-        header(title, 2),
+        header(title, 2, True),
         paragraph(),
         recipe.total_time + " min | " + recipe.yields,
         paragraph(),

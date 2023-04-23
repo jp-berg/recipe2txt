@@ -77,8 +77,8 @@ class Fetcher:
     def write(self):
         titles = self.db.get_titles()
         if self.markdown:
-            print(len(titles))
-            titles = [section_link(esc(name)) + " - " + esc(host) + linesep for name, host in titles]
+            titles = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
+                      for name, host in titles]
             titles = ordered(*titles)
         else:
             titles = [name + " - " + host + linesep for name, host in titles]

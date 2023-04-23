@@ -1,6 +1,7 @@
 import re
 from typing import Pattern, Final, Optional
 from os import linesep
+from base64 import b64encode
 
 __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "super", "code", "codeblock",
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
@@ -13,6 +14,10 @@ not_escaped: Final[Pattern] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-
 EMPTY_COMMENT: Final[str] = "\n<!-- -->\n" # Helpful to terminate lists in case two different lists follow each other
 
 
+def fragmentify(string: str) -> str:
+    return b64encode(string.encode()).decode()
+
+
 def esc(string: str) -> str:
     """
     escapable symbols: \'*_{}[]()#+-.!
@@ -21,13 +26,17 @@ def esc(string: str) -> str:
     return not_escaped.sub(r"\\\1", string)
 
 
-def header(string: str, level: int = 1) -> str:
+def header(string: str, level: int = 1, fragmentified_section_link: bool = False) -> str:
     if level < 1:
         level = 1
     elif level > 6:
         level = 6
-
-    return "#" * level + " " + string
+    if fragmentified_section_link:
+        f = fragmentify(string)
+        pre = f"<div id=\"{f}\"></div>{linesep}"
+    else:
+        pre = ""
+    return pre + "#" * level + " " + string
 
 
 def quote(string: str) -> str:
@@ -68,8 +77,11 @@ def link(url: str, description: Optional[str] = None) -> str:
     return "".join(["[", description, "](", url, ")"])
 
 
-def section_link(header: str, description: Optional[str] = None) -> str:
-    ref = "#" + header.replace(" ", "-")
+def section_link(header: str, description: Optional[str] = None, fragmentified: bool = False) -> str:
+    if fragmentified:
+        ref = "#" + fragmentify(header)
+    else:
+        ref = "#" + header.replace(" ", "-")
     if not description:
         description = header
     return link(ref, description)
