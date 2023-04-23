@@ -64,6 +64,7 @@ class Fetcher:
             urls = self.db.urls_to_fetch(urls)
         elif self.cache is Cache.new:
             urls = urls
+            self.db.set_contents(urls)
         self.counts.require_fetching += len(urls)
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
         for url in urls: await q.put(url)
