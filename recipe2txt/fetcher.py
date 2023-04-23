@@ -76,23 +76,26 @@ class Fetcher:
         self.write()
 
     def write(self):
-        titles = self.db.get_titles()
-        if self.markdown:
-            titles = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
-                      for name, host in titles]
-            titles = ordered(*titles)
-        else:
-            titles = [name + " - " + host + linesep for name, host in titles]
 
         recipes = [formatted for recipe in self.db.get_recipes()
-                   if (formatted:= h2r.recipe2out(recipe, self.counts, md=self.markdown))]
+                   if (formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown))]
+
+        if len(recipes) > 2:
+            titles = self.db.get_titles()
+            if self.markdown:
+                titles = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
+                          for name, host in titles]
+                titles = ordered(*titles)
+            else:
+                titles = [name + " - " + host + linesep for name, host in titles]
 
         with open(self.output, "w") as file:
             mark_stage("Writing to output")
             dprint(3, "Writing to", self.output)
-            file.writelines(titles)
-            file.write(paragraph())
-            file.write(("-"*10) + h2r.head_sep)
-            file.write(paragraph())
+            if len(recipes) > 2:
+                file.writelines(titles)
+                file.write(paragraph())
+                file.write(("-"*10) + h2r.head_sep)
+                file.write(paragraph())
             file.writelines(recipes)
 
