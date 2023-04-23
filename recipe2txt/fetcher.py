@@ -11,10 +11,11 @@ import recipe2txt.sql as sql
 class Cache(str, Enum):
     default = "default"
     only = "only"
-    ignore = "ignore"
+    new = "new"
 
 
 class Fetcher:
+
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
                  counts: Counts = Counts(),
@@ -50,7 +51,7 @@ class Fetcher:
 
                 if p := h2r.html2parsed(url, html):
                     r = h2r.parsed2recipe(url, p)
-                    self.db.insert_recipe(r)
+                    self.db.insert_recipe(r, self.cache == Cache.new)
                 else:
                     self.db.insert_recipe_unknown(url)
 
@@ -61,7 +62,7 @@ class Fetcher:
             urls.clear()
         elif self.cache is Cache.default:
             urls = self.db.urls_to_fetch(urls)
-        elif self.cache is Cache.ignore:
+        elif self.cache is Cache.new:
             urls = urls
         self.counts.require_fetching += len(urls)
         q: asyncio.queues.Queue[URL] = asyncio.Queue()

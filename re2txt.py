@@ -108,12 +108,14 @@ _parser.add_argument("-con", "--connections", type=int, default=4,
                      help="Sets the number of simultaneous connections")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
-_parser.add_argument("-c", "--cache", choices=["only", "ignore", "default"], default="default",
+_parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default="default",
                      help="Controls how the program should handle its cache: With 'only' no new data will be downloaded"
                      ", the recipes will be generated from data that has been downloaded previously. If a recipe is not"
-                          " in the cache, it will not be written into the final output. 'ignore' will make the program"
+                          " in the cache, it will not be written into the final output. 'new' will make the program"
                           " ignore any saved data and download the requested recipes even if they have already been"
-                          " downloaded. The 'default' will fetch and merge missing data with the data already saved.")
+                          " downloaded. Old data will be replaced by the new version, if it is available."
+                          " The 'default' will fetch and merge missing data with the data already saved, only inserting"
+                          " new data into the cache where there was none previously.")
 _parser.add_argument("-d", "--debug", action="store_true",
                      help="Activates debug-mode: Changes the directory for application data")
 _parser.add_argument("-t", "--timeout", type=float, default=5.0,
