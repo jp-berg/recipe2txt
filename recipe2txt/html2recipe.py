@@ -107,7 +107,9 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
                 info = None
             else:
                 info = str(info)
-        elif method == "ingredients": info = linesep.join(info)
+        elif method == "ingredients":
+            if not isinstance(info, str):
+                info = linesep.join(info)
         elif method == "nutrients": info = dict2str(info)
     if not info or info.isspace() or info == "None":
         dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
