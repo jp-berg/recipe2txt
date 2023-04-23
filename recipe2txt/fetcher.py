@@ -2,7 +2,7 @@ from enum import Enum
 from os import linesep
 import aiohttp
 import asyncio
-from recipe2txt.utils.misc import Context, dprint, URL, File, Counts, mark_stage
+from recipe2txt.utils.misc import dprint, URL, File, Counts, mark_stage
 from recipe2txt.utils.markdown import *
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
