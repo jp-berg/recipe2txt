@@ -33,7 +33,7 @@ def header(string: str, level: int = 1, fragmentified_section_link: bool = False
         level = 6
     if fragmentified_section_link:
         f = fragmentify(string)
-        pre = f"<div id=\"{f}\"></div>{linesep}"
+        pre = f"<div id=\"{f}\"></div>{linesep*2}"
     else:
         pre = ""
     return pre + "#" * level + " " + string
