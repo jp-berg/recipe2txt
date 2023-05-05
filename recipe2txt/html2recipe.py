@@ -89,7 +89,7 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
     method_name = method.replace("_", " ")
     try:
         info = getattr(data, method)()
-    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError):
+    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError):
         dprint(error_level, "\t", "No", method_name, "found", context=context)
         return NA
     except NotImplementedError:
@@ -101,16 +101,16 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
         dprint(4, exception_trace)
         return NA
 
+    if isinstance(info, (int, float)):
+        info = None if info == 0 else str(info)
+
     if info:
-        if method == "total_time":
-            if info == 0:
-                info = None
-            else:
-                info = str(info)
-        elif method == "ingredients":
+        if method == "ingredients":
             if not isinstance(info, str):
                 info = linesep.join(info)
         elif method == "nutrients": info = dict2str(info)
+        elif method == "instructions":
+            info = info.replace(linesep*2, linesep)
     if not info or info.isspace() or info == "None":
         dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
         return NA
