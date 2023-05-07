@@ -15,8 +15,16 @@ DEBUG_OUT = tests/testfiles/recipe_test.txt tests/testfiles/recipe_test.md
 JUNK = $(DEBUG_OUT)
 
 
-testrun: clean
-	 python3 re2txt.py -v4 -d -md -f ./test/testfiles/urls.txt
+testrun: clean test1 test2 test3
+
+test1: $(REQ)
+	$(ACTIVATE); python3 re2txt.py -v4 -d -md -f ./test/testfiles/urls.txt -o ./test/testfiles/recipe_test.md -con 10 -t 20
+
+test2: $(REQ)
+	$(ACTIVATE); python3 re2txt.py -v4 -d -f ./test/testfiles/urls2.txt -o ./test/testfiles/recipe_test2.txt -con 10 -t 20
+
+test3: $(REQ)
+	$(ACTIVATE); python3 re2txt.py -v4 -d -md -f ./test/testfiles/urls3.txt ./test/testfiles/urls4.txt ./test/testfiles/urls5.txt -o ./test/testfiles/recipe_test3.md -con 10 -t 20
 	 
 $(REQ): $(VENV)
 	. $(ACTIVATE); pip install -r requirements.txt; touch $@
@@ -33,4 +41,4 @@ testfiles: $(REQ)
 clean:
 		rm  $(JUNK) || true
 
-.PHONY: test testfiles
+.PHONY: test testfiles test1 test2 test3
