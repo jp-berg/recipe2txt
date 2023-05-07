@@ -2,11 +2,13 @@ TODO.txt
 __pycache__/
 argparse_test.py
 test/testfiles/data/knownURLs.txt
-test/testfiles/recipe_test.txt
-test/testfiles/recipe_test.md
+test/testfiles/recipe_test*.txt
+test/testfiles/recipe_test*.md
 test/testfiles/markdown
 test/testfiles/data/recipes2txt.sqlite3
 .project
 .pydevproject
 .idea
 .mypy_cache
+.venv
+.req
