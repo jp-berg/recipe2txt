@@ -1,14 +1,19 @@
-from os import linesep
+from os import linesep, remove, path
+from sys import stderr, argv
 
-
-def convert(file: str):
+def convert(file: str) -> None:
+    if not path.isfile(file):
+        print(f"Not a file {file}", file=stderr)
+        return
     with open(file, 'r') as f:
         lines = f.readlines()
         lines = [line[:line.find(" | ")] + linesep for line in lines]
          
     with open(file, 'w') as ff:
-         [f.write(line) for line in lines]
+         for line in lines:
+             ff.write(line)
 
 
 if __name__ == '__main__':
-    convert("urls.txt")
+    for arg in argv:
+        convert(arg)
