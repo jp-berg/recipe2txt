@@ -114,7 +114,7 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
     if not info or info.isspace() or info == "None":
         dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
         return NA
-    return info
+    return str(info)
 
 
 between_recipes: Final[str] = linesep * 5

@@ -166,7 +166,7 @@ def cutoff(url: URL, *identifiers: str) -> URL:
     return url
 
 
-def dict2str(dictionary: dict) -> str:
+def dict2str(dictionary: dict[Any, Any]) -> str:
     items = ["{}: {}".format(*item) for item in dictionary.items()]
     return linesep.join(items)
 

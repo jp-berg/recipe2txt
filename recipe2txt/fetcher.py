@@ -76,19 +76,20 @@ class Fetcher:
         await(asyncio.gather(*tasks))
         self.write()
 
-    def write(self):
+    def write(self) -> None:
 
         recipes = [formatted for recipe in self.db.get_recipes()
                    if (formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown))]
 
         if len(recipes) > 2:
-            titles = self.db.get_titles()
+            titles_raw = self.db.get_titles()
             if self.markdown:
-                titles = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
-                          for name, host in titles]
-                titles = ordered(*titles)
+                titles_md_fmt = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
+                          for name, host in titles_raw]
+                titles = ordered(*titles_md_fmt)
             else:
-                titles = [name + " - " + host + linesep for name, host in titles]
+                titles_txt_fmt = [name + " - " + host for name, host in titles_raw]
+                titles = linesep.join(titles_txt_fmt)
 
         with open(self.output, "w") as file:
             mark_stage("Writing to output")

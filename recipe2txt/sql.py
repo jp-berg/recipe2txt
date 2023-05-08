@@ -1,6 +1,6 @@
 import sqlite3
 from os import linesep
-from typing import Final, Tuple, Optional, TypeGuard, NewType
+from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
 from .utils.misc import *
 from .html2recipe import Recipe, NA, recipe_attributes, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
     int2status, methods
@@ -122,10 +122,10 @@ class Database:
         self.con.commit()
         return recipe
 
-    def get_recipe_row(self, url: URL) -> Optional[Tuple]:
+    def get_recipe_row(self, url: URL) -> Optional[Tuple[Any, ...]]:
         self.cur.execute(_GET_RECIPE, (url,))
         r = self.cur.fetchone()
-        return r
+        return tuple(r)
 
     def get_recipe(self, url: URL) -> Optional[Recipe]:
         if row := self.get_recipe_row(url):

@@ -10,7 +10,7 @@ __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", 
 indent: Final[str] = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
-not_escaped: Final[Pattern] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
+not_escaped: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
 EMPTY_COMMENT: Final[str] = "\n<!-- -->\n" # Helpful to terminate lists in case two different lists follow each other
 
 
