@@ -35,11 +35,11 @@ $(VENV):
 mypy: $(REQ)
 	mypy -m re2txt --python-executable .venv/bin/python3 --strict
 
-test: testfiles $(REQ)
+test: $(REQ)
 	$(ACTIVATE); python3 -m unittest
 
 testfiles: $(REQ)
-	$(ACTIVATE); python3 -m test.testfiles.html2recipe.testfile_generator
+	$(ACTIVATE); python3 -m test.testfiles.html2recipe.testfile_generator;
 
 clean:
 		rm  $(JUNK) || true
