@@ -6,7 +6,7 @@ from typing import Final
 from recipe2txt.utils.misc import dprint, set_vlevel, URL, is_url
 
 import recipe_scrapers
-from enum import Enum
+from enum import StrEnum
 
 __all__ = ["html", "html_bad", "recipes", "md", "txt", "urls"]
 set_vlevel(0)
@@ -24,7 +24,7 @@ def get_urls() -> list[URL]:
 urls: Final[list[URL]] = get_urls()
 
 
-class FileExtension(str, Enum):
+class FileExtension(StrEnum):
     txt = ".txt"
     md = ".md"
     parsed = ".parsed"

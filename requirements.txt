@@ -3,3 +3,4 @@ xdg-base-dirs ~= 6.0
 validators ~= 0.20
 aiohttp ~= 3.8
 importlib-metadata ~= 6.6
+backports.strenum ~= 1.2; python_version < "3.11"
