@@ -297,13 +297,14 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
 
 
 if __name__ == '__main__':
+    print("HERE")
     a = _parser.parse_args()
     set_vlevel(a.verbosity)
 
     dprint(4, "CLI-ARGS:", *args2strs(a), sep=linesep + "\t")
     mutex_args(a)
     urls, fetcher = process_params(a)
-    asyncio.run(fetcher.fetch(urls))
+    fetcher.fetch(urls)
     mark_stage("Summary")
     dprint(3, str(fetcher.get_counts()))
     exit(os.EX_OK)
