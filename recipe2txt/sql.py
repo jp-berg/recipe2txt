@@ -125,7 +125,7 @@ class Database:
     def get_recipe_row(self, url: URL) -> Optional[Tuple[Any, ...]]:
         self.cur.execute(_GET_RECIPE, (url,))
         r = self.cur.fetchone()
-        return tuple(r)
+        return tuple(r) if r else None
 
     def get_recipe(self, url: URL) -> Optional[Recipe]:
         if row := self.get_recipe_row(url):
