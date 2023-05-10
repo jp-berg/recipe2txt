@@ -1,4 +1,8 @@
-from enum import Enum
+from sys import version_info
+if version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum
 from os import linesep
 import aiohttp
 import asyncio
@@ -8,7 +12,7 @@ import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 
 
-class Cache(str, Enum):
+class Cache(StrEnum):
     default = "default"
     only = "only"
     new = "new"
