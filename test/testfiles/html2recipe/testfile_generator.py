@@ -8,7 +8,7 @@ from recipe2txt.utils.misc import dprint, set_vlevel, URL, is_url
 import recipe_scrapers
 from sys import version_info
 
-if sys.version_info >= (3, 11):
+if version_info >= (3, 11):
     from enum import StrEnum
 else:
     from backports.strenum import StrEnum
