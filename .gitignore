@@ -12,4 +12,3 @@ test/testfiles/data/recipes2txt.sqlite3
 .mypy_cache
 .venv
 .req
-NOASYNCENV

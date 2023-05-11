@@ -6,7 +6,15 @@ from os import linesep
 from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
 from shutil import rmtree
-from recipe2txt.fetcher import Fetcher, Cache
+from recipe2txt.fetcher_abstract import Cache
+
+_is_async:bool
+try:
+    from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
+    _is_async = True
+except ImportError:
+    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher # type: ignore
+    _is_async = False
 from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 
@@ -102,9 +110,10 @@ _parser.add_argument("-o", "--output", default="",
                      help="Specifies an output file. If empty or not specified recipes will either be written into"
                           "the current working directory or into the default output file (if set).")
 _parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
-                     help="Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0")
-_parser.add_argument("-con", "--connections", type=int, default=4,
-                     help="Sets the number of simultaneous connections")
+                     help="Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0)")
+_parser.add_argument("-con", "--connections", type=int, default=4 if _is_async else 1,
+                     help="Sets the number of simultaneous connections (default 4). If package 'aiohttp' is not "
+                          "installed the number of simultaneous connections will always be 1.")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
 _parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default="default",
@@ -270,6 +279,8 @@ def sancheck_args(a: argparse.Namespace) -> None:
     if a.connections < 1:
         dprint(3, "Number of connections smaller than 1, setting to 1 ")
         a.connections = 1
+    elif a.connections > 1 and not _is_async:
+        dprint(3, "Number of connections greater than 1, but package aiohttp not installed.")
     if a.timeout <= 0.0:
         dprint(3, "Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
@@ -297,7 +308,6 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
 
 
 if __name__ == '__main__':
-    print("HERE")
     a = _parser.parse_args()
     set_vlevel(a.verbosity)
 
