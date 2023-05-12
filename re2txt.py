@@ -23,8 +23,7 @@ def process_urls(strings: list[str]) -> set[URL]:
     processed: set[URL] = set()
     for string in strings:
         string = string.replace(linesep, '')
-        string.strip()
-        if not string: continue
+        if not string.strip(): continue
         c = dprint(4, "Processing", string)
         c = while_context(c)
         if not string.startswith("http"):
