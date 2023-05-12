@@ -2,10 +2,14 @@ from enum import Enum
 from os import linesep
 import aiohttp
 import asyncio
-from recipe2txt.utils.misc import dprint, URL, File, Counts, mark_stage
+
+from recipe2txt.utils.ContextLogger import get_logger
+from recipe2txt.utils.misc import URL, File, Counts
 from recipe2txt.utils.markdown import *
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
+
+logger = get_logger(__name__)
 
 
 class Cache(str, Enum):
@@ -39,13 +43,13 @@ class Fetcher:
             while not url_queue.empty():
                 try:
                     url = await url_queue.get()
-                    dprint(4, "Fetching", url)
+                    logger.info(f"Fetching {url}")
                     async with session.get(url) as response:
                         html = await response.text()
                     self.counts.reached += 1
 
                 except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                    dprint(1, "Issue reaching", url)
+                    logger.error(f"Issue reaching {url}")
                     self.db.insert_recipe_unreachable(url)
                     continue
 
@@ -72,7 +76,7 @@ class Fetcher:
                                         sock_connect=None, sock_read=None)
         tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(self.connections)]
         if self.counts.require_fetching:
-            mark_stage("Fetching missing recipes")
+            logger.info("--- Fetching missing recipes ---")
         await(asyncio.gather(*tasks))
         self.write()
 
@@ -85,19 +89,18 @@ class Fetcher:
             titles_raw = self.db.get_titles()
             if self.markdown:
                 titles_md_fmt = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
-                          for name, host in titles_raw]
+                                 for name, host in titles_raw]
                 titles = ordered(*titles_md_fmt)
             else:
                 titles_txt_fmt = [name + " - " + host for name, host in titles_raw]
                 titles = linesep.join(titles_txt_fmt)
 
         with open(self.output, "w") as file:
-            mark_stage("Writing to output")
-            dprint(3, "Writing to", self.output)
+            logger.info("--- Writing to output ---")
+            logger.info(f"Writing to {self.output}")
             if len(recipes) > 2:
                 file.writelines(titles)
                 file.write(paragraph())
-                file.write(("-"*10) + h2r.head_sep)
+                file.write(("-" * 10) + h2r.head_sep)
                 file.write(paragraph())
             file.writelines(recipes)
-

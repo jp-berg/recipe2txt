@@ -15,8 +15,8 @@ datefmt: Final[str] = "%Y-%m-%d %H:%m:%S"
 ##              logger is the only output to the command line
 ##              only one context at a time
 CTX_ATTR: Final[str] = "is_context"
-IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True, "random": False}
-END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False, "random": False}
+IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
+END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
 
 string2level: Final[dict[str, int]] = {
     "debug": logging.DEBUG,
@@ -44,6 +44,7 @@ class QueueContextFilter(logging.Filter):
             self.context = ""
             self.with_context = False
             self.triggered = False
+            return False
 
         if self.log_level <= record.levelno and record.msg and record.msg.strip():  # If record should be emitted
             record.ctx = ""
@@ -76,16 +77,27 @@ class QueueContextManager:
 
     def __exit__(self, exc_type: Optional[Any], exc_value: Optional[Any], traceback: Optional[Any]) -> Literal[False]:
         if not (exc_type or exc_value or traceback):
-            self.logger.debug(f"Leaving context '{self.msg}'", extra=END_CONTEXT)
+            self.logger.debug("", extra=END_CONTEXT)
         else:
             self.logger.info(f"Leaving context '{self.msg}' because of exception {exc_type=}, {exc_value=}",
                              extra=END_CONTEXT)
         return False
 
 
+class EndContextFilter(logging.Filter):
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        is_context = getattr(record, CTX_ATTR, None)
+        if is_context is False:
+            return False
+        return True
+
+
 def get_file_handler(file: str = logfile, level: int = logging.DEBUG) -> logging.FileHandler:
     file_handler = RotatingFileHandler(file, mode='w', maxBytes=100000, backupCount=4, encoding="utf-8")
     file_handler.setLevel(level)
+    f = EndContextFilter()
+    file_handler.addFilter(f)
     file_handler.setFormatter(logging.Formatter(_log_format_file, datefmt=datefmt))
     file_handler.doRollover()
     return file_handler

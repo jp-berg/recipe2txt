@@ -1,3 +1,4 @@
+import logging
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any
 from importlib_metadata import version
@@ -5,10 +6,13 @@ from recipe2txt.utils.markdown import *
 from os import linesep
 import traceback
 
-from recipe2txt.utils.misc import dprint, Context, nocontext, URL, Counts, dict2str, while_context
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
+from recipe2txt.utils.misc import URL, Counts, dict2str
 import recipe_scrapers
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, \
     ElementNotFoundInHtml
+
+logger = get_logger(__name__)
 
 Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
 NA: Final[str] = "N/A"
@@ -50,6 +54,7 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
         t = tuple([tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp))])
     return t
 
+
 essential: Final[list[str]] = [
     "ingredients",
     "instructions"
@@ -74,7 +79,7 @@ recipe_attributes: Final[list[str]] = methods + [
 def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
     if len(t) != len(recipe_attributes):
         raise ValueError("Wanted length of " + str(len(recipe_attributes)) + ", got " + str(len(t)))
-    assert(recipe_attributes[-2] == "status")
+    assert (recipe_attributes[-2] == "status")
     try:
         status = RecipeStatus(int(t[-2]))
     except ValueError:
@@ -82,23 +87,23 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
     return t[:-2] + (status, t[-1])
 
 
-def _get_info(method: str, data: Parsed, context: Context) -> str:
-    error_level = 1
-    if method not in on_display: error_level = 2
+def _get_info(method: str, data: Parsed) -> str:
+    log = logger.error if method not in on_display else logger.warning
 
     method_name = method.replace("_", " ")
     try:
         info = getattr(data, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError):
-        dprint(error_level, "\t", "No", method_name, "found", context=context)
+        log(f"No {method_name} found")
         return NA
     except NotImplementedError:
-        dprint(error_level, "\t", method_name.capitalize(), "not implemented for this website", context=context)
+        log(f"{method_name.capitalize()} not implemented for this website")
         return NA
     except Exception as e:
-        dprint(error_level, "\t", "Extraction error", method_name, context=context)
-        exception_trace = "\t" + "\t".join(traceback.format_exception(e))
-        dprint(4, exception_trace)
+        log(f"Extraction error: {method_name}")
+        if logger.isEnabledFor(logging.DEBUG):
+            exception_trace = "\t" + "\t".join(traceback.format_exception(e))
+            logger.debug(exception_trace)
         return NA
 
     if isinstance(info, (int, float)):
@@ -108,11 +113,12 @@ def _get_info(method: str, data: Parsed, context: Context) -> str:
         if method == "ingredients":
             if not isinstance(info, str):
                 info = linesep.join(info)
-        elif method == "nutrients": info = dict2str(info)
+        elif method == "nutrients":
+            info = dict2str(info)
         elif method == "instructions":
-            info = info.replace(linesep*2, linesep)
+            info = info.replace(linesep * 2, linesep)
     if not info or info.isspace() or info == "None":
-        dprint(1, "\t", method_name.capitalize(), "contains nothing", context=context)
+        logger.error(f"{method_name.capitalize()} contains nothing")
         return NA
     return str(info)
 
@@ -138,12 +144,10 @@ def gen_status(infos: list[str]) -> RecipeStatus:
 
 
 def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
-    context = dprint(4, "Parsing", url)
-    context = while_context(context)
-    infos = []
-    for method in methods:
-        infos.append(_get_info(method, parsed, context))
-        if infos[-1] is NA: context = nocontext
+    with QCM(logger, logger.info, f"Parsing {url}"):
+        infos = []
+        for method in methods:
+            infos.append(_get_info(method, parsed))
     status = gen_status(infos)
     recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
                     ingredients=infos[0], instructions=infos[1],
@@ -196,7 +200,7 @@ def _re2txt(recipe: Recipe) -> str:
 
 def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[str]:
     if recipe.status < RecipeStatus.INCOMPLETE_ESSENTIAL:
-        dprint(1, "\t", "Nothing worthwhile could be extracted. Skipping...")
+        logger.error("Nothing worthwhile could be extracted. Skipping...")
         return None
     if counts:
         if recipe.status < RecipeStatus.INCOMPLETE_ON_DISPLAY:
@@ -215,10 +219,10 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
-        dprint(1, "Unknown Website. Extraction not supported for", url)
+        logger.error(f"Unknown Website. Extraction not supported for {url}")
         return None
     except AttributeError:
-        dprint(1, "Error while parsing", url)
+        logger.error(f"Error while parsing {url}")
         return None
 
     return parsed

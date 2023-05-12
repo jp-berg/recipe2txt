@@ -1,10 +1,14 @@
+import logging
 import sqlite3
 from os import linesep
 from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
+
+from recipe2txt.utils.ContextLogger import get_logger
 from .utils.misc import *
 from .html2recipe import Recipe, NA, recipe_attributes, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
     int2status, methods
 
+logger = get_logger(__name__)
 _CREATE_TABLES: Final[str] = """
 CREATE TABLE IF NOT EXISTS recipes(
 	recipeID        INTEGER NOT NULL,
@@ -69,7 +73,6 @@ _GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECI
 
 _DROP_ALL: Final[str] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; DROP TABLE IF EXISTS contents"
 
-
 AccessibleDatabase = NewType("AccessibleDatabase", str)
 
 
@@ -125,7 +128,7 @@ class Database:
     def get_recipe_row(self, url: URL) -> Optional[Tuple[Any, ...]]:
         self.cur.execute(_GET_RECIPE, (url,))
         r = self.cur.fetchone()
-        return tuple(r)
+        return tuple(r) if r else None
 
     def get_recipe(self, url: URL) -> Optional[Recipe]:
         if row := self.get_recipe_row(url):
@@ -148,7 +151,7 @@ class Database:
         available = self.cur.fetchall()
         for url, status, version in available:
             if url in wanted and not fetch_again(status, version):
-                dprint(3, "Using cached version of", url)
+                logger.info(f"Using cached version of {url}")
                 wanted.remove(url)
                 self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, url))
                 if not wanted: break
@@ -180,17 +183,18 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN: # type: ignore
+                if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN:  # type: ignore
                     merged_row[-2] = gen_status(merged_row[:len(methods)])  # type: ignore
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore
-                replaced_list = ["\t{}: {} => {}".format(attr, head_str(old_val), head_str(new_val))
-                                 for attr, old_val, new_val, is_replaced in
-                                 zip(recipe_attributes, old_row, new_row, updated)
-                                 if is_replaced]
-                replaced = linesep + linesep.join(replaced_list)
-                dprint(3, "Updated " + recipe.url + "", replaced)
+                if logger.isEnabledFor(logging.INFO):
+                    replaced_list = ["\t{}: {} => {}".format(attr, head_str(old_val), head_str(new_val))
+                                     for attr, old_val, new_val, is_replaced in
+                                     zip(recipe_attributes, old_row, new_row, updated)
+                                     if is_replaced]
+                    replaced = linesep + linesep.join(replaced_list)
+                    logger.info(f"Updated {recipe.url}: {replaced}")
                 self.replace_recipe(r)
             else:
                 r = Recipe(*merged_row)  # type: ignore

@@ -3,19 +3,19 @@ import os
 import recipe2txt.html2recipe as h2r
 
 from typing import Final
-from recipe2txt.utils.misc import dprint, set_vlevel, URL, is_url
-
+from recipe2txt.utils.misc import URL, is_url
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 import recipe_scrapers
 from sys import version_info
 
-if sys.version_info >= (3, 11):
+if version_info >= (3, 11):
     from enum import StrEnum
 else:
     from backports.strenum import StrEnum
 
 __all__ = ["html", "html_bad", "recipes", "md", "txt", "urls"]
-set_vlevel(0)
 
+logger = get_logger(__name__)
 root = os.path.dirname(__file__)
 
 
@@ -50,12 +50,12 @@ filenames.sort()
 
 def fetch_url(url: URL, filename: str) -> bytes:
     if not os.path.isfile(filename):
-        dprint(2, "Fetching", url)
+        logger.info(f"Fetching {url}")
         html = requests.get(url).content
         with open(filename, "wb") as file:
             file.write(html)
     else:
-        dprint(2, "Already available:", url)
+        logger.info(f"Already available: {url}")
         with open(filename, "rb") as file:
             html = file.read()
     return html
@@ -78,16 +78,16 @@ def parse_html(filename: str, filename_parsed: str, url: URL) -> h2r.Recipe:
         html = file.read()
         r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
         attributes = []
-        dprint(2, "Scraping", url)
-        for method in h2r.methods:
-            try:
-                a = getattr(r, method)()
-                attributes.append(a)
-            except Exception:
-                dprint(1, "\t", method, "not found")
-                attributes.append(h2r.NA)
-        attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
-        recipe = h2r.Recipe(*attributes)
+        with QCM(logger, logger.info, f"Scraping {url}"):
+            for method in h2r.methods:
+                try:
+                    a = getattr(r, method)()
+                    attributes.append(a)
+                except Exception:
+                    logger.error(f"{method} not found")
+                    attributes.append(h2r.NA)
+            attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
+            recipe = h2r.Recipe(*attributes)
     with open(filename_parsed, "w") as file:
         for a in attributes:
             if isinstance(a, list):
@@ -123,10 +123,10 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
 
     for html, parsed, url in zip(files_html, files_parsed, urls):
         if not os.path.isfile(parsed):
-            dprint(2, "Generating", parsed)
+            logger.info(f"Generating {parsed}")
             recipes.append(parse_html(html, parsed, url))
         else:
-            dprint(2, "Already available:", parsed)
+            logger.info(f"Already available: {parsed}")
             recipes.append(parse_txt(parsed))
     return recipes
 
@@ -139,7 +139,7 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
     formatted_recipes = []
     for parsed, formatted in zip(files_parsed, files_formatted):
         if not os.path.isfile(formatted):
-            dprint(2, "Generating", formatted)
+            logger.info(f"Generating {formatted}")
             recipe = parse_txt(parsed)
             if file_extension is FileExtension.md:
                 r = h2r._re2md(recipe)
@@ -149,7 +149,7 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
                 f.write(r)
             formatted_recipes.append(r)
         else:
-            dprint(2, "Already available:", formatted)
+            logger.info(f"Already available: {formatted}")
             with open(formatted, "r") as f:
                 formatted_recipes.append("".join(f.readlines()))
     return formatted_recipes

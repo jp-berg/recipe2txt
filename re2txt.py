@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os.path
 import argparse
 import sys
@@ -6,9 +7,12 @@ from os import linesep
 from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
 from shutil import rmtree
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, string2level
 from recipe2txt.fetcher import Fetcher, Cache
 from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
+
+logger = get_logger(__name__)
 
 
 def process_urls(strings: list[str]) -> set[URL]:
@@ -17,26 +21,27 @@ def process_urls(strings: list[str]) -> set[URL]:
         string = string.replace(linesep, '')
         string.strip()
         if not string: continue
-        c = dprint(4, "Processing", string)
-        c = while_context(c)
-        if not string.startswith("http"):
-            string = "http://" + string
-        if is_url(string):
-            url = string
-            url = cutoff(url, "/ref=", "?")
-            if url in processed:
-                dprint(2, "\t", "Already queued", context=c)
+        with QCM(logger, logger.info, f"Processing {string}"):
+            if not string.startswith("http"):
+                string = "http://" + string
+            if is_url(string):
+                url = string
+                url = cutoff(url, "/ref=", "?")
+                if url in processed:
+                    logger.warning("Already queued")
+                else:
+                    processed.add(url)
             else:
-                processed.add(url)
-        else:
-            dprint(1, "\t", "Not an URL", context=c)
+                logger.error("Not an URL")
     return processed
 
 
 program_name: Final[str] = "recipes2txt"
+
 default_data_directory: Final[str] = os.path.join(xdg_data_home(), program_name)
 debug_data_directory: Final[str] = os.path.join(os.path.dirname(__file__), "test", "testfiles", "data")
 
+log_name: Final[str] = "debug.log"
 db_name: Final[str] = program_name + ".sqlite3"
 recipes_name_txt: Final[str] = "recipes.txt"
 recipes_name_md: Final[str] = "recipes.md"
@@ -44,23 +49,26 @@ default_urls_name: Final[str] = "urls.txt"
 default_output_location_name: Final[str] = "default_output_location.txt"
 
 
-def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File]:
+def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
     global default_data_directory
     global debug_data_directory
 
     if debug:
-        db_path = debug_data_directory
+        data_path = debug_data_directory
     else:
-        db_path = default_data_directory
-    if not ensure_existence_dir(db_path):
+        data_path = default_data_directory
+    if not ensure_existence_dir(data_path):
         print("Data directory cannot be created", file=sys.stderr)
         exit(os.EX_IOERR)
-    db_path = os.path.join(db_path, db_name)
+
+    db_path = os.path.join(data_path, db_name)
     if is_accessible_db(db_path):
         db_file = db_path
     else:
         print("Database not accessible:", db_path, file=sys.stderr)
         exit(os.EX_IOERR)
+
+    log_file = ensure_accessible_file_critical(log_name, data_path)
 
     if output:
         base, filename = os.path.split(output)
@@ -83,9 +91,8 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
             else:
                 recipes_name = recipes_name_txt
             output = ensure_accessible_file_critical(recipes_name, os.getcwd())
-    dprint(4, "Output set to:", output)
 
-    return db_file, output
+    return db_file, output, log_file
 
 
 _parser = argparse.ArgumentParser(
@@ -101,15 +108,15 @@ _parser.add_argument("-f", "--file", nargs='+', default=[],
 _parser.add_argument("-o", "--output", default="",
                      help="Specifies an output file. If empty or not specified recipes will either be written into"
                           "the current working directory or into the default output file (if set).")
-_parser.add_argument("-v", "--verbosity", type=int, default=2, choices=range(0, 5),
-                     help="Sets the 'chattiness' of the program (low = 1, high = 4, quiet = 0")
+_parser.add_argument("-v", "--verbosity", default="critical", choices=["debug", "info", "warning", "error", "critical"],
+                     help="Sets the 'chattiness' of the program (default 'critical'")
 _parser.add_argument("-con", "--connections", type=int, default=4,
                      help="Sets the number of simultaneous connections")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
 _parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default="default",
                      help="Controls how the program should handle its cache: With 'only' no new data will be downloaded"
-                     ", the recipes will be generated from data that has been downloaded previously. If a recipe is not"
+                          ", the recipes will be generated from data that has been downloaded previously. If a recipe is not"
                           " in the cache, it will not be written into the final output. 'new' will make the program"
                           " ignore any saved data and download the requested recipes even if they have already been"
                           " downloaded. Old data will be replaced by the new version, if it is available."
@@ -268,22 +275,25 @@ def sancheck_args(a: argparse.Namespace) -> None:
     if not (a.file or a.url):
         _parse_error("Nothing to process: No file or url passed")
     if a.connections < 1:
-        dprint(3, "Number of connections smaller than 1, setting to 1 ")
+        logger.warning("Number of connections smaller than 1, setting to 1 ")
         a.connections = 1
     if a.timeout <= 0.0:
-        dprint(3, "Network timeout equal to or smaller than 0, setting to 0.1")
+        logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
 
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
+    db_file, recipe_file, log_file = file_setup(a.debug, a.output, a.markdown)
+    root_log_setup(string2level[a.verbosity], log_file)
+    logger.debug("CLI-ARGS:" + linesep + '\t' + (linesep + '\t').join(args2strs(a)))
+    logger.info("--- Preparing arguments ---")
     sancheck_args(a)
-    db_file, recipe_file = file_setup(a.debug, a.output, a.markdown)
-    mark_stage("Preparing arguments")
+    logger.info(f"Output set to: {recipe_file}")
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = process_urls(unprocessed)
     if not len(processed):
-        dprint(1, "No valid URL passed")
+        logger.critical("No valid URL passed")
         exit(os.EX_DATAERR)
     counts = Counts()
     counts.strings = len(unprocessed)
@@ -298,12 +308,9 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
 
 if __name__ == '__main__':
     a = _parser.parse_args()
-    set_vlevel(a.verbosity)
-
-    dprint(4, "CLI-ARGS:", *args2strs(a), sep=linesep + "\t")
     mutex_args(a)
     urls, fetcher = process_params(a)
     asyncio.run(fetcher.fetch(urls))
-    mark_stage("Summary")
-    dprint(3, str(fetcher.get_counts()))
+    logger.info("--- Summary ---")
+    logger.info(str(fetcher.get_counts()))
     exit(os.EX_OK)

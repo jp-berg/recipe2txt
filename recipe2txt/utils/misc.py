@@ -1,22 +1,16 @@
+import logging
 import os.path
 import sys
 import traceback
 import validators
 from os import makedirs, linesep
+from recipe2txt.utils.ContextLogger import get_logger
 from typing import NewType, Tuple, Final, Any, TypeGuard, Optional
 
-__all__ = ["set_vlevel", "URL", "is_url", "File", "is_file",
-           "Context", "nocontext", "while_context", "dprint",
-           "full_path", "ensure_existence_dir", "ensure_accessible_file", "ensure_accessible_file_critical",
-           "read_files", "Counts", "cutoff", "dict2str", "head_str", "mark_stage"]
-vlevel: int = -1
+__all__ = ["URL", "is_url", "File", "is_file", "full_path", "ensure_existence_dir", "ensure_accessible_file",
+           "ensure_accessible_file_critical", "read_files", "Counts", "cutoff", "dict2str", "head_str"]
 
-
-def set_vlevel(level: int) -> None:
-    if level < 0: level = 0
-    global vlevel
-    vlevel = level
-
+logger = get_logger(__name__)
 
 URL = NewType('URL', str)
 
@@ -35,35 +29,6 @@ def is_file(value: str) -> TypeGuard[File]:
     return os.path.isfile(value)
 
 
-Context = NewType('Context', Tuple[int, str])
-nocontext: Final[Context] = Context((-1, ""))
-
-
-def while_context(context: Context) -> Context:
-    tmp = context[1]
-    tmp = "While " + tmp[0].lower() + tmp[1:] + ":"
-    return Context((context[0], tmp))
-
-
-# level 0 -> silent
-# level 1 -> errors
-# level 2 -> warnings
-# level 3 -> notice
-# level 4 -> all
-def dprint(level: int, *args: str, sep: str = ' ', end: str = linesep, file: Any = None, flush: bool = False,
-           context: Context = nocontext) -> Context:
-    assert vlevel != -1
-    if level <= vlevel:
-        if context[0] > vlevel:
-            print(context[1], file=file, flush=flush, end=end)
-        print(*args, sep=sep, end=end, file=file, flush=flush)
-    return Context((level, sep.join(args)))
-
-
-def mark_stage(name: str) -> None:
-    dprint(3, linesep, "---", name, "---", linesep)
-
-
 def full_path(*pathelements: str) -> str:
     path = os.path.join(*pathelements)
     path = path.strip()
@@ -77,7 +42,7 @@ def ensure_existence_dir(*pathelements: str) -> Optional[str]:
     path = full_path(*pathelements)
     if not os.path.isdir(path):
         try:
-            dprint(4, "Creating directory:", path)
+            logger.info(f"Creating directory: {path}")
             makedirs(path, exist_ok=True)
         except OSError:
             return None
@@ -109,8 +74,9 @@ def ensure_accessible_file_critical(filename: str, *pathelements: str) -> File:
         print("Error while creating or accessing file {}: {}"
               .format(full_path(full_path(*pathelements, filename)), getattr(e, 'message', repr(e))),
               file=sys.stderr)
-        exception_trace = "".join(traceback.format_exception(e))
-        dprint(4, exception_trace, file=sys.stderr)
+        if logger.isEnabledFor(logging.DEBUG):
+            exception_trace = "".join(traceback.format_exception(e))
+            logger.debug(exception_trace)
         exit(os.EX_IOERR)
     return File(path)
 
@@ -120,12 +86,12 @@ def read_files(*paths: str) -> list[str]:
     for path in paths:
         path = full_path(path)
         if os.path.isfile(path):
-            dprint(4, "Reading", path)
+            logger.info(f"Reading {path}")
             with open(path, 'r') as file:
                 for line in file.readlines():
                     lines.append(line)
         else:
-            dprint(1, "Not a file:", path)
+            logger.error(f"Not a file: {path}")
     return lines
 
 
