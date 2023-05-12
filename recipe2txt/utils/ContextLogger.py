@@ -23,7 +23,7 @@ string2level: Final[dict[str, int]] = {
     "info": logging.INFO,
     "warning": logging.WARNING,
     "error": logging.ERROR,
-    "CRITICAL": logging.CRITICAL
+    "critical": logging.CRITICAL
 }
 
 
