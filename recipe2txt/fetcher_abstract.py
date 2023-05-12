@@ -1,36 +1,38 @@
-from enum import Enum
+from sys import version_info
 from os import linesep
-import aiohttp
-import asyncio
-
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import URL, File, Counts
-from recipe2txt.utils.markdown import *
-import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
+import recipe2txt.html2recipe as h2r
+from recipe2txt.utils.markdown import *
+from abc import ABC, abstractmethod
+if version_info >= (3, 11):
+    from enum import StrEnum
+else:
+    from backports.strenum import StrEnum # type: ignore
 
 logger = get_logger(__name__)
 
 
-class Cache(str, Enum):
+class Cache(StrEnum):
     default = "default"
     only = "only"
     new = "new"
 
 
-class Fetcher:
+class AbstractFetcher(ABC):
 
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
                  counts: Counts = Counts(),
-                 connections: int = 1,
                  timeout: float = 10.0,
+                 connections: int = 1,
                  markdown: bool = False,
                  cache: Cache = Cache.default) -> None:
         self.output: File = output
-        self.connections: int = connections
         self.counts: Counts = counts
         self.timeout: float = timeout
+        self.connections: int = connections
         self.db: sql.Database = sql.Database(database, output)
         self.markdown = markdown
         self.cache = cache
@@ -38,28 +40,14 @@ class Fetcher:
     def get_counts(self) -> Counts:
         return self.counts
 
-    async def _urls2recipes(self, url_queue: asyncio.queues.Queue[URL], timeout: aiohttp.client.ClientTimeout) -> None:
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            while not url_queue.empty():
-                try:
-                    url = await url_queue.get()
-                    logger.info(f"Fetching {url}")
-                    async with session.get(url) as response:
-                        html = await response.text()
-                    self.counts.reached += 1
+    def html2db(self, url: URL, html: str) -> None:
+        if p := h2r.html2parsed(url, html):
+            r = h2r.parsed2recipe(url, p)
+            self.db.insert_recipe(r, self.cache == Cache.new)
+        else:
+            self.db.insert_recipe_unknown(url)
 
-                except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                    logger.error(f"Issue reaching {url}")
-                    self.db.insert_recipe_unreachable(url)
-                    continue
-
-                if p := h2r.html2parsed(url, html):
-                    r = h2r.parsed2recipe(url, p)
-                    self.db.insert_recipe(r, self.cache == Cache.new)
-                else:
-                    self.db.insert_recipe_unknown(url)
-
-    async def fetch(self, urls: set[URL]) -> None:
+    def require_fetching(self, urls: set[URL]) -> set[URL]:
         self.counts.urls += len(urls)
         if self.cache is Cache.only:
             self.db.set_contents(urls)
@@ -70,18 +58,13 @@ class Fetcher:
             urls = urls
             self.db.set_contents(urls)
         self.counts.require_fetching += len(urls)
-        q: asyncio.queues.Queue[URL] = asyncio.Queue()
-        for url in urls: await q.put(url)
-        timeout = aiohttp.ClientTimeout(total=10 * len(urls) * self.timeout, connect=self.timeout,
-                                        sock_connect=None, sock_read=None)
-        tasks = [asyncio.create_task(self._urls2recipes(q, timeout)) for i in range(self.connections)]
-        if self.counts.require_fetching:
-            logger.info("--- Fetching missing recipes ---")
-        await(asyncio.gather(*tasks))
-        self.write()
+        return urls
+
+    @abstractmethod
+    def fetch(self, urls: set[URL]) -> None:
+        pass
 
     def write(self) -> None:
-
         recipes = [formatted for recipe in self.db.get_recipes()
                    if (formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown))]
 

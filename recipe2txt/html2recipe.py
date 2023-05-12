@@ -116,7 +116,10 @@ def _get_info(method: str, data: Parsed) -> str:
         elif method == "nutrients":
             info = dict2str(info)
         elif method == "instructions":
-            info = info.replace(linesep * 2, linesep)
+            if isinstance(info, str):
+                info = info.replace(linesep*2, linesep)
+            elif isinstance(info, list):
+                info = linesep.join(info)
     if not info or info.isspace() or info == "None":
         logger.error(f"{method_name.capitalize()} contains nothing")
         return NA

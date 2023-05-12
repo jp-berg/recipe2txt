@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import os.path
 import argparse
@@ -8,9 +7,17 @@ from typing import Final, Tuple
 from xdg_base_dirs import xdg_data_home
 from shutil import rmtree
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, string2level
-from recipe2txt.fetcher import Fetcher, Cache
 from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
+from recipe2txt.fetcher_abstract import Cache
+
+_is_async:bool
+try:
+    from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
+    _is_async = True
+except ImportError:
+    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher # type: ignore
+    _is_async = False
 
 logger = get_logger(__name__)
 
@@ -19,8 +26,7 @@ def process_urls(strings: list[str]) -> set[URL]:
     processed: set[URL] = set()
     for string in strings:
         string = string.replace(linesep, '')
-        string.strip()
-        if not string: continue
+        if not string.strip(): continue
         with QCM(logger, logger.info, f"Processing {string}"):
             if not string.startswith("http"):
                 string = "http://" + string
@@ -110,16 +116,17 @@ _parser.add_argument("-o", "--output", default="",
                           "the current working directory or into the default output file (if set).")
 _parser.add_argument("-v", "--verbosity", default="critical", choices=["debug", "info", "warning", "error", "critical"],
                      help="Sets the 'chattiness' of the program (default 'critical'")
-_parser.add_argument("-con", "--connections", type=int, default=4,
-                     help="Sets the number of simultaneous connections")
+_parser.add_argument("-con", "--connections", type=int, default=4 if _is_async else 1,
+                     help="Sets the number of simultaneous connections (default 4). If package 'aiohttp' is not "
+                          "installed the number of simultaneous connections will always be 1.")
 _parser.add_argument("-ia", "--ignore-added", action="store_true",
                      help="[NI]Writes recipe to file regardless if it has already been added")
 _parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default="default",
                      help="Controls how the program should handle its cache: With 'only' no new data will be downloaded"
-                          ", the recipes will be generated from data that has been downloaded previously. If a recipe is not"
-                          " in the cache, it will not be written into the final output. 'new' will make the program"
-                          " ignore any saved data and download the requested recipes even if they have already been"
-                          " downloaded. Old data will be replaced by the new version, if it is available."
+                          ", the recipes will be generated from data that has been downloaded previously. If a recipe"
+                          " is not in the cache, it will not be written into the final output. 'new' will make the"
+                          " program ignore any saved data and download the requested recipes even if they have already"
+                          " been downloaded. Old data will be replaced by the new version, if it is available."
                           " The 'default' will fetch and merge missing data with the data already saved, only inserting"
                           " new data into the cache where there was none previously.")
 _parser.add_argument("-d", "--debug", action="store_true",
@@ -277,6 +284,8 @@ def sancheck_args(a: argparse.Namespace) -> None:
     if a.connections < 1:
         logger.warning("Number of connections smaller than 1, setting to 1 ")
         a.connections = 1
+    elif a.connections > 1 and not _is_async:
+        logger.warning("Number of connections greater than 1, but package aiohttp not installed.")
     if a.timeout <= 0.0:
         logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
@@ -310,7 +319,7 @@ if __name__ == '__main__':
     a = _parser.parse_args()
     mutex_args(a)
     urls, fetcher = process_params(a)
-    asyncio.run(fetcher.fetch(urls))
+    fetcher.fetch(urls)
     logger.info("--- Summary ---")
     logger.info(str(fetcher.get_counts()))
     exit(os.EX_OK)
