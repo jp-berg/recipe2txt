@@ -1,3 +1,4 @@
+import logging
 import os
 from xdg_base_dirs import xdg_data_home
 from tempfile import gettempdir
@@ -6,7 +7,7 @@ from shutil import rmtree
 import recipe2txt.html2recipe as h2r
 import recipe2txt.utils.misc as misc
 
-misc.set_vlevel(0)
+logging.disable(logging.CRITICAL)
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
            "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes"]

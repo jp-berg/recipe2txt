@@ -3,8 +3,6 @@ import recipe2txt.utils.misc as misc
 import os
 from .test_helpers import *
 
-misc.set_vlevel(0)
-
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
 testfile = "TESTFILE.txt"
 none_dirs = [["/dev", "null"] + testdirs]

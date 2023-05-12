@@ -86,7 +86,6 @@ class TestDatabase(unittest.TestCase):
             print("Could not delete tmpdirs:", tmpdirs, file=sys.stderr)
 
     def setUp(self) -> None:
-        misc.set_vlevel(0)
         if sql.is_accessible_db(db_path):
             global db
             db = sql.Database(db_path, misc.File(out_path))

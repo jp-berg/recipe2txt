@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.methods:
                 with self.subTest(i=url + " | " + method):
-                    self.assertEqual(h2r._get_info(method, p, h2r.nocontext), getattr(recipe, method))
+                    self.assertEqual(h2r._get_info(method, p), getattr(recipe, method))
 
     def test_html2recipe(self):
         for url, html, validation in zip(file_gen.urls, file_gen.html, file_gen.recipes):
