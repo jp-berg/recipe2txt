@@ -6,6 +6,7 @@ test/testfiles/recipe_test*.txt
 test/testfiles/recipe_test*.md
 test/testfiles/markdown
 test/testfiles/data/recipes2txt.sqlite3
+test/testfiles/data/debug.log*
 .project
 .pydevproject
 .idea
