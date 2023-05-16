@@ -3,6 +3,14 @@ from os import linesep
 from logging.handlers import RotatingFileHandler
 from typing import Final, Callable, Literal, Optional, Any
 
+string2level: Final[dict[str, int]] = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL
+}
+
 logfile: Final[str] = "file.log"
 
 _log_format_stream: Final[str] = f"%(ctx)s %(message)s"
@@ -19,13 +27,6 @@ IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
 DO_NOT_LOG: Final[str] = "THIS MESSAGE SHOULD NOT BE LOGGED"
 
-string2level: Final[dict[str, int]] = {
-    "debug": logging.DEBUG,
-    "info": logging.INFO,
-    "warning": logging.WARNING,
-    "error": logging.ERROR,
-    "critical": logging.CRITICAL
-}
 
 
 class QueueContextFilter(logging.Filter):
