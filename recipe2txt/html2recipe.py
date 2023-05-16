@@ -48,7 +48,8 @@ uninit_recipe: Final[Recipe] = Recipe()
 
 def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
     if len(t) > len(recipe_attributes):
-        raise ValueError("Expected a Recipe-based tuple, but got something longer")
+        raise ValueError(f"Expected a Recipe-based tuple (length {len(t)},"
+                         f" but got something longer (length {len(recipe_attributes)})")
     if None in t:
         tmp = list(t)
         t = tuple([tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp))])
@@ -78,7 +79,7 @@ recipe_attributes: Final[list[str]] = methods + [
 
 def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
     if len(t) != len(recipe_attributes):
-        raise ValueError("Wanted length of " + str(len(recipe_attributes)) + ", got " + str(len(t)))
+        raise ValueError(f"Wanted length of {len(recipe_attributes)}, got {len(t)}")
     assert (recipe_attributes[-2] == "status")
     try:
         status = RecipeStatus(int(t[-2]))
@@ -132,8 +133,8 @@ head_sep: Final[str] = linesep * 2
 
 def gen_status(infos: list[str]) -> RecipeStatus:
     if len(infos) > len(methods):
-        raise ValueError("This function only analyzes attributes contained in html2recipe.methods."
-                         " Expected " + str(len(methods)) + " elements, got " + str(len(infos)))
+        raise ValueError("This function only analyzes attributes contained in html2recipe.methods." +
+                         f" Expected {len(methods)} elements, got {len(infos)}")
     for i in range(len(essential)):
         if infos[i] == NA:
             return RecipeStatus.INCOMPLETE_ESSENTIAL
