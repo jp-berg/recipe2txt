@@ -17,6 +17,7 @@ datefmt: Final[str] = "%Y-%m-%d %H:%m:%S"
 CTX_ATTR: Final[str] = "is_context"
 IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
+DO_NOT_LOG: Final[str] = "THIS MESSAGE SHOULD NOT BE LOGGED"
 
 string2level: Final[dict[str, int]] = {
     "debug": logging.DEBUG,
@@ -44,9 +45,10 @@ class QueueContextFilter(logging.Filter):
             self.context = ""
             self.with_context = False
             self.triggered = False
+        if record.msg == DO_NOT_LOG:
             return False
 
-        if self.log_level <= record.levelno and record.msg and record.msg.strip():  # If record should be emitted
+        if self.log_level <= record.levelno:  # If record should be emitted
             record.ctx = ""
             if not is_context and self.with_context:
                 if self.triggered:
@@ -77,7 +79,7 @@ class QueueContextManager:
 
     def __exit__(self, exc_type: Optional[Any], exc_value: Optional[Any], traceback: Optional[Any]) -> Literal[False]:
         if not (exc_type or exc_value or traceback):
-            self.logger.debug("", extra=END_CONTEXT)
+            self.logger.debug(DO_NOT_LOG, extra=END_CONTEXT)
         else:
             self.logger.info(f"Leaving context '{self.msg}' because of exception {exc_type=}, {exc_value=}",
                              extra=END_CONTEXT)
@@ -88,7 +90,7 @@ class EndContextFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
         is_context = getattr(record, CTX_ATTR, None)
-        if is_context is False:
+        if record.msg == DO_NOT_LOG:
             return False
         return True
 
