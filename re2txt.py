@@ -27,7 +27,7 @@ def process_urls(strings: list[str]) -> set[URL]:
     for string in strings:
         string = string.replace(linesep, '')
         if not string.strip(): continue
-        with QCM(logger, logger.info, f"Processing {string}"):
+        with QCM(logger, logger.info, "Processing %s", string):
             if not string.startswith("http"):
                 string = "http://" + string
             if is_url(string):
@@ -219,7 +219,7 @@ def show_files() -> None:
     if files:
         print(*files, sep=linesep)
     else:
-        print("No files found")
+        print("No files found", file=sys.stderr)
 
 
 def erase_files() -> None:
@@ -294,10 +294,11 @@ def sancheck_args(a: argparse.Namespace) -> None:
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     db_file, recipe_file, log_file = file_setup(a.debug, a.output, a.markdown)
     root_log_setup(string2level[a.verbosity], log_file)
-    logger.debug("CLI-ARGS:" + linesep + '\t' + (linesep + '\t').join(args2strs(a)))
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug("CLI-ARGS: %s\t%s", linesep, (linesep + '\t').join(args2strs(a)))
     logger.info("--- Preparing arguments ---")
     sancheck_args(a)
-    logger.info(f"Output set to: {recipe_file}")
+    logger.info("Output set to: %s", recipe_file)
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = process_urls(unprocessed)
@@ -321,5 +322,6 @@ if __name__ == '__main__':
     urls, fetcher = process_params(a)
     fetcher.fetch(urls)
     logger.info("--- Summary ---")
-    logger.info(str(fetcher.get_counts()))
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.info(fetcher.get_counts())
     exit(os.EX_OK)

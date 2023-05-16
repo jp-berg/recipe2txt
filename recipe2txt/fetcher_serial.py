@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 class SerialFetcher(AbstractFetcher):
 
     def fetch_url(self, url: URL) -> None:
-        with QCM(logger, logger.info, f"Fetching {url}"):
+        with QCM(logger, logger.info, "Fetching %s", url):
             try:
                 html = urllib.request.urlopen(url, timeout=self.timeout).read()
                 self.html2db(url, html)

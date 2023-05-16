@@ -95,13 +95,13 @@ def _get_info(method: str, data: Parsed) -> str:
     try:
         info = getattr(data, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError):
-        log(f"No {method_name} found")
+        log("No %s found", method_name)
         return NA
     except NotImplementedError:
-        log(f"{method_name.capitalize()} not implemented for this website")
+        log("%s not implemented for this website", method_name.capitalize())
         return NA
     except Exception as e:
-        log(f"Extraction error: {method_name}")
+        log("Extraction error: %s", method_name)
         if logger.isEnabledFor(logging.DEBUG):
             exception_trace = "\t" + "\t".join(traceback.format_exception(e))
             logger.debug(exception_trace)
@@ -122,7 +122,7 @@ def _get_info(method: str, data: Parsed) -> str:
             elif isinstance(info, list):
                 info = linesep.join(info)
     if not info or info.isspace() or info == "None":
-        logger.error(f"{method_name.capitalize()} contains nothing")
+        logger.error("%s contains nothing", method_name.capitalize())
         return NA
     return str(info)
 
@@ -148,7 +148,7 @@ def gen_status(infos: list[str]) -> RecipeStatus:
 
 
 def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
-    with QCM(logger, logger.info, f"Parsing {url}"):
+    with QCM(logger, logger.info, "Parsing %s", url):
         infos = []
         for method in methods:
             infos.append(_get_info(method, parsed))
@@ -223,10 +223,10 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
-        logger.error(f"Unknown Website. Extraction not supported for {url}")
+        logger.error("Unknown Website. Extraction not supported for %s", url)
         return None
     except AttributeError:
-        logger.error(f"Error while parsing {url}")
+        logger.error("Error while parsing %s", url)
         return None
 
     return parsed

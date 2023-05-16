@@ -80,7 +80,7 @@ class AbstractFetcher(ABC):
 
         with open(self.output, "w") as file:
             logger.info("--- Writing to output ---")
-            logger.info(f"Writing to {self.output}")
+            logger.info("Writing to %s", self.output)
             if len(recipes) > 2:
                 file.writelines(titles)
                 file.write(paragraph())

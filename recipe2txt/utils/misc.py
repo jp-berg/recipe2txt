@@ -42,7 +42,7 @@ def ensure_existence_dir(*pathelements: str) -> Optional[str]:
     path = full_path(*pathelements)
     if not os.path.isdir(path):
         try:
-            logger.info(f"Creating directory: {path}")
+            logger.info("Creating directory: %s", path)
             makedirs(path, exist_ok=True)
         except OSError:
             return None
@@ -86,12 +86,12 @@ def read_files(*paths: str) -> list[str]:
     for path in paths:
         path = full_path(path)
         if os.path.isfile(path):
-            logger.info(f"Reading {path}")
+            logger.info("Reading %s", path)
             with open(path, 'r') as file:
                 for line in file.readlines():
                     lines.append(line)
         else:
-            logger.error(f"Not a file: {path}")
+            logger.error("Not a file: %s", path)
     return lines
 
 

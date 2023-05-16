@@ -151,7 +151,7 @@ class Database:
         available = self.cur.fetchall()
         for url, status, version in available:
             if url in wanted and not fetch_again(status, version):
-                logger.info(f"Using cached version of {url}")
+                logger.info("Using cached version of %s", url)
                 wanted.remove(url)
                 self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, url))
                 if not wanted: break
@@ -194,7 +194,7 @@ class Database:
                                      zip(recipe_attributes, old_row, new_row, updated)
                                      if is_replaced]
                     replaced = linesep + linesep.join(replaced_list)
-                    logger.info(f"Updated {recipe.url}: {replaced}")
+                    logger.info("Updated %s: %s", recipe.url, replaced)
                 self.replace_recipe(r)
             else:
                 r = Recipe(*merged_row)  # type: ignore
