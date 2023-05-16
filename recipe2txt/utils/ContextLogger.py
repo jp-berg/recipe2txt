@@ -118,7 +118,7 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
-def root_log_setup(level: int, file: str) -> None:
+def root_log_setup(level: int, file: str, no_parallel: bool = True) -> None:
     f = get_file_handler(file)
     s = get_stream_handler(level)
     l = logging.getLogger()
@@ -126,4 +126,9 @@ def root_log_setup(level: int, file: str) -> None:
     l.setLevel(logging.DEBUG)
     l.addHandler(f)
     l.addHandler(s)
+
+    if no_parallel:
+        logging.logThreads = False
+        logging.logProcesses = False
+        logging.logMultiprocessing = False
 
