@@ -1,6 +1,7 @@
 import logging
 from os import linesep
 from logging.handlers import RotatingFileHandler
+from types import TracebackType
 from typing import Final, Callable, Literal, Optional, Any
 
 string2level: Final[dict[str, int]] = {
@@ -17,35 +18,43 @@ _log_format_stream: Final[str] = f"%(ctx)s %(message)s"
 _log_format_file: Final[str] = f"%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
 datefmt: Final[str] = "%Y-%m-%d %H:%m:%S"
 
-## ASSUMTIONS: msg is string,
-##              no threading/async while context,
-##              level does not change in context,
-##              logger is the only output to the command line
-##              only one context at a time
 CTX_ATTR: Final[str] = "is_context"
 IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
+WHILE: Final[str] = f"While %s:{linesep}\t "
 DO_NOT_LOG: Final[str] = "THIS MESSAGE SHOULD NOT BE LOGGED"
 
+
+## ASSUMTIONS:  no threading/async while context,
+##              level does not change in context,
+##              logger is the only output to the command line
+##              only one context at a time
+##              Expensive __str__() is guarded by .isEnabledFor()
 
 
 class QueueContextFilter(logging.Filter):
     def __init__(self, log_level: int) -> None:
         self.log_level = log_level
-        self.context = ""
+        self.context_msg = ""
+        self.context_args = ()
         self.with_context = False
         self.triggered = False
 
     def set_level(self, log_level: int) -> int:
-        self.log_level = log_level
+        if self.with_context:
+            logging.error("Modifying logging-level during context is not possible")
+        else:
+            self.log_level = log_level
         return self.log_level
 
     def filter(self, record: logging.LogRecord) -> bool:
         is_context = getattr(record, CTX_ATTR, None)
         if is_context is False:
-            self.context = ""
+            self.context_msg = ""
+            self.context_args = ()
             self.with_context = False
             self.triggered = False
+
         if record.msg == DO_NOT_LOG:
             return False
 
@@ -55,35 +64,38 @@ class QueueContextFilter(logging.Filter):
                 if self.triggered:
                     record.ctx = "\t"
                 else:
-                    record.ctx = self.context
+                    self.context_msg = str(self.context_msg)
+                    context = WHILE % (self.context_msg[0].lower() + self.context_msg[1:])
+                    record.msg = (context % self.context_args) + str(record.msg)
                     self.triggered = True
             return True
-        else:
-            if is_context:
-                self.with_context = True
-                assert (isinstance(record.msg, str))
-                context = record.msg[0].lower() + record.msg[1:]
-                self.context = f"While {context}:{linesep}\t"
-                self.triggered = False
-            return False
+
+        if is_context:
+            self.with_context = True
+            self.context_msg = record.msg
+            self.context_args = record.args  # type:ignore
+            self.triggered = False
+        return False
 
 
 class QueueContextManager:
 
-    def __init__(self, logger: logging.Logger, logging_fun: Callable[..., None], msg: str):
+    def __init__(self, logger: logging.Logger, logging_fun: Callable[..., None], msg: str, *args: Any, **kwargs: Any):
+        self.args = args
+        self.kwargs = kwargs
         self.logging_fun = logging_fun
         self.msg = msg
         self.logger = logger
 
     def __enter__(self) -> None:  # TODO: Make enter defer emit until exit
-        self.logging_fun(self.msg, extra=IS_CONTEXT)
+        self.logging_fun(self.msg, *self.args, extra=IS_CONTEXT, **self.kwargs)
 
-    def __exit__(self, exc_type: Optional[Any], exc_value: Optional[Any], traceback: Optional[Any]) -> Literal[False]:
+    def __exit__(self, exc_type: type, exc_value: BaseException, traceback: TracebackType) -> Literal[False]:
         if not (exc_type or exc_value or traceback):
             self.logger.debug(DO_NOT_LOG, extra=END_CONTEXT)
         else:
-            self.logger.info(f"Leaving context '{self.msg}' because of exception {exc_type=}, {exc_value=}",
-                             extra=END_CONTEXT)
+            self.logger.error(f"Leaving context '{self.msg % self.args}' because of exception {exc_type}: {exc_value}",
+                              extra=END_CONTEXT)
         return False
 
 
