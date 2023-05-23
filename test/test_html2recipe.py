@@ -9,7 +9,7 @@ import os
 class Test(unittest.TestCase):
 
     def test_none2na(self):
-        wrong_length = (1,) * (len(h2r.recipe_attributes) + 1)
+        wrong_length = (1,) * (len(h2r.RECIPE_ATTRIBUTES) + 1)
         with self.assertRaises(ValueError):
             h2r.none2na(wrong_length)
 
@@ -22,12 +22,12 @@ class Test(unittest.TestCase):
 
     def test_Recipe_attributes(self):
         r = h2r.Recipe()
-        for a in h2r.recipe_attributes:
+        for a in h2r.RECIPE_ATTRIBUTES:
             with self.subTest(i=a):
                 self.assertTrue(hasattr(r, a))
 
-        r = h2r.Recipe(*h2r.recipe_attributes)
-        for a in h2r.recipe_attributes:
+        r = h2r.Recipe(*h2r.RECIPE_ATTRIBUTES)
+        for a in h2r.RECIPE_ATTRIBUTES:
             with self.subTest(i=a):
                 self.assertEqual(getattr(r, a), a)
 
@@ -40,7 +40,7 @@ class Test(unittest.TestCase):
     def test__get_info(self):
         for html, url, recipe in zip(file_gen.html, file_gen.urls, file_gen.recipes):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
-            for method in h2r.methods:
+            for method in h2r.METHODS:
                 with self.subTest(i=url + " | " + method):
                     self.assertEqual(h2r._get_info(method, p), getattr(recipe, method))
 
@@ -51,7 +51,7 @@ class Test(unittest.TestCase):
                     self.fail("Failed to parse")
                 if not (recipe := h2r.parsed2recipe(url, p)):
                     self.fail("Failed to convert to recipe")
-                for a in h2r.recipe_attributes[:-1]: # scraper version will probably differ
+                for a in h2r.RECIPE_ATTRIBUTES[:-1]: # scraper version will probably differ
                     with self.subTest(i=a):
                         r = getattr(recipe, a)
                         v = getattr(validation, a)
@@ -63,7 +63,7 @@ class Test(unittest.TestCase):
         for recipe in test_recipes[2:]:
             with self.subTest(i=recipe.url):
                 status = recipe.status
-                self.assertEqual(h2r.gen_status(list(recipe[:len(h2r.methods)])), status)
+                self.assertEqual(h2r.gen_status(list(recipe[:len(h2r.METHODS)])), status)
 
         with self.assertRaises(ValueError):
             h2r.gen_status(list(h2r.Recipe()))

@@ -79,7 +79,7 @@ def parse_html(filename: str, filename_parsed: str, url: URL) -> h2r.Recipe:
         r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
         attributes = []
         with QCM(logger, logger.info, f"Scraping {url}"):
-            for method in h2r.methods:
+            for method in h2r.METHODS:
                 try:
                     a = getattr(r, method)()
                     attributes.append(a)
@@ -108,7 +108,7 @@ def parse_txt(path: str) -> h2r.Recipe:
             else:
                 attributes.append(os.linesep.join(tmp))
                 tmp.clear()
-    if len(attributes) != len(h2r.recipe_attributes):
+    if len(attributes) != len(h2r.RECIPE_ATTRIBUTES):
         raise ValueError("Error while parsing serialized recipes")
     t = tuple(attributes)
     t = h2r.int2status(t)

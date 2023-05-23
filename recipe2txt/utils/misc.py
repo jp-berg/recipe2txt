@@ -2,10 +2,10 @@ import logging
 import os.path
 import sys
 import traceback
-import validators
 from os import makedirs, linesep
+import validators
 from recipe2txt.utils.ContextLogger import get_logger
-from typing import NewType, Tuple, Final, Any, TypeGuard, Optional
+from typing import NewType, Any, TypeGuard, Optional
 
 __all__ = ["URL", "is_url", "File", "is_file", "full_path", "ensure_existence_dir", "ensure_accessible_file",
            "ensure_accessible_file_critical", "read_files", "Counts", "cutoff", "dict2str", "head_str"]
@@ -16,10 +16,7 @@ URL = NewType('URL', str)
 
 
 def is_url(value: str) -> TypeGuard[URL]:
-    if validators.url(value):
-        return True
-    else:
-        return False
+    return bool(validators.url(value))
 
 
 File = NewType('File', str)

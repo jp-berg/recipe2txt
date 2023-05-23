@@ -32,7 +32,7 @@ class Timer:
     def end_multi(self, timer_id: int) -> float:
         end_time = time.perf_counter()
         if timer_id not in self.multi_start_times:
-            raise RuntimeError("Timer {} not started".format(timer_id))
+            raise RuntimeError(f"Timer {timer_id} not started")
         amount = end_time - self.multi_start_times.pop(timer_id)
         self.times.append(amount)
         self.total_cache_stale = True

@@ -9,19 +9,18 @@ from .test_helpers import *
 from typing import Optional
 
 db_name = "db_test.sqlite3"
+out_name = "out.txt"
 
 db_path = os.path.join(test_project_tmpdir, db_name)
 db_paths = [os.path.join(folder, db_name) for folder in tmpdirs]
-out_path = os.path.join(test_project_tmpdir, "out_test.txt")
+out_path = os.path.join(test_project_tmpdir, out_name)
 
 db: sql.Database
 
 
-
-
 def compare_for(recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equality: bool = True) -> Optional[str]:
     for attr in attributes:
-        if attr not in h2r.recipe_attributes:
+        if attr not in h2r.RECIPE_ATTRIBUTES:
             raise ValueError("Not a valid attribute for Recipe: " + attr)
         val1 = str(getattr(recipe1, attr))
         val2 = str(getattr(recipe2, attr))

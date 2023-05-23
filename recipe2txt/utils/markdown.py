@@ -3,14 +3,14 @@ from typing import Pattern, Final, Optional
 from os import linesep
 from base64 import b64encode
 
-__all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "super", "code", "codeblock",
+__all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "superscript", "code", "codeblock",
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
 
 
 indent: Final[str] = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
-not_escaped: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
+NOT_ESCAPED: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
 EMPTY_COMMENT: Final[str] = "\n<!-- -->\n" # Helpful to terminate lists in case two different lists follow each other
 
 
@@ -23,7 +23,7 @@ def esc(string: str) -> str:
     escapable symbols: \'*_{}[]()#+-.!
     replace first capture group with '\':
     """
-    return not_escaped.sub(r"\\\1", string)
+    return NOT_ESCAPED.sub(r"\\\1", string)
 
 
 def header(string: str, level: int = 1, fragmentified_section_link: bool = False) -> str:
@@ -55,7 +55,7 @@ def s_th(string: str) -> str:
     return "~~" + string + "~~"
 
 
-def super(base: str, exp: str) -> str:
+def superscript(base: str, exp: str) -> str:
     return base.rstrip() + "^" + exp.lstrip()
 
 

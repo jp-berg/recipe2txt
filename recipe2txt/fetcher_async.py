@@ -1,5 +1,5 @@
-import aiohttp
 import asyncio
+import aiohttp
 from recipe2txt.utils.misc import URL
 from recipe2txt.fetcher_abstract import AbstractFetcher
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM

@@ -1,16 +1,15 @@
 import logging
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any
-from importlib_metadata import version
-from recipe2txt.utils.markdown import *
 from os import linesep
 import traceback
-
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-from recipe2txt.utils.misc import URL, Counts, dict2str
+from importlib_metadata import version
 import recipe_scrapers
 from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, \
     ElementNotFoundInHtml
+from recipe2txt.utils.markdown import *
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
+from recipe2txt.utils.misc import URL, Counts, dict2str
 
 logger = get_logger(__name__)
 
@@ -43,34 +42,34 @@ class Recipe(NamedTuple):
     scraper_version: str = '-1'
 
 
-uninit_recipe: Final[Recipe] = Recipe()
+UNINIT_RECIPE: Final[Recipe] = Recipe()
 
 
 def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
-    if len(t) > len(recipe_attributes):
+    if len(t) > len(RECIPE_ATTRIBUTES):
         raise ValueError(f"Expected a Recipe-based tuple (length {len(t)},"
-                         f" but got something longer (length {len(recipe_attributes)})")
+                         f" but got something longer (length {len(RECIPE_ATTRIBUTES)})")
     if None in t:
         tmp = list(t)
-        t = tuple([tmp[i] if tmp[i] else getattr(uninit_recipe, recipe_attributes[i]) for i in range(len(tmp))])
+        t = tuple([tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i]) for i in range(len(tmp))])
     return t
 
 
-essential: Final[list[str]] = [
+ESSENTIAL: Final[list[str]] = [
     "ingredients",
     "instructions"
 ]
-on_display: Final[list[str]] = essential + [
+ON_DISPLAY: Final[list[str]] = ESSENTIAL + [
     "title",
     "total_time",
     "yields",
 ]
-methods: Final[list[str]] = on_display + [
+METHODS: Final[list[str]] = ON_DISPLAY + [
     "host",
     "image",
     "nutrients"
 ]
-recipe_attributes: Final[list[str]] = methods + [
+RECIPE_ATTRIBUTES: Final[list[str]] = METHODS + [
     "url",
     "status",
     "scraper_version"
@@ -78,9 +77,9 @@ recipe_attributes: Final[list[str]] = methods + [
 
 
 def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
-    if len(t) != len(recipe_attributes):
-        raise ValueError(f"Wanted length of {len(recipe_attributes)}, got {len(t)}")
-    assert (recipe_attributes[-2] == "status")
+    if len(t) != len(RECIPE_ATTRIBUTES):
+        raise ValueError(f"Wanted length of {len(RECIPE_ATTRIBUTES)}, got {len(t)}")
+    assert RECIPE_ATTRIBUTES[-2] == "status"
     try:
         status = RecipeStatus(int(t[-2]))
     except ValueError:
@@ -89,7 +88,7 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
 
 
 def _get_info(method: str, data: Parsed) -> str:
-    log = logger.error if method not in on_display else logger.warning
+    log = logger.error if method not in ON_DISPLAY else logger.warning
 
     method_name = method.replace("_", " ")
     try:
@@ -127,21 +126,21 @@ def _get_info(method: str, data: Parsed) -> str:
     return str(info)
 
 
-between_recipes: Final[str] = linesep * 5
-head_sep: Final[str] = linesep * 2
+BETWEEN_RECIPES: Final[str] = linesep * 5
+HEAD_SEP: Final[str] = linesep * 2
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
-    if len(infos) > len(methods):
+    if len(infos) > len(METHODS):
         raise ValueError("This function only analyzes attributes contained in html2recipe.methods." +
-                         f" Expected {len(methods)} elements, got {len(infos)}")
-    for i in range(len(essential)):
+                         f" Expected {len(METHODS)} elements, got {len(infos)}")
+    for i in range(len(ESSENTIAL)):
         if infos[i] == NA:
             return RecipeStatus.INCOMPLETE_ESSENTIAL
-    for i in range(len(essential), len(on_display)):
+    for i in range(len(ESSENTIAL), len(ON_DISPLAY)):
         if infos[i] == NA:
             return RecipeStatus.INCOMPLETE_ON_DISPLAY
-    for i in range(len(on_display), len(methods)):
+    for i in range(len(ON_DISPLAY), len(METHODS)):
         if infos[i] == NA:
             return RecipeStatus.COMPLETE_ON_DISPLAY
     return RecipeStatus.COMPLETE
@@ -150,7 +149,7 @@ def gen_status(infos: list[str]) -> RecipeStatus:
 def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
     with QCM(logger, logger.info, "Parsing %s", url):
         infos = []
-        for method in methods:
+        for method in METHODS:
             infos.append(_get_info(method, parsed))
     status = gen_status(infos)
     recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
@@ -191,14 +190,14 @@ def _re2md(recipe: Recipe) -> str:
 
 def _re2txt(recipe: Recipe) -> str:
     txt = linesep.join([recipe.title,
-                        head_sep,
+                        HEAD_SEP,
                         recipe.total_time + " min | " + recipe.yields + linesep,
                         recipe.ingredients,
                         linesep * 2,
                         recipe.instructions.replace(linesep, linesep * 2),
                         linesep,
                         "from: " + recipe.url,
-                        between_recipes])
+                        BETWEEN_RECIPES])
     return txt
 
 

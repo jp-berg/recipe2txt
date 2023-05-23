@@ -5,8 +5,8 @@ from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
 
 from recipe2txt.utils.ContextLogger import get_logger
 from .utils.misc import *
-from .html2recipe import Recipe, NA, recipe_attributes, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
-    int2status, methods
+from .html2recipe import Recipe, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
+    int2status, METHODS
 
 logger = get_logger(__name__)
 _CREATE_TABLES: Final[str] = """
@@ -41,18 +41,18 @@ CREATE TABLE IF NOT EXISTS contents(
 ) STRICT;
 """
 
-recipe_row_attributes: Final[list[str]] = recipe_attributes + [
+RECIPE_ROW_ATTRIBUTES: Final[list[str]] = RECIPE_ATTRIBUTES + [
     "recipeID",
     "last_fetched"
 ]
 
 _INSERT_RECIPE: Final[str] = "INSERT OR IGNORE INTO recipes" + \
-                             " (" + ", ".join(recipe_attributes) + ")" + \
-                             " VALUES (" + ("?," * len(recipe_attributes))[:-1] + ")"
+                             " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
+                             " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
 
 _INSERT_OR_REPLACE_RECIPE: Final[str] = "INSERT OR REPLACE INTO recipes" + \
-                                        " (" + ", ".join(recipe_attributes) + ")" + \
-                                        " VALUES (" + ("?," * len(recipe_attributes))[:-1] + ")"
+                                        " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
+                                        " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
 
 _INSERT_FILE: Final[str] = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
 
@@ -62,8 +62,8 @@ _ASSOCIATE_FILE_RECIPE: Final[str] = "INSERT OR IGNORE INTO contents (fileID, re
 
 _FILEPATHS_JOIN_RECIPES: Final[str] = " ((SELECT * FROM files WHERE filepath = ?) " \
                                       " NATURAL JOIN contents NATURAL JOIN recipes) "
-_GET_RECIPE: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM recipes WHERE url = ?"
-_GET_RECIPES: Final[str] = "SELECT " + ", ".join(recipe_attributes) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
+_GET_RECIPE: Final[str] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+_GET_RECIPES: Final[str] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
                            "WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
 _GET_URLS_STATUS_VERSION: Final[str] = "SELECT url, status, scraper_version FROM recipes"
 _GET_CONTENT: Final[str] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
@@ -184,14 +184,14 @@ class Database:
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
                 if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN:  # type: ignore
-                    merged_row[-2] = gen_status(merged_row[:len(methods)])  # type: ignore
+                    merged_row[-2] = gen_status(merged_row[:len(METHODS)])  # type: ignore
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore
                 if logger.isEnabledFor(logging.INFO):
-                    replaced_list = ["\t{}: {} => {}".format(attr, head_str(old_val), head_str(new_val))
+                    replaced_list = [f"\t{attr}: {head_str(old_val)} => {head_str(new_val)}"
                                      for attr, old_val, new_val, is_replaced in
-                                     zip(recipe_attributes, old_row, new_row, updated)
+                                     zip(RECIPE_ATTRIBUTES, old_row, new_row, updated)
                                      if is_replaced]
                     replaced = linesep + linesep.join(replaced_list)
                     logger.info("Updated %s: %s", recipe.url, replaced)

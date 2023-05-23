@@ -2,7 +2,7 @@ import logging
 from os import linesep
 from logging.handlers import RotatingFileHandler
 from types import TracebackType
-from typing import Final, Callable, Literal, Optional, Any
+from typing import Final, Callable, Literal, Any
 
 string2level: Final[dict[str, int]] = {
     "debug": logging.DEBUG,
@@ -12,11 +12,11 @@ string2level: Final[dict[str, int]] = {
     "critical": logging.CRITICAL
 }
 
-logfile: Final[str] = "file.log"
+LOGFILE: Final[str] = "file.log"
 
-_log_format_stream: Final[str] = f"%(ctx)s %(message)s"
-_log_format_file: Final[str] = f"%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
-datefmt: Final[str] = "%Y-%m-%d %H:%m:%S"
+_LOG_FORMAT_STREAM: Final[str] = "%(ctx)s %(message)s"
+_LOG_FORMAT_FILE: Final[str] = "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
+DATEFMT: Final[str] = "%Y-%m-%d %H:%m:%S"
 
 CTX_ATTR: Final[str] = "is_context"
 IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
@@ -102,18 +102,17 @@ class QueueContextManager:
 class EndContextFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
-        is_context = getattr(record, CTX_ATTR, None)
         if record.msg == DO_NOT_LOG:
             return False
         return True
 
 
-def get_file_handler(file: str = logfile, level: int = logging.DEBUG) -> logging.FileHandler:
+def get_file_handler(file: str = LOGFILE, level: int = logging.DEBUG) -> logging.FileHandler:
     file_handler = RotatingFileHandler(file, mode='w', maxBytes=100000, backupCount=4, encoding="utf-8")
     file_handler.setLevel(level)
     f = EndContextFilter()
     file_handler.addFilter(f)
-    file_handler.setFormatter(logging.Formatter(_log_format_file, datefmt=datefmt))
+    file_handler.setFormatter(logging.Formatter(_LOG_FORMAT_FILE, datefmt=DATEFMT))
     file_handler.doRollover()
     return file_handler
 
@@ -123,7 +122,7 @@ def get_stream_handler(level: int = logging.WARNING) -> logging.StreamHandler[An
     stream_handler.setLevel(logging.DEBUG)
     f = QueueContextFilter(level)
     stream_handler.addFilter(f)
-    stream_handler.setFormatter(logging.Formatter(_log_format_stream))
+    stream_handler.setFormatter(logging.Formatter(_LOG_FORMAT_STREAM))
     return stream_handler
 
 
@@ -146,4 +145,3 @@ def root_log_setup(level: int, file: str, no_parallel: bool = True) -> None:
         logging.logThreads = False
         logging.logProcesses = False
         logging.logMultiprocessing = False
-
