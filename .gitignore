@@ -13,3 +13,5 @@ test/testfiles/data/debug.log*
 .mypy_cache
 .venv
 .req
+.pyre*
+.watchmanconfig
