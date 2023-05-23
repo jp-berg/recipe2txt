@@ -77,13 +77,12 @@ class AbstractFetcher(ABC):
             else:
                 titles_txt_fmt = [name + " - " + host for name, host in titles_raw]
                 titles = linesep.join(titles_txt_fmt)
+            titles = "".join([titles, paragraph(), ("-" * 10) + h2r.HEAD_SEP, paragraph()])
+        else:
+            titles = ""
 
         with open(self.output, "w") as file:
             logger.info("--- Writing to output ---")
             logger.info("Writing to %s", self.output)
-            if len(recipes) > 2:
-                file.writelines(titles)
-                file.write(paragraph())
-                file.write(("-" * 10) + h2r.head_sep)
-                file.write(paragraph())
+            file.write(titles)
             file.writelines(recipes)
