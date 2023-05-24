@@ -71,7 +71,7 @@ class AbstractFetcher(ABC):
         if len(recipes) > 2:
             titles_raw = self.db.get_titles()
             if self.markdown:
-                titles_md_fmt = [section_link(esc(name), fragmentified=True) + " - " + esc(host) + linesep
+                titles_md_fmt = [f"{section_link(esc(name), fragmentified=True)} - {esc(host)}{linesep}"
                                  for name, host in titles_raw]
                 titles = ordered(*titles_md_fmt)
             else:

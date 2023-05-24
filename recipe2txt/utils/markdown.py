@@ -74,7 +74,7 @@ def page_sep() -> str:
 def link(url: str, description: Optional[str] = None) -> str:
     if not description:
         description = url
-    return "".join(["[", description, "](", url, ")"])
+    return f"[{description}]({url})"
 
 
 def section_link(header: str, description: Optional[str] = None, fragmentified: bool = False) -> str:
