@@ -64,9 +64,12 @@ class AbstractFetcher(ABC):
     def fetch(self, urls: set[URL]) -> None:
         pass
 
-    def write(self) -> None:
-        recipes = [formatted for recipe in self.db.get_recipes()
-                   if (formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown))]
+    def gen_lines(self) -> list[str]:
+        recipes = []
+        for recipe in self.db.get_recipes():
+            if formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown):
+                for line in formatted:
+                    recipes.append(line)
 
         if len(recipes) > 2:
             titles_raw = self.db.get_titles()
@@ -75,14 +78,15 @@ class AbstractFetcher(ABC):
                                  for name, host in titles_raw]
                 titles = ordered(*titles_md_fmt)
             else:
-                titles_txt_fmt = [name + " - " + host for name, host in titles_raw]
-                titles = linesep.join(titles_txt_fmt)
-            titles = "".join([titles, paragraph(), ("-" * 10) + h2r.HEAD_SEP, paragraph()])
+                titles = [f"{name} - {host}{linesep}" for name, host in titles_raw]
+                titles = titles + [paragraph(), ("-" * 10) + h2r.HEAD_SEP, paragraph()]
         else:
-            titles = ""
+            titles = []
 
+        return titles + recipes
+
+    def write(self, lines: list[str]) -> None:
         with open(self.output, "w") as file:
             logger.info("--- Writing to output ---")
             logger.info("Writing to %s", self.output)
-            file.write(titles)
-            file.writelines(recipes)
+            file.writelines(lines)

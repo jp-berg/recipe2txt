@@ -14,7 +14,8 @@ class AsyncFetcher(AbstractFetcher):
         if urls:
             logger.info("--- Fetching missing recipes ---")
             asyncio.run(self._fetch(urls))
-        super().write()
+        lines = self.gen_lines()
+        self.write(lines)
 
     async def _fetch(self, urls: set[URL]) -> None:
         q: asyncio.queues.Queue[URL] = asyncio.Queue()

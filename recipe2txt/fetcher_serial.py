@@ -29,4 +29,5 @@ class SerialFetcher(AbstractFetcher):
             logger.info("--- Fetching missing recipes ---")
             for url in urls:
                 self.fetch_url(url)
-        self.write()
+        lines = self.gen_lines()
+        self.write(lines)

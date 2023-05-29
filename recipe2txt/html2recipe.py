@@ -159,7 +159,7 @@ def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
     return recipe
 
 
-def _re2md(recipe: Recipe) -> str:
+def _re2md(recipe: Recipe) -> list[str]:
     title = esc(recipe.title)
     url = esc(recipe.url)
     host = italic(esc(recipe.host))
@@ -172,36 +172,28 @@ def _re2md(recipe: Recipe) -> str:
     escaped = [esc(step) for step in recipe.instructions.split(linesep)]
     instructions = ordered(*escaped)
 
-    md = "".join([
-        header(title, 2, True),
-        paragraph(),
-        recipe.total_time + " min | " + recipe.yields,
-        paragraph(),
-        ingredients,
-        EMPTY_COMMENT,
-        instructions,
-        paragraph(),
-        italic("from:"), " ", link(url, host),
-        paragraph()
-    ])
+    md = [header(title, 2, True), paragraph(),
+          recipe.total_time + " min | " + recipe.yields, paragraph()] + \
+        ingredients + [EMPTY_COMMENT] + instructions + \
+        [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
 
     return md
 
 
-def _re2txt(recipe: Recipe) -> str:
-    txt = linesep.join([recipe.title,
-                        HEAD_SEP,
-                        recipe.total_time + " min | " + recipe.yields + linesep,
-                        recipe.ingredients,
-                        linesep * 2,
-                        recipe.instructions.replace(linesep, linesep * 2),
-                        linesep,
-                        "from: " + recipe.url,
-                        BETWEEN_RECIPES])
+def _re2txt(recipe: Recipe) -> list[str]:
+    txt = [recipe.title,
+           HEAD_SEP,
+           recipe.total_time + " min | " + recipe.yields + linesep,
+           recipe.ingredients,
+           linesep * 2,
+           recipe.instructions.replace(linesep, linesep * 2),
+           linesep,
+           "from: " + recipe.url,
+           BETWEEN_RECIPES]
     return txt
 
 
-def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[str]:
+def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[list[str]]:
     if recipe.status < RecipeStatus.INCOMPLETE_ESSENTIAL:
         logger.error("Nothing worthwhile could be extracted. Skipping...")
         return None

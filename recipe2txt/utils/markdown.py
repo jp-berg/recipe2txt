@@ -95,36 +95,31 @@ def _indent(level: int) -> str:
     return level * indent
 
 
-def unordered(*items: str, level: int = 0) -> str:
-    pre = _indent(level) + "* "
-    return pre + (linesep + pre).join(items) + linesep
+def unordered(*items: str, level: int = 0) -> list[str]:
+    local_indent = _indent(level)
+    return [f"{local_indent}* {item}{linesep}" for item in items]
 
 
-def ordered(*items: str, level: int = 0, start: int = 1) -> str:
+def ordered(*items: str, level: int = 0, start: int = 1) -> list[str]:
     pre = _indent(level)
-    res = ""
-    for item in items:
-        res += pre + str(start) + ". " + item + linesep
-        start += 1
-    return res
+    return [f"{pre}{number}. {item}{linesep}" for number, item in enumerate(items, start)]
 
 
 def _construct_row(l: list[str]) -> str:
     return "|" + "|".join(l) + "|" + linesep
 
 
-def table(lists: list[list[str]]) -> str:
-    if len(lists) == 0: return ""
+def table(lists: list[list[str]]) -> list[str]:
+    if len(lists) == 0:
+        return []
     maxlen = len(lists[0])
-    for l in lists[1:]:
-        if len(l) > maxlen:
+    for sublist in lists[1:]:
+        if len(sublist) > maxlen:
             raise ValueError("Length of one sublist is longer than the header list (first sublist)")
 
-    res = ""
-    res += _construct_row(lists[0])  # header
-    res += "|" + "---|" * maxlen + linesep  # divider
-    for l in lists[1:]: res += _construct_row(l)
-    return res
+    head = [_construct_row(lists[0]), "|" + "---|" * maxlen + linesep]  # header, divider
+    body = [_construct_row(sublist) for sublist in lists[1:]]
+    return head + body
 
 
 def paragraph() -> str:
