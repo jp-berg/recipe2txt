@@ -63,14 +63,14 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
         data_path = DEFAULT_DATA_DIRECTORY
     if not ensure_existence_dir(data_path):
         print("Data directory cannot be created", file=sys.stderr)
-        exit(os.EX_IOERR)
+        sys.exit(os.EX_IOERR)
 
     db_path = os.path.join(data_path, DB_NAME)
     if is_accessible_db(db_path):
         db_file = db_path
     else:
         print("Database not accessible:", db_path, file=sys.stderr)
-        exit(os.EX_IOERR)
+        sys.exit(os.EX_IOERR)
 
     log_file = ensure_accessible_file_critical(LOG_NAME, data_path)
 
@@ -240,7 +240,7 @@ def set_default_output(filepath: str) -> None:
             print("Error while deleting file {}: {}"
                   .format(full_path(full_path(filepath)), getattr(e, 'message', repr(e))),
                   file=sys.stderr)
-            exit(os.EX_IOERR)
+            sys.exit(os.EX_IOERR)
     else:
         base, name = os.path.split(filepath)
         filepath = ensure_accessible_file_critical(name, base)
@@ -255,7 +255,7 @@ def set_default_output(filepath: str) -> None:
             print("Error while creating or accessing file {}: {}"
                   .format(filepath, getattr(e, 'message', repr(e))),
                   file=sys.stderr)
-            exit(os.EX_IOERR)
+            sys.exit(os.EX_IOERR)
 
 
 def mutex_args(a: argparse.Namespace) -> None:
@@ -268,7 +268,7 @@ def mutex_args(a: argparse.Namespace) -> None:
         erase_files()
     elif a.default_output_file:
         set_default_output(a.default_output_file)
-    exit(os.EX_OK)
+    sys.exit(os.EX_OK)
 
 
 def sancheck_args(a: argparse.Namespace) -> None:
@@ -297,7 +297,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     processed: set[URL] = process_urls(unprocessed)
     if not processed:
         logger.critical("No valid URL passed")
-        exit(os.EX_DATAERR)
+        sys.exit(os.EX_DATAERR)
     counts = Counts()
     counts.strings = len(unprocessed)
 
@@ -317,4 +317,4 @@ if __name__ == '__main__':
     logger.info("--- Summary ---")
     if logger.isEnabledFor(logging.DEBUG):
         logger.info(fetcher.get_counts())
-    exit(os.EX_OK)
+    sys.exit(os.EX_OK)

@@ -74,7 +74,7 @@ def ensure_accessible_file_critical(filename: str, *pathelements: str) -> File:
         if logger.isEnabledFor(logging.DEBUG):
             exception_trace = "".join(traceback.format_exception(e))
             logger.debug(exception_trace)
-        exit(os.EX_IOERR)
+        sys.exit(os.EX_IOERR)
     return File(path)
 
 
