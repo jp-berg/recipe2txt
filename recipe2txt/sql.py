@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 from os import linesep
-from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
+from typing import Final, Tuple, Optional, TypeGuard, NewType, Any, LiteralString
 
 from recipe2txt.utils.ContextLogger import get_logger
 from .utils.misc import *
@@ -9,7 +9,7 @@ from .html2recipe import Recipe, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, gen_sta
     int2status, METHODS
 
 logger = get_logger(__name__)
-_CREATE_TABLES: Final[str] = """
+_CREATE_TABLES: Final[LiteralString] = """
 CREATE TABLE IF NOT EXISTS recipes(
 	recipeID        INTEGER NOT NULL,
 	url             TEXT NOT NULL UNIQUE,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS contents(
 ) STRICT;
 """
 
-RECIPE_ROW_ATTRIBUTES: Final[list[str]] = RECIPE_ATTRIBUTES + [
+RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
     "recipeID",
     "last_fetched"
 ]
@@ -54,24 +54,25 @@ _INSERT_OR_REPLACE_RECIPE: Final[str] = "INSERT OR REPLACE INTO recipes" + \
                                         " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
                                         " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
 
-_INSERT_FILE: Final[str] = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
+_INSERT_FILE: Final[LiteralString] = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
 
-_ASSOCIATE_FILE_RECIPE: Final[str] = "INSERT OR IGNORE INTO contents (fileID, recipeID) VALUES (" \
+_ASSOCIATE_FILE_RECIPE: Final[LiteralString] = "INSERT OR IGNORE INTO contents (fileID, recipeID) VALUES (" \
                                      " (SELECT fileID FROM files WHERE filepath = ?)," \
                                      " (SELECT recipeID FROM recipes WHERE url = ?))"
 
-_FILEPATHS_JOIN_RECIPES: Final[str] = " ((SELECT * FROM files WHERE filepath = ?) " \
+_FILEPATHS_JOIN_RECIPES: Final[LiteralString] = " ((SELECT * FROM files WHERE filepath = ?) " \
                                       " NATURAL JOIN contents NATURAL JOIN recipes) "
-_GET_RECIPE: Final[str] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+_GET_RECIPE: Final[LiteralString] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
 _GET_RECIPES: Final[str] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
                            "WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
-_GET_URLS_STATUS_VERSION: Final[str] = "SELECT url, status, scraper_version FROM recipes"
-_GET_CONTENT: Final[str] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
+_GET_URLS_STATUS_VERSION: Final[LiteralString] = "SELECT url, status, scraper_version FROM recipes"
+_GET_CONTENT: Final[LiteralString] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
 _GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
                                 " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
 
-_DROP_ALL: Final[str] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; DROP TABLE IF EXISTS contents"
+_DROP_ALL: Final[LiteralString] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; " \
+                                  "DROP TABLE IF EXISTS contents"
 
 AccessibleDatabase = NewType("AccessibleDatabase", str)
 

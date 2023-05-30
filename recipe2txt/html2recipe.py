@@ -1,6 +1,6 @@
 import logging
 from enum import IntEnum
-from typing import NewType, Final, Optional, NamedTuple, Any
+from typing import NewType, Final, Optional, NamedTuple, Any, LiteralString
 from os import linesep
 import traceback
 from importlib_metadata import version
@@ -14,7 +14,7 @@ from recipe2txt.utils.misc import URL, Counts, dict2str
 logger = get_logger(__name__)
 
 Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
-NA: Final[str] = "N/A"
+NA: Final[LiteralString] = "N/A"
 SCRAPER_VERSION: Final[str] = version('recipe_scrapers')
 
 
@@ -55,21 +55,21 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
     return t
 
 
-ESSENTIAL: Final[list[str]] = [
+ESSENTIAL: Final[list[LiteralString]] = [
     "ingredients",
     "instructions"
 ]
-ON_DISPLAY: Final[list[str]] = ESSENTIAL + [
+ON_DISPLAY: Final[list[LiteralString]] = ESSENTIAL + [
     "title",
     "total_time",
     "yields",
 ]
-METHODS: Final[list[str]] = ON_DISPLAY + [
+METHODS: Final[list[LiteralString]] = ON_DISPLAY + [
     "host",
     "image",
     "nutrients"
 ]
-RECIPE_ATTRIBUTES: Final[list[str]] = METHODS + [
+RECIPE_ATTRIBUTES: Final[list[LiteralString]] = METHODS + [
     "url",
     "status",
     "scraper_version"

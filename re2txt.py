@@ -3,7 +3,7 @@ import os.path
 import argparse
 import sys
 from os import linesep
-from typing import Final, Tuple
+from typing import Final, Tuple, LiteralString
 from shutil import rmtree
 from xdg_base_dirs import xdg_data_home
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, string2level
@@ -42,17 +42,17 @@ def process_urls(strings: list[str]) -> set[URL]:
     return processed
 
 
-PROGRAM_NAME: Final[str] = "recipes2txt"
+PROGRAM_NAME: Final[LiteralString] = "recipes2txt"
 DEFAULT_DATA_DIRECTORY: Final[str] = os.path.join(xdg_data_home(), PROGRAM_NAME)
 DEBUG_DATA_DIRECTORY: Final[str] = os.path.join(os.path.dirname(__file__), "test", "testfiles", "data")
 
-LOG_NAME: Final[str] = "debug.log"
-DB_NAME: Final[str] = PROGRAM_NAME + ".sqlite3"
-RECIPES_NAME: Final[str] = "recipes"
-RECIPES_NAME_TXT: Final[str] = RECIPES_NAME + ".txt"
-RECIPES_NAME_MD: Final[str] = RECIPES_NAME + ".md"
-DEFAULT_URLS_NAME: Final[str] = "urls.txt"
-DEFAULT_OUTPUT_LOCATION_NAME: Final[str] = "default_output_location.txt"
+LOG_NAME: Final[LiteralString] = "debug.log"
+DB_NAME: Final[LiteralString] = PROGRAM_NAME + ".sqlite3"
+RECIPES_NAME: Final[LiteralString] = "recipes"
+RECIPES_NAME_TXT: Final[LiteralString] = RECIPES_NAME + ".txt"
+RECIPES_NAME_MD: Final[LiteralString] = RECIPES_NAME + ".md"
+DEFAULT_URLS_NAME: Final[LiteralString] = "urls.txt"
+DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.txt"
 
 
 def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
@@ -164,7 +164,7 @@ def arg2str(name: str, obj: object) -> str:
     return out
 
 
-_ARGNAMES: Final[list[str]] = [
+_ARGNAMES: Final[list[LiteralString]] = [
     "url",
     "file",
     "output",

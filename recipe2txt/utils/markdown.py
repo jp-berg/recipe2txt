@@ -1,5 +1,5 @@
 import re
-from typing import Pattern, Final, Optional
+from typing import Pattern, Final, Optional, LiteralString
 from os import linesep
 from base64 import b64encode
 
@@ -7,11 +7,12 @@ __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", 
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
 
 
-indent: Final[str] = " " * 4
+indent: Final[LiteralString] = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
 NOT_ESCAPED: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
-EMPTY_COMMENT: Final[str] = "\n<!-- -->\n" # Helpful to terminate lists in case two different lists follow each other
+# Helpful to terminate lists in case two different lists follow each other
+EMPTY_COMMENT: Final[LiteralString] = "\n<!-- -->\n"
 
 
 def fragmentify(string: str) -> str:

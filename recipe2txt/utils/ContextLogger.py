@@ -2,9 +2,9 @@ import logging
 from os import linesep
 from logging.handlers import RotatingFileHandler
 from types import TracebackType
-from typing import Final, Callable, Literal, Any
+from typing import Final, Callable, Literal, Any, LiteralString
 
-string2level: Final[dict[str, int]] = {
+string2level: Final[dict[LiteralString, int]] = {
     "debug": logging.DEBUG,
     "info": logging.INFO,
     "warning": logging.WARNING,
@@ -12,17 +12,17 @@ string2level: Final[dict[str, int]] = {
     "critical": logging.CRITICAL
 }
 
-LOGFILE: Final[str] = "file.log"
+LOGFILE: Final[LiteralString] = "file.log"
 
-_LOG_FORMAT_STREAM: Final[str] = "%(ctx)s %(message)s"
-_LOG_FORMAT_FILE: Final[str] = "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
-DATEFMT: Final[str] = "%Y-%m-%d %H:%m:%S"
+_LOG_FORMAT_STREAM: Final[LiteralString] = "%(ctx)s %(message)s"
+_LOG_FORMAT_FILE: Final[LiteralString] = "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
+DATEFMT: Final[LiteralString] = "%Y-%m-%d %H:%m:%S"
 
-CTX_ATTR: Final[str] = "is_context"
+CTX_ATTR: Final[LiteralString] = "is_context"
 IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
 WHILE: Final[str] = f"While %s:{linesep}\t "
-DO_NOT_LOG: Final[str] = "THIS MESSAGE SHOULD NOT BE LOGGED"
+DO_NOT_LOG: Final[LiteralString] = "THIS MESSAGE SHOULD NOT BE LOGGED"
 
 
 ## ASSUMTIONS:  no threading/async while context,
