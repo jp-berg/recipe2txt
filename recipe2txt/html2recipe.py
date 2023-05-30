@@ -160,7 +160,8 @@ def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
 
 
 def _re2md(recipe: Recipe) -> list[str]:
-    title = esc(recipe.title)
+    title = recipe.title if recipe.title != NA else recipe.url
+    title = esc(title)
     url = esc(recipe.url)
     host = italic(esc(recipe.host))
     if host == NA:
@@ -181,7 +182,8 @@ def _re2md(recipe: Recipe) -> list[str]:
 
 
 def _re2txt(recipe: Recipe) -> list[str]:
-    txt = [recipe.title,
+    title = recipe.title if recipe.title != NA else recipe.url
+    txt = [title,
            HEAD_SEP,
            recipe.total_time + " min | " + recipe.yields + linesep,
            recipe.ingredients,
