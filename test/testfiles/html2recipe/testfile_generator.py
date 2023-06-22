@@ -15,7 +15,8 @@ from sys import version_info
 if version_info >= (3, 11):
     from enum import StrEnum
 else:
-    from backports.strenum import StrEnum
+    from backports.strenum import StrEnum # type: ignore
+
 __all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
 
 if __name__ == '__main__':
