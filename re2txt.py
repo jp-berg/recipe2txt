@@ -3,7 +3,11 @@ import os.path
 import argparse
 import sys
 from os import linesep
-from typing import Final, Tuple, LiteralString
+from typing import Final, Tuple
+if sys.version_info >= (3, 11):
+    from typing import LiteralString
+else:
+    from typing_extensions import LiteralString
 from shutil import rmtree
 from xdg_base_dirs import xdg_data_home
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, string2level

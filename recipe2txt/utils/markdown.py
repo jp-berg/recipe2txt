@@ -1,5 +1,10 @@
 import re
-from typing import Pattern, Final, Optional, LiteralString
+from typing import Pattern, Final, Optional
+from sys import version_info
+if version_info >= (3, 11):
+    from typing import LiteralString
+else:
+    from typing_extensions import LiteralString
 from os import linesep
 from base64 import b64encode
 

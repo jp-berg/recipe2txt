@@ -1,6 +1,12 @@
 import logging
 from enum import IntEnum
-from typing import NewType, Final, Optional, NamedTuple, Any, LiteralString
+from typing import NewType, Final, Optional, NamedTuple, Any
+from sys import version_info
+
+if version_info >= (3, 11):
+    from typing import LiteralString
+else:
+    from typing_extensions import LiteralString
 from os import linesep
 import traceback
 from importlib_metadata import version

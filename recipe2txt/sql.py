@@ -1,8 +1,12 @@
 import logging
 import sqlite3
 from os import linesep
-from typing import Final, Tuple, Optional, TypeGuard, NewType, Any, LiteralString
-
+from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
+from sys import version_info
+if version_info >= (3, 11):
+    from typing import LiteralString
+else:
+    from typing_extensions import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
 from .utils.misc import *
 from .html2recipe import Recipe, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
