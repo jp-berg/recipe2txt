@@ -112,10 +112,14 @@ def _get_info(method: str, data: Parsed) -> str:
             logger.debug(exception_trace)
         return NA
 
+    unexpected_type = True
+
     if isinstance(info, (int, float)):
         info = None if info == 0 else str(info)
-
-    if info:
+        unexpected_type = False
+    elif info:
+        if isinstance(info, str):
+            unexpected_type = False
         if method == "ingredients":
             if isinstance(info, list):
                 if len(info[0]) < 2:
@@ -127,16 +131,23 @@ def _get_info(method: str, data: Parsed) -> str:
                     info = "".join(info)
                 else:
                     info = linesep.join(info)
+                unexpected_type = False
         elif method == "nutrients":
-            info = dict2str(info)
+            if isinstance(info, dict):
+                info = dict2str(info)
+                unexpected_type = False
         elif method == "instructions":
             if isinstance(info, str):
                 info = info.replace(linesep*2, linesep)
+                unexpected_type = False
             elif isinstance(info, list):
                 info = linesep.join(info)
+                unexpected_type = False
     if not info or info.isspace() or info == "None":
         log("%s contains nothing", method_name.capitalize())
         return NA
+    if unexpected_type:
+        log("'%s' has the unhandled type %s", method, type(info))
     return str(info)
 
 
