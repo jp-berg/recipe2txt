@@ -27,7 +27,7 @@ testrun3: $(REQ)
 	$(ACTIVATE); python3 re2txt.py -v info -d -md -f ./test/testfiles/urls3.txt ./test/testfiles/urls4.txt ./test/testfiles/urls5.txt -o ./test/testfiles/recipe_test3.md -con 10 -t 20
 
 $(REQ): $(VENV)
-	$(ACTIVATE); pip install -r requirements.txt && touch $@
+	$(ACTIVATE); pip install -r requirements.txt && pip install -r requirements_performance.txt && touch $@
 
 $(VENV):
 	python3 -m venv $@
