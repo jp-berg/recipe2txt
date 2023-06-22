@@ -26,7 +26,7 @@ def get_urls() -> list[URL]:
     return urls  # type: ignore
 
 
-urls: Final[list[URL]] = get_urls()
+url_list: Final[list[URL]] = get_urls()
 
 
 class FileExtension(StrEnum):
@@ -44,7 +44,7 @@ def gen_full_path(filename: str, file_extension: FileExtension) -> str:
     return os.path.join(folder, filename + f_e)
 
 
-filenames: Final[list[str]] = [url.rsplit(":", 1)[1] for url in urls if is_url(url)]
+filenames: Final[list[str]] = [url.rsplit(":", 1)[1] for url in url_list if is_url(url)]
 filenames.sort()
 
 
@@ -65,7 +65,7 @@ def gen_html(filenames: list[str]) -> list[bytes]:
     html_paths = [gen_full_path(name, FileExtension.html) for name in filenames]
     html = []
 
-    for url, filename in zip(urls, html_paths):
+    for url, filename in zip(url_list, html_paths):
         html.append(fetch_url(url, filename))
     return html
 
@@ -121,9 +121,9 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
     files_parsed = [gen_full_path(name, FileExtension.parsed) for name in filenames]
     recipes = []
 
-    for html, parsed, url in zip(files_html, files_parsed, urls):
         if not os.path.isfile(parsed):
             logger.info(f"Generating {parsed}")
+    for html, parsed, url in zip(files_html, files_parsed, url_list):
             recipes.append(parse_html(html, parsed, url))
         else:
             logger.info(f"Already available: {parsed}")
@@ -137,28 +137,27 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
     files_parsed = [gen_full_path(name, FileExtension.parsed) for name in filenames]
     files_formatted = [gen_full_path(name, file_extension) for name in filenames]
     formatted_recipes = []
-    for parsed, formatted in zip(files_parsed, files_formatted):
-        if not os.path.isfile(formatted):
             logger.info(f"Generating {formatted}")
+    for parsed, formatted_file in zip(files_parsed, files_formatted):
+        if not os.path.getsize(formatted_file) > 0:
             recipe = parse_txt(parsed)
             if file_extension is FileExtension.md:
-                r = h2r._re2md(recipe)
+                tmp_list = h2r._re2md(recipe)
             else:
-                r = h2r._re2txt(recipe)
-            with open(formatted, "w") as f:
-                f.write(r)
-            formatted_recipes.append(r)
+                tmp_list = h2r._re2txt(recipe)
+            with open(formatted_file, "w") as f:
+                f.writelines(tmp_list)
         else:
-            logger.info(f"Already available: {formatted}")
-            with open(formatted, "r") as f:
+            logger.info("Already available: %s",  formatted_file)
+            with open(formatted_file, "r") as f:
                 formatted_recipes.append("".join(f.readlines()))
     return formatted_recipes
 
 
-html: Final[list[bytes]] = gen_html(filenames)
+html_list: Final[list[bytes]] = gen_html(filenames)
 _bad_url: Final[str] = "https://creativecommons.org/licenses/by/4.0/"
 html_bad: Final[tuple[str, bytes]] = (_bad_url, fetch_url(URL(_bad_url),
-                                   gen_full_path("FAIL_cc_4_0", FileExtension.html)))
-recipes: Final[list[h2r.Recipe]] = gen_parsed(filenames)
-md: Final[list[str]] = gen_formatted(filenames, FileExtension.md)
-txt: Final[list[str]] = gen_formatted(filenames, FileExtension.txt)
+                                                          gen_full_path("FAIL_cc_4_0", FileExtension.html)))
+recipe_list: Final[list[h2r.Recipe]] = gen_parsed(filenames)
+md_list: Final[list[str]] = gen_formatted(filenames, FileExtension.md)
+txt_list: Final[list[str]] = gen_formatted(filenames, FileExtension.txt)
