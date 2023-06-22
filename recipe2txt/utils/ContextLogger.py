@@ -1,3 +1,4 @@
+import contextlib
 import logging
 from os import linesep
 from logging.handlers import RotatingFileHandler
@@ -28,6 +29,8 @@ IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
 WHILE: Final[str] = f"While %s:{linesep}\t "
 DO_NOT_LOG: Final[LiteralString] = "THIS MESSAGE SHOULD NOT BE LOGGED"
+
+logger_list: list[logging.Logger] = []
 
 
 ## ASSUMTIONS:  no threading/async while context,
@@ -104,6 +107,15 @@ class QueueContextManager:
         return False
 
 
+@contextlib.contextmanager
+def supress_logging() -> Generator[None, None, None]:
+    for logger in logger_list:
+        logger.disabled = True
+    yield
+    for logger in logger_list:
+        logger.disabled = False
+
+
 class EndContextFilter(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -134,6 +146,7 @@ def get_stream_handler(level: int = logging.WARNING) -> logging.StreamHandler[An
 def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
+    logger_list.append(logger)
     return logger
 
 
@@ -145,6 +158,7 @@ def root_log_setup(level: int, file: str, no_parallel: bool = True) -> None:
     l.setLevel(logging.DEBUG)
     l.addHandler(f)
     l.addHandler(s)
+    logger_list.append(l)
 
     if no_parallel:
         logging.logThreads = False
