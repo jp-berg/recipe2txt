@@ -70,12 +70,15 @@ class Test(unittest.TestCase):
 
     def test_recipe2out(self):
         for recipe, md_valid, txt_valid in zip(file_gen.recipe_list, file_gen.md_list, file_gen.txt_list):
+            self.maxDiff = None
             with self.subTest(i=recipe.url +"| txt"):
                 out_txt = h2r.recipe2out(recipe, counts=None, md=False)
-                self.assertEqual(out_txt, txt)
+                txt_test = "".join(out_txt)
+                self.assertEqual(txt_test, txt_valid)
             with self.subTest(i=recipe.url + "| md"):
                 out_md = h2r.recipe2out(recipe, counts=None, md=True)
-                self.assertEqual(out_md, md)
+                md_test = "".join(out_md)
+                self.assertEqual(md_test, md_valid)
 
     @unittest.skip("Seems not verifiable in current form")
     def test_html2parsed(self):

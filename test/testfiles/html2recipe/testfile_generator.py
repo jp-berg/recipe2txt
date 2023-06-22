@@ -150,6 +150,8 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
                 tmp_list = h2r._re2txt(recipe)
             with open(formatted_file, "w") as f:
                 f.writelines(tmp_list)
+            formatted = "".join(tmp_list)
+            formatted_recipes.append(formatted)
         else:
             logger.info("Already available: %s",  formatted_file)
             with open(formatted_file, "r") as f:
