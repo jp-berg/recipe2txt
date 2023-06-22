@@ -1,10 +1,11 @@
+import logging
 import urllib.request
 import os
 import recipe2txt.html2recipe as h2r
 
 from typing import Final
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 from recipe2txt.utils.misc import URL, is_url, File, ensure_accessible_file_critical
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, supress_logging
 import recipe_scrapers
 from sys import version_info
 
@@ -14,6 +15,8 @@ else:
     from backports.strenum import StrEnum
 
 __all__ = ["html", "html_bad", "recipes", "md", "txt", "urls"]
+if __name__ == '__main__':
+    root_log_setup(logging.DEBUG)
 
 logger = get_logger(__name__)
 root = os.path.dirname(__file__)
@@ -46,13 +49,13 @@ filenames.sort()
 
 
 def fetch_url(url: URL, filename: str) -> bytes:
-        logger.info(f"Fetching {url}")
     if not os.path.getsize(filename) > 0:
+        logger.info("Generating %s from %s", filename, url)
         html = urllib.request.get(url).content
         with open(filename, "wb") as file:
             file.write(html)
     else:
-        logger.info(f"Already available: {url}")
+        logger.info("Already available: %s", filename)
         with open(filename, "rb") as file:
             html = file.read()
     return html
@@ -75,13 +78,13 @@ def parse_html(filename: str, filename_parsed: str, url: URL) -> h2r.Recipe:
         html = file.read()
         r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
         attributes = []
-        with QCM(logger, logger.info, f"Scraping {url}"):
+        with QCM(logger, logger.info, "Scraping %s", url):
             for method in h2r.METHODS:
                 try:
                     a = getattr(r, method)()
                     attributes.append(a)
                 except Exception:
-                    logger.error(f"{method} not found")
+                    logger.error("%s not found", method)
                     attributes.append(h2r.NA)
             attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
             recipe = h2r.Recipe(*attributes)
@@ -118,12 +121,12 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
     files_parsed = [gen_full_path(name, FileExtension.parsed) for name in filenames]
     recipes = []
 
-            logger.info(f"Generating {parsed}")
     for html, parsed, url in zip(files_html, files_parsed, url_list):
         if not os.path.getsize(parsed) > 0:
+            logger.info("Generating %s from %s", parsed, html)
             recipes.append(parse_html(html, parsed, url))
         else:
-            logger.info(f"Already available: {parsed}")
+            logger.info("Already available: %s", parsed)
             recipes.append(parse_txt(parsed))
     return recipes
 
@@ -134,9 +137,9 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
     files_parsed = [gen_full_path(name, FileExtension.parsed) for name in filenames]
     files_formatted = [gen_full_path(name, file_extension) for name in filenames]
     formatted_recipes = []
-            logger.info(f"Generating {formatted}")
     for parsed, formatted_file in zip(files_parsed, files_formatted):
         if not os.path.getsize(formatted_file) > 0:
+            logger.info("Generating %s from %s", formatted_file, parsed)
             recipe = parse_txt(parsed)
             if file_extension is FileExtension.md:
                 tmp_list = h2r._re2md(recipe)
