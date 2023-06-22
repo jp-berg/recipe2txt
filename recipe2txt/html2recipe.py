@@ -135,7 +135,7 @@ def _get_info(method: str, data: Parsed) -> str:
             elif isinstance(info, list):
                 info = linesep.join(info)
     if not info or info.isspace() or info == "None":
-        logger.error("%s contains nothing", method_name.capitalize())
+        log("%s contains nothing", method_name.capitalize())
         return NA
     return str(info)
 
