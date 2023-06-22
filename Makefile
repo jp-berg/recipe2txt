@@ -33,7 +33,7 @@ $(VENV):
 	python3 -m venv $@
 
 mypy: $(REQ)
-	mypy -m re2txt --python-executable .venv/bin/python3 --strict
+	$(ACTIVATE); mypy -m re2txt --python-executable .venv/bin/python3 --strict
 
 test: $(REQ)
 	$(ACTIVATE); python3 -m unittest
