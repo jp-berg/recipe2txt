@@ -43,5 +43,8 @@ testfiles: $(REQ)
 
 clean:
 	rm  $(JUNK) || true
+	
+uninstall:
+	rm -rf $(VENV) || rm $(REQ) 
 
 .PHONY: test testfiles test1 test2 test3
