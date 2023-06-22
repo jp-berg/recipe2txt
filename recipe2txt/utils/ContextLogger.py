@@ -150,13 +150,14 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
-def root_log_setup(level: int, file: str, no_parallel: bool = True) -> None:
-    f = get_file_handler(file)
-    s = get_stream_handler(level)
+def root_log_setup(level: int, file: str | None = None, no_parallel: bool = True) -> None:
     l = logging.getLogger()
 
     l.setLevel(logging.DEBUG)
-    l.addHandler(f)
+    if file:
+        f = get_file_handler(file)
+        l.addHandler(f)
+    s = get_stream_handler(level)
     l.addHandler(s)
     logger_list.append(l)
 
