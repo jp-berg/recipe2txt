@@ -94,7 +94,7 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
 
 
 def _get_info(method: str, data: Parsed) -> str:
-    log = logger.error if method not in ON_DISPLAY else logger.warning
+    log = logger.error if method in ON_DISPLAY else logger.warning
 
     method_name = method.replace("_", " ")
     try:
