@@ -1,10 +1,4 @@
 import time
-import random
-from sys import maxsize
-
-
-def _get_next_id() -> int:
-    return random.randint(1, maxsize)  # 0 reserved
 
 
 class Timer:
@@ -13,6 +7,7 @@ class Timer:
         self.total_cache_stale: bool = True
         self.total_cache: float = 0.0
 
+        self.next_id = 1
         self.multi_start_times: dict[int, float] = {}
 
     def start(self) -> float:
@@ -24,8 +19,13 @@ class Timer:
     def end(self) -> float:
         return self.end_multi(0)
 
+    def _get_next_id(self) -> int:
+        next_id = self.next_id
+        self.next_id += 1
+        return next_id
+
     def start_multi(self) -> int:
-        timer_id = _get_next_id()
+        timer_id = self._get_next_id()
         self.multi_start_times[timer_id] = time.perf_counter()
         return timer_id
 
@@ -50,7 +50,7 @@ class Timer:
     def reset(self) -> None:
         self.times.clear()
         self.total_cache_stale = True
-
+        self.next_id = 1
         self.multi_start_times.clear()
 
 
