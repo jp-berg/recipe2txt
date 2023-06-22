@@ -96,7 +96,7 @@ class QueueContextManager:
         self.logger = logger
 
     def __enter__(self) -> None:  # TODO: Make enter defer emit until exit
-        self.logging_fun(self.msg, *self.args, extra=IS_CONTEXT, **self.kwargs)
+        self.logging_fun(self.msg, *self.args, stacklevel=2, extra=IS_CONTEXT, **self.kwargs)
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: TracebackType) -> Literal[False]:
         if not (exc_type or exc_value or traceback):
