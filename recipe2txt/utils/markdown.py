@@ -6,7 +6,7 @@ if version_info >= (3, 11):
 else:
     from typing_extensions import LiteralString
 from os import linesep
-from base64 import b64encode
+import hashlib
 
 __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "superscript", "code", "codeblock",
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
@@ -21,7 +21,7 @@ EMPTY_COMMENT: Final[LiteralString] = "\n<!-- -->\n"
 
 
 def fragmentify(string: str) -> str:
-    return b64encode(string.encode()).decode()
+    return hashlib.sha1(string.encode("utf-8")).hexdigest()
 
 
 def esc(string: str) -> str:
