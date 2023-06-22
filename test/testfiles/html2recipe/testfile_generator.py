@@ -1,11 +1,14 @@
 import logging
+import sys
 import urllib.request
 import os
-import recipe2txt.html2recipe as h2r
-
 from typing import Final
+
+import recipe2txt.html2recipe as h2r
+from recipe2txt.fetcher_abstract import AbstractFetcher, Cache
 from recipe2txt.utils.misc import URL, is_url, File, ensure_accessible_file_critical
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, supress_logging
+from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 import recipe_scrapers
 from sys import version_info
 
@@ -13,8 +16,8 @@ if version_info >= (3, 11):
     from enum import StrEnum
 else:
     from backports.strenum import StrEnum
+__all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
 
-__all__ = ["html", "html_bad", "recipes", "md", "txt", "urls"]
 if __name__ == '__main__':
     root_log_setup(logging.DEBUG)
 
@@ -161,3 +164,46 @@ html_bad: Final[tuple[str, bytes]] = (_bad_url, fetch_url(URL(_bad_url),
 recipe_list: Final[list[h2r.Recipe]] = gen_parsed(filenames)
 md_list: Final[list[str]] = gen_formatted(filenames, FileExtension.md)
 txt_list: Final[list[str]] = gen_formatted(filenames, FileExtension.txt)
+
+db: AccessibleDatabase
+_db = os.path.join(root, "testfile_db.sqlite3")
+if is_accessible_db(_db):
+    db = _db
+else:
+    sys.exit(f"Database not accessible: {_db}")
+
+url2html: dict[str, bytes] = {url: html for url, html in zip(url_list, html_list)}
+
+
+class TestFileFetcher(AbstractFetcher):
+
+    def fetch(self, urls: set[URL]):
+        urls = super().require_fetching(urls)
+        for url in urls:
+            html = url2html[url]
+            self.html2db(url, html)  # type: ignore
+            # TODO
+        lines = self.gen_lines()
+        self.write(lines)
+
+
+def gen_formatted_full(urls: set[URL], file_extension: FileExtension) -> list[str]:
+    name = "recipes"
+    file = gen_full_path(name, file_extension)
+    file_exists = os.path.getsize(file) > 0
+
+    if not file_exists:
+        f = TestFileFetcher(output=file, database=db, cache=Cache.new)
+        f.markdown = file_extension is FileExtension.md
+        logger.info("Generating %s", file)
+        with supress_logging():
+            f.fetch(urls)
+    with open(file, "r") as to_read:
+        lines = to_read.readlines()
+
+    return lines
+
+
+url_set = set(url_list)
+full_md: Final[list[str]] = gen_formatted_full(url_set, FileExtension.md)
+full_txt: Final[list[str]] = gen_formatted_full(url_set, FileExtension.txt)
