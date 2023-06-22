@@ -3,8 +3,8 @@ import os
 import recipe2txt.html2recipe as h2r
 
 from typing import Final
-from recipe2txt.utils.misc import URL, is_url
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
+from recipe2txt.utils.misc import URL, is_url, File, ensure_accessible_file_critical
 import recipe_scrapers
 from sys import version_info
 
@@ -36,12 +36,9 @@ class FileExtension(StrEnum):
     html = ".html"
 
 
-def gen_full_path(filename: str, file_extension: FileExtension) -> str:
+def gen_full_path(filename: str, file_extension: FileExtension) -> File:
     f_e = f"{file_extension}"
-    folder = os.path.join(root, f_e[1:])
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
-    return os.path.join(folder, filename + f_e)
+    return ensure_accessible_file_critical(filename + f_e, root, f_e[1:])
 
 
 filenames: Final[list[str]] = [url.rsplit(":", 1)[1] for url in url_list if is_url(url)]
@@ -49,9 +46,9 @@ filenames.sort()
 
 
 def fetch_url(url: URL, filename: str) -> bytes:
-    if not os.path.isfile(filename):
         logger.info(f"Fetching {url}")
         html = requests.get(url).content
+    if not os.path.getsize(filename) > 0:
         with open(filename, "wb") as file:
             file.write(html)
     else:
@@ -121,9 +118,9 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
     files_parsed = [gen_full_path(name, FileExtension.parsed) for name in filenames]
     recipes = []
 
-        if not os.path.isfile(parsed):
             logger.info(f"Generating {parsed}")
     for html, parsed, url in zip(files_html, files_parsed, url_list):
+        if not os.path.getsize(parsed) > 0:
             recipes.append(parse_html(html, parsed, url))
         else:
             logger.info(f"Already available: {parsed}")
