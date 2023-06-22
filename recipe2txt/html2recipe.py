@@ -117,8 +117,16 @@ def _get_info(method: str, data: Parsed) -> str:
 
     if info:
         if method == "ingredients":
-            if not isinstance(info, str):
-                info = linesep.join(info)
+            if isinstance(info, list):
+                if len(info[0]) < 2:
+                    for i in range(len(info)):
+                        if not info[i]:
+                            info[i] = ' '
+                        elif info[i] == ',':
+                            info[i] = linesep
+                    info = "".join(info)
+                else:
+                    info = linesep.join(info)
         elif method == "nutrients":
             info = dict2str(info)
         elif method == "instructions":
