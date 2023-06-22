@@ -200,8 +200,8 @@ def _re2md(recipe: Recipe) -> list[str]:
 
     md = [header(title, 2, True), paragraph(),
           recipe.total_time + " min | " + recipe.yields, paragraph()] + \
-        ingredients + [EMPTY_COMMENT] + instructions + \
-        [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
+         ingredients + [EMPTY_COMMENT] + instructions + \
+         [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
 
     return md
 
