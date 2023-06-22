@@ -1,4 +1,4 @@
-import requests
+import urllib.request
 import os
 import recipe2txt.html2recipe as h2r
 
@@ -47,8 +47,8 @@ filenames.sort()
 
 def fetch_url(url: URL, filename: str) -> bytes:
         logger.info(f"Fetching {url}")
-        html = requests.get(url).content
     if not os.path.getsize(filename) > 0:
+        html = urllib.request.get(url).content
         with open(filename, "wb") as file:
             file.write(html)
     else:
