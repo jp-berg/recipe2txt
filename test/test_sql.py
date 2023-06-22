@@ -9,11 +9,14 @@ from .test_helpers import *
 from typing import Optional
 
 db_name = "db_test.sqlite3"
-out_name = "out.txt"
+out_name = "out"
+out_name_txt = out_name + ".txt"
+out_name_md = out_name + ".md"
 
 db_path = os.path.join(test_project_tmpdir, db_name)
 db_paths = [os.path.join(folder, db_name) for folder in tmpdirs]
-out_path = os.path.join(test_project_tmpdir, out_name)
+out_path_txt = os.path.join(test_project_tmpdir, out_name_txt)
+out_path_md = os.path.join(test_project_tmpdir, out_name_md)
 
 db: sql.Database
 
@@ -87,7 +90,7 @@ class TestDatabase(unittest.TestCase):
     def setUp(self) -> None:
         if sql.is_accessible_db(db_path):
             global db
-            db = sql.Database(db_path, misc.File(out_path))
+            db = sql.Database(db_path, misc.File(out_path_txt))
             for recipe in test_recipes:
                 with self.subTest(i=recipe.url):
                     try:
@@ -170,7 +173,7 @@ class TestDatabase(unittest.TestCase):
         db.new_recipe(testrecipe)
         db.close()
 
-        db = sql.Database(db_path, out_path)
+        db = sql.Database(db_path, out_path_txt)
         contents = db.get_contents()
         self.assertEqual(len(contents), len(test_recipes))
         for recipe in test_recipes:
