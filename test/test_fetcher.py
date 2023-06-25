@@ -1,9 +1,9 @@
 import random
 import unittest
-from recipe2txt.fetcher_abstract import Cache, AbstractFetcher
-from recipe2txt.utils.misc import URL, ensure_existence_dir, ensure_accessible_file
+from recipe2txt.fetcher_abstract import Cache
+from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file
 from recipe2txt.sql import is_accessible_db
-import test.testfiles.html2recipe.testfile_generator as file_gen
+import test.testfiles.permanent.testfile_generator as file_gen
 from test.test_helpers import *
 from test.test_sql import db_path, out_path_txt, out_path_md, out_name_txt, out_name_md
 

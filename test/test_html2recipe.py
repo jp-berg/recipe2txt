@@ -1,7 +1,7 @@
 import unittest
 import recipe_scrapers
 import recipe2txt.html2recipe as h2r
-import test.testfiles.html2recipe.testfile_generator as file_gen
+import test.testfiles.permanent.testfile_generator as file_gen
 from .test_helpers import *
 import os
 
