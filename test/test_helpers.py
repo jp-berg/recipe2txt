@@ -1,4 +1,3 @@
-import logging
 import os
 from xdg_base_dirs import xdg_data_home
 from tempfile import gettempdir
@@ -6,8 +5,9 @@ from typing import Final
 from shutil import rmtree
 import recipe2txt.html2recipe as h2r
 import recipe2txt.utils.misc as misc
+from recipe2txt.utils.ContextLogger import disable_loggers
 
-logging.disable(logging.CRITICAL)
+disable_loggers()
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
            "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes"]
