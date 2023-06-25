@@ -26,23 +26,24 @@ except ImportError:
 logger = get_logger(__name__)
 
 
-def process_urls(strings: list[str]) -> set[URL]:
+def process_urls(lines: list[str]) -> set[URL]:
     processed: set[URL] = set()
-    for string in strings:
-        string = string.replace(linesep, '')
-        if not string.strip(): continue
-        with QCM(logger, logger.info, "Processing %s", string):
+    for line in lines:
+        strings = line.split()
+        for string in strings:
+            tmp = string
             if not string.startswith("http"):
                 string = "http://" + string
             if is_url(string):
                 url = string
                 url = cutoff(url, "/ref=", "?")
                 if url in processed:
-                    logger.warning("Already queued")
+                    logger.warning("%s already queued", url)
                 else:
                     processed.add(url)
+                    logger.info("Queued %s", url)
             else:
-                logger.error("Not an URL")
+                logger.debug("Not an URL: %s", tmp)
     return processed
 
 
