@@ -19,6 +19,26 @@ class FileTests(unittest.TestCase):
         if not delete_tmpdirs():
             self.fail()
 
+    def test_extract_urls(self):
+        obscured_urls = os.path.join(test_filedir, "permanent", "obscured_urls.txt")
+        unobscured_urls = os.path.join(test_filedir, "permanent", "unobscured_urls.txt")
+        if not os.path.isfile(obscured_urls):
+            self.fail(f"{obscured_urls} does not exist.")
+        if not os.path.isfile(unobscured_urls):
+            self.fail(f"{unobscured_urls} does not exist.")
+
+        validation = set()
+        for url in misc.read_files(unobscured_urls):
+            if url := url.strip():
+                validation.add(url)
+
+        lines = misc.read_files(obscured_urls)
+        urls = misc.extract_urls(lines)
+        if diff := validation-urls:
+            self.fail(f"Validation contains URLs that were not extracted:{diff}")
+        if diff := urls-validation:
+            self.fail(f"Validation does not contain URLs that were extracted:{diff}")
+
     def test_full_path(self):
         params = [
             (["~", "Documents", "File1"], os.path.expanduser(os.path.join("~", "Documents", "File1"))),
