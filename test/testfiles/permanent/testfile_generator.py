@@ -7,7 +7,7 @@ from typing import Final
 import recipe2txt.html2recipe as h2r
 from recipe2txt.fetcher_abstract import AbstractFetcher, Cache
 from recipe2txt.utils.misc import URL, is_url, File, ensure_accessible_file_critical
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, supress_logging
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 import recipe_scrapers
 from sys import version_info
@@ -199,7 +199,7 @@ def gen_formatted_full(urls: set[URL], file_extension: FileExtension) -> list[st
         f = TestFileFetcher(output=file, database=db, cache=Cache.new)
         f.markdown = file_extension is FileExtension.md
         logger.info("Generating %s", file)
-        with supress_logging():
+        with suppress_logging():
             f.fetch(urls)
     with open(file, "r") as to_read:
         lines = to_read.readlines()

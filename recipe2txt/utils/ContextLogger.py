@@ -107,13 +107,21 @@ class QueueContextManager:
         return False
 
 
-@contextlib.contextmanager
-def supress_logging() -> Generator[None, None, None]:
+def disable_loggers() -> None:
     for logger in logger_list:
         logger.disabled = True
-    yield
+
+
+def enable_loggers() -> None:
     for logger in logger_list:
         logger.disabled = False
+
+
+@contextlib.contextmanager
+def suppress_logging() -> Generator[None, None, None]:
+    disable_loggers()
+    yield
+    enable_loggers()
 
 
 class EndContextFilter(logging.Filter):
