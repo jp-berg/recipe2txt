@@ -10,7 +10,7 @@ else:
     from typing_extensions import LiteralString
 from shutil import rmtree
 from xdg_base_dirs import xdg_data_home
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, string2level
+from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
 from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 from recipe2txt.fetcher_abstract import Cache
@@ -24,28 +24,6 @@ except ImportError:
     _is_async = False
 
 logger = get_logger(__name__)
-
-
-def process_urls(lines: list[str]) -> set[URL]:
-    processed: set[URL] = set()
-    for line in lines:
-        strings = line.split()
-        for string in strings:
-            tmp = string
-            if not string.startswith("http"):
-                string = "http://" + string
-            if is_url(string):
-                url = string
-                url = cutoff(url, "/ref=", "?")
-                if url in processed:
-                    logger.warning("%s already queued", url)
-                else:
-                    processed.add(url)
-                    logger.info("Queued %s", url)
-            else:
-                logger.debug("Not an URL: %s", tmp)
-    return processed
-
 
 PROGRAM_NAME: Final[LiteralString] = "recipes2txt"
 DEFAULT_DATA_DIRECTORY: Final[str] = os.path.join(xdg_data_home(), PROGRAM_NAME)
@@ -308,7 +286,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     logger.info("Output set to: %s", recipe_file)
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
-    processed: set[URL] = process_urls(unprocessed)
+    processed: set[URL] = extract_urls(unprocessed)
     if not processed:
         logger.critical("No valid URL passed")
         sys.exit(os.EX_DATAERR)
