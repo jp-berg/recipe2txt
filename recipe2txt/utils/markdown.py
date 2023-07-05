@@ -69,8 +69,8 @@ def code(string: str) -> str:
     return "`" + string + "`"
 
 
-def codeblock(string: str, language: str = "") -> str:
-    return "```" + language + linesep + string + linesep + "```"
+def codeblock(*strings: str, language: str = "") -> list[str]:
+    return ["```" + language + linesep*2, *strings , linesep*2 + "```"]
 
 
 def page_sep() -> str:
