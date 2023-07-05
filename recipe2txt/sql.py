@@ -10,7 +10,7 @@ else:
 from recipe2txt.utils.ContextLogger import get_logger
 from .utils.misc import *
 from .html2recipe import Recipe, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
-    int2status, METHODS
+    int2status, METHODS, RecipeStatus
 
 logger = get_logger(__name__)
 _CREATE_TABLES: Final[LiteralString] = """
@@ -156,7 +156,12 @@ class Database:
         available = self.cur.fetchall()
         for url, status, version in available:
             if url in wanted and not fetch_again(status, version):
-                logger.info("Using cached version of %s", url)
+                if status == RS.UNKNOWN:
+                    logger.info("Not refetching %s, scraper-version (%s) since last fetch has not changed.",
+                                url, version)
+                else:
+                    logger.info("Using cached version of %s", url)
+
                 wanted.remove(url)
                 self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, url))
                 if not wanted: break
