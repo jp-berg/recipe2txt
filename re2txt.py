@@ -22,9 +22,11 @@ from recipe2txt.fetcher_abstract import Cache
 _is_async: bool
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
+
     _is_async = True
 except ImportError:
-    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher # type: ignore
+    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
+
     _is_async = False
 
 logger = get_logger(__name__)
@@ -260,7 +262,6 @@ def show_files() -> None:
 
 
 def erase_files() -> None:
-
     if os.path.isdir(DEFAULT_DATA_DIRECTORY):
         print("Deleting:", DEFAULT_DATA_DIRECTORY)
         rmtree(DEFAULT_DATA_DIRECTORY)
