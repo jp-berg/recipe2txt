@@ -4,6 +4,10 @@ import argparse
 import sys
 from os import linesep
 from typing import Final, Tuple
+from time import gmtime, strftime
+
+from recipe2txt.html2recipe import errors2str
+
 if sys.version_info >= (3, 11):
     from typing import LiteralString
 else:
@@ -38,15 +42,16 @@ DEFAULT_URLS_NAME: Final[LiteralString] = "urls.txt"
 DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.txt"
 
 
-def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
-
-    if debug:
-        data_path = DEBUG_DATA_DIRECTORY
-    else:
-        data_path = DEFAULT_DATA_DIRECTORY
+def get_data_directory(debug: bool) -> str:
+    data_path = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
     if not ensure_existence_dir(data_path):
-        print("Data directory cannot be created", file=sys.stderr)
+        print("Data directory cannot be created: ", data_path, file=sys.stderr)
         sys.exit(os.EX_IOERR)
+    return data_path
+
+
+def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
+    data_path = get_data_directory(debug)
 
     db_path = os.path.join(data_path, DB_NAME)
     if is_accessible_db(db_path):
@@ -80,6 +85,60 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
             output = ensure_accessible_file_critical(recipes_name, os.getcwd())
 
     return db_file, output, log_file
+
+
+how_to_report_txt: Final[LiteralString] = \
+    """During its execution the program encountered errors while trying to scrape recipes.
+In cases where the error seems to originate from the underlying library 'recipe-scrapers' an error-report per error
+has been generated and saved to a file.
+You find those files in the folders adjacent to this file. There is one folder per error-encountering excecution of the 
+program (naming format: 'Year-Month-Day_Hour-Minute-Second' when finishing execution). 
+If you want those errors fixed, go to 'https://github.com/hhursev/recipe-scrapers/issues' and search for each
+filename (without the '.md'-extension). If you cannot find a matching report for a filename, please click 'New Issue'
+and select 'Scraper Bug Report'. Paste the filename (without the '.md'-extension) into the 'Title'-Field and the
+contents of the file into the 'Write'-field. Check the 'Pre-filling  checks'-boxes ONLY if you made sure to follow
+their instructions. After that click 'Submit new issue'. The maintainers of the library will have a look at your
+problem and try to fix it. Please note that they are volunteers and under no obligation to help you. Be kind to them.
+"""
+
+
+def write_errors(debug: bool = False) -> int:
+    if not (errors := errors2str()):
+        return 0
+
+    logger.info("---Writing error reports---")
+
+    data_path = get_data_directory(debug)
+    if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
+        logger.error("Could not create %s, no reports will be written", os.path.join(data_path, "error_reports"))
+        return 0
+    how_to_report_file = os.path.join(error_dir, "how_to_report_errors.txt")
+    if not os.path.isfile(how_to_report_file):
+        with open(how_to_report_file, "w") as f:
+            f.write(how_to_report_txt)
+
+    current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
+    current_error_dir = os.path.join(error_dir, current_time)
+
+    i = 1
+    tmp = current_error_dir
+    while os.path.isdir(tmp):
+        tmp = f"{current_error_dir}-{i}"
+        i += 1
+    current_error_dir = tmp
+    os.mkdir(current_error_dir)
+
+    for title, msg in errors:
+        filename = os.path.join(current_error_dir, title + ".md")
+        with open(filename, "w") as f:
+            f.write(msg)
+
+    warn_msg = f"During its execution the program encountered recipes " \
+               f"that could not be (completely) scraped.{linesep}" \
+               f" Please see %s{linesep}if you want to help fix this."
+    logger.warning(warn_msg, how_to_report_file)
+
+    return len(errors)
 
 
 _parser = argparse.ArgumentParser(
@@ -309,4 +368,5 @@ if __name__ == '__main__':
     logger.info("--- Summary ---")
     if logger.isEnabledFor(logging.DEBUG):
         logger.info(fetcher.get_counts())
+    write_errors(a.debug)
     sys.exit(os.EX_OK)
