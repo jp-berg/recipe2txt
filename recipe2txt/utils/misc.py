@@ -2,6 +2,7 @@ import logging
 import os.path
 import sys
 import traceback
+import urllib.parse
 from copy import deepcopy
 from os import makedirs, linesep
 import validators
@@ -9,7 +10,7 @@ from recipe2txt.utils.ContextLogger import get_logger
 from typing import NewType, Any, TypeGuard, Optional
 
 __all__ = ["URL", "is_url", "File", "is_file", "full_path", "ensure_existence_dir", "ensure_accessible_file",
-           "ensure_accessible_file_critical", "read_files", "Counts", "cutoff", "dict2str", "head_str", "extract_urls",
+           "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str", "extract_urls",
            "get_shared_frames", "format_stacks"]
 
 logger = get_logger(__name__)
@@ -19,16 +20,6 @@ URL = NewType('URL', str)
 
 def is_url(value: str) -> TypeGuard[URL]:
     return bool(validators.url(value))
-
-
-def cutoff(url: URL, *identifiers: str) -> URL:
-    for i in identifiers:
-        start_tracking_part = url.find(i)
-        if start_tracking_part > -1:
-            tmp = url[:start_tracking_part]
-            if is_url(tmp):
-                url = tmp
-    return url
 
 
 def extract_urls(lines: list[str]) -> set[URL]:
@@ -41,7 +32,12 @@ def extract_urls(lines: list[str]) -> set[URL]:
                 string = "http://" + string
             if is_url(string):
                 url = string
-                url = cutoff(url, "/ref=", "?")
+
+                # Strip variables to avoid duplicating urls
+                parsed = urllib.parse.urlparse(url)
+                reconstructed = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
+                url = reconstructed if is_url(reconstructed) else url
+
                 if url in processed:
                     logger.warning("%s already queued", url)
                 else:

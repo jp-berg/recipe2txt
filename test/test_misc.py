@@ -113,15 +113,6 @@ class FileTests(unittest.TestCase):
 
 class StrTests(unittest.TestCase):
 
-    def test_cutoff(self):
-        urls = [("https://www.shop.com/product?utm_source=searchpage", "https://www.shop.com/product"),
-                ("https://www.info.net/important-message?user-id:12345", "https://www.info.net/important-message"),
-                ("http://www.blog.org/entry1/ref=referer", "http://www.blog.org/entry1")]
-
-        for url, validation in urls:
-            with self.subTest(i=url):
-                self.assertEqual(misc.cutoff(url, "?", "/ref="), validation)
-
     def test_dict2str(self):
         dicts = [({1: "one", 2: "two", 3: "three"}, os.linesep.join(["1: one", "2: two", "3: three"])),
                  ({"one": "Eins", "two": "Zwei", "three": "Drei"},
