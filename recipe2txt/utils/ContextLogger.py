@@ -20,14 +20,14 @@ string2level: Final[dict[LiteralString, int]] = {
 
 LOGFILE: Final[LiteralString] = "file.log"
 
-_LOG_FORMAT_STREAM: Final[LiteralString] = "%(ctx)s %(message)s"
+_LOG_FORMAT_STREAM: Final[LiteralString] = "%(ctx)s%(message)s"
 _LOG_FORMAT_FILE: Final[LiteralString] = "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
 DATEFMT: Final[LiteralString] = "%Y-%m-%d %H:%m:%S"
 
 CTX_ATTR: Final[LiteralString] = "is_context"
 IS_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: True}
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
-WHILE: Final[str] = f"While %s:{linesep}\t "
+WHILE: Final[str] = f"While %s:{linesep}"
 DO_NOT_LOG: Final[LiteralString] = "THIS MESSAGE SHOULD NOT BE LOGGED"
 
 logger_list: list[logging.Logger] = []
@@ -67,15 +67,18 @@ class QueueContextFilter(logging.Filter):
             return False
 
         if self.log_level <= record.levelno:  # If record should be emitted
-            record.ctx = ""
             if not is_context and self.with_context:
-                if self.triggered:
-                    record.ctx = "\t"
-                else:
+                record.ctx = "\t"
+                if not self.triggered:
                     self.context_msg = str(self.context_msg)
                     context = WHILE % (self.context_msg[0].lower() + self.context_msg[1:])
                     record.msg = (context % self.context_args) + str(record.msg)
                     self.triggered = True
+            else:
+                if is_context:
+                    self.with_context = True
+                    self.triggered = True
+                record.ctx = ""
             return True
 
         if is_context:
