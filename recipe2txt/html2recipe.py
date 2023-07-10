@@ -314,7 +314,7 @@ def _re2txt(recipe: Recipe) -> list[str]:
 
 
 def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[list[str]]:
-    if recipe.status < RecipeStatus.INCOMPLETE_ESSENTIAL:
+    if recipe.status <= RecipeStatus.INCOMPLETE_ESSENTIAL:
         logger.error("Nothing worthwhile could be extracted. Skipping...")
         return None
     if counts:
