@@ -1,3 +1,5 @@
+import logging
+import traceback
 import asyncio
 import aiohttp
 from recipe2txt.utils.misc import URL
@@ -34,9 +36,15 @@ class AsyncFetcher(AbstractFetcher):
                         async with session.get(url) as response:
                             html = await response.text()
                         self.counts.reached += 1
-
-                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                        logger.error("Unable to reach Website")
-                        self.db.insert_recipe_unreachable(url)
+                        self.html2db(url, html)
                         continue
-                self.html2db(url, html)
+                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
+                        logger.error("Unable to reach website")
+                    except Exception as e:
+                        logger.error("Error while connecting to website: %s", getattr(e, 'message', repr(e)))
+                        if logger.isEnabledFor(logging.DEBUG):
+                            exception_trace = "".join(traceback.format_exception(e))
+                            logger.debug(exception_trace)
+                    finally:
+                        self.db.insert_recipe_unreachable(url)
+
