@@ -185,27 +185,10 @@ def errors2str() -> list[tuple[str, str]]:
 
     return reports
 
-
-def _get_info(method: str, data: Parsed, url: URL) -> str:
+def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
-
-    method_name = method.replace("_", " ")
-    try:
-        info = getattr(data, method)()
-    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
-        handle_parsing_error(url, e, method_name, log)
-        return NA
-    except NotImplementedError:
-        log("%s not implemented for this website", method_name.capitalize())
-        return NA
-    except Exception as e:
-        log("Extraction error: %s", method_name)
-        if logger.isEnabledFor(logging.DEBUG):
-            exception_trace = "\t" + "\t".join(traceback.format_exception(e))
-            logger.debug(exception_trace)
-        return NA
-
     unexpected_type = True
+    method_name = method.replace("_", " ")
 
     if isinstance(info, (int, float)):
         info = None if info == 0 else str(info)
@@ -244,6 +227,26 @@ def _get_info(method: str, data: Parsed, url: URL) -> str:
     return str(info)
 
 
+def _get_info(method: str, data: Parsed, url: URL) -> Any:
+    log = logger.error if method in ON_DISPLAY else logger.warning
+    method_name = method.replace("_", " ")
+
+    try:
+        info = getattr(data, method)()
+        return info
+    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
+        handle_parsing_error(url, e, method_name, log)
+    except NotImplementedError:
+        log("%s not implemented for this website", method_name.capitalize())
+    except Exception as e:
+        log("Extraction error: %s", method_name)
+        if logger.isEnabledFor(logging.DEBUG):
+            exception_trace = "\t" + "\t".join(traceback.format_exception(e))
+            logger.debug(exception_trace)
+    finally:
+        return NA
+
+
 BETWEEN_RECIPES: Final[str] = linesep * 5
 HEAD_SEP: Final[str] = linesep * 2
 
@@ -268,7 +271,9 @@ def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
     with QCM(logger, logger.info, "Parsing %s", url):
         infos = []
         for method in METHODS:
-            infos.append(_get_info(method, parsed, url))
+            info = _get_info(method, parsed, url)
+            info_str = info2str(method, info)
+            infos.append(info_str)
     status = gen_status(infos)
     recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
                     ingredients=infos[0], instructions=infos[1],
