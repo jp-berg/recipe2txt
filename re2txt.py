@@ -137,7 +137,7 @@ def write_errors(debug: bool = False) -> int:
 
     warn_msg = f"During its execution the program encountered recipes " \
                f"that could not be (completely) scraped.{linesep}" \
-               f" Please see %s{linesep}if you want to help fix this."
+               f" Please see {linesep}%s{linesep}if you want to help fix this."
     logger.warning(warn_msg, how_to_report_file)
 
     return len(errors)
