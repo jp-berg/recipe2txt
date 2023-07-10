@@ -29,7 +29,7 @@ class AsyncFetcher(AbstractFetcher):
         async with aiohttp.ClientSession(timeout=timeout) as session:
             while not url_queue.empty():
                 url = await url_queue.get()
-                with QCM(logger, logger.info, "Fetching %s", url):
+                with QCM(logger, logger.info, "Fetching %s", url, defer_emit=True):
                     try:
                         async with session.get(url) as response:
                             html = await response.text()

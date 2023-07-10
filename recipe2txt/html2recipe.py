@@ -109,7 +109,7 @@ def handle_parsing_error(url: URL, exception: Exception, method: Optional[str] =
     if method:
         log("No %s found (%s)", method, exception_name)
     else:
-        log("Error while parsing %s (%s)", url, exception_name)
+        log("Parsing error (%s)", url, exception_name)
 
     if not save_error:
         return None
@@ -265,10 +265,8 @@ def gen_status(infos: list[str]) -> RecipeStatus:
 
 
 def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
-    with QCM(logger, logger.info, "Parsing %s", url):
-        infos = []
-        for method in METHODS:
-            infos.append(_get_info(method, parsed, url))
+    logger.info("Parsing HTML")
+    infos = [_get_info(method, parsed, url) for method in METHODS]
     status = gen_status(infos)
     recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
                     ingredients=infos[0], instructions=infos[1],
@@ -334,13 +332,13 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
-        logger.error("Unknown Website. Extraction not supported for %s", url)
+        logger.error("Unknown Website. Extraction not supported", url)
         return None
     except (AttributeError, TypeError) as e:
         handle_parsing_error(url, e)
         return None
     except Exception as e:
-        logger.error("Error while parsing: %s:%s", url, getattr(e, 'message', repr(e)))
+        logger.error("Parsing error: %s", getattr(e, 'message', repr(e)))
         if logger.isEnabledFor(logging.DEBUG):
             exception_trace = "".join(traceback.format_exception(e))
             logger.debug(exception_trace)
