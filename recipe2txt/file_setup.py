@@ -105,8 +105,8 @@ def set_default_output(filepath: File | Literal["RESET"]) -> None:
                   file=sys.stderr)
             sys.exit(os.EX_IOERR)
     else:
-        filepath = ensure_accessible_file_critical(DEFAULT_OUTPUT_LOCATION_NAME, get_data_directory())
-        with open(filepath, 'a') as file:
+        config_file = ensure_accessible_file_critical(DEFAULT_OUTPUT_LOCATION_NAME, get_data_directory())
+        with open(config_file, 'a') as file:
             file.write(filepath)
             file.write(os.linesep)
         print("Set default output location to", filepath)
