@@ -1,6 +1,7 @@
 import logging
 import traceback
 import asyncio
+from typing import Literal
 import aiohttp
 from recipe2txt.utils.misc import URL
 from recipe2txt.fetcher_abstract import AbstractFetcher
@@ -10,6 +11,7 @@ logger = get_logger(__name__)
 
 
 class AsyncFetcher(AbstractFetcher):
+    is_async: Literal[True] = True
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)

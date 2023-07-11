@@ -1,5 +1,6 @@
 import urllib.request
 import urllib.error
+from typing import Literal
 from recipe2txt.utils.misc import URL
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 from recipe2txt.fetcher_abstract import AbstractFetcher
@@ -8,6 +9,7 @@ logger = get_logger(__name__)
 
 
 class SerialFetcher(AbstractFetcher):
+    is_async: Literal[False] = False
 
     def fetch_url(self, url: URL) -> None:
         with QCM(logger, logger.info, "Fetching %s", url):

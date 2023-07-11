@@ -1,5 +1,6 @@
 from sys import version_info
 from os import linesep
+from typing import Final
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import URL, File, Counts
 import recipe2txt.sql as sql
@@ -21,6 +22,7 @@ class Cache(StrEnum):
 
 
 class AbstractFetcher(ABC):
+    is_async: bool
 
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
