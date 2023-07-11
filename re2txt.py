@@ -12,7 +12,7 @@ from shutil import rmtree
 from xdg_base_dirs import xdg_data_home
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
 from recipe2txt.utils.misc import *
-from recipe2txt.sql import is_accessible_db, AccessibleDatabase
+from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.fetcher_abstract import Cache
 from recipe2txt.utils.conditional_imports import LiteralString, Fetcher
 
@@ -42,13 +42,7 @@ def get_data_directory(debug: bool = False) -> Directory:
 def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
     data_path = get_data_directory(debug)
     log_file = ensure_accessible_file_critical(LOG_NAME, data_path)
-
-    db_path = os.path.join(data_path, DB_NAME)
-    if is_accessible_db(db_path):
-        db_file = db_path
-    else:
-        print("Database not accessible:", db_path, file=sys.stderr)
-        sys.exit(os.EX_IOERR)
+    db_file = ensure_accessible_db_critical(DB_NAME, data_path)
 
     if output:
         output = ensure_accessible_file_critical(output)

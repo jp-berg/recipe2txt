@@ -1,5 +1,7 @@
 import logging
+import os
 import sqlite3
+import sys
 from os import linesep
 from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
 from recipe2txt.utils.conditional_imports import LiteralString
@@ -7,6 +9,7 @@ from recipe2txt.utils.ContextLogger import get_logger
 from .utils.misc import *
 from .html2recipe import Recipe, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
     int2status, METHODS, RecipeStatus
+from .utils.misc import Directory
 
 logger = get_logger(__name__)
 _CREATE_TABLES: Final[LiteralString] = """
@@ -92,6 +95,16 @@ def is_accessible_db(path: str) -> TypeGuard[AccessibleDatabase]:
         cur.close()
         con.close()
     return True
+
+
+def ensure_accessible_db_critical(db_name: str, directory: Directory) -> AccessibleDatabase:
+    db_path = os.path.join(directory, db_name)
+    if is_accessible_db(db_path):
+        db_file = db_path
+    else:
+        print("Database not accessible:", db_path, file=sys.stderr)
+        sys.exit(os.EX_IOERR)
+    return db_file
 
 
 def fetch_again(status: RS, scraper_version: str) -> bool:
