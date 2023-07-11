@@ -125,7 +125,9 @@ def mutex_args(a: argparse.Namespace) -> None:
     elif a.erase_appdata:
         erase_files()
     elif a.default_output_file:
-        set_default_output(a.default_output_file)
+        if a.default_output_file != "RESET":
+            file = ensure_accessible_file_critical(a.default_output_file)
+            set_default_output(a.default_output_file)
     sys.exit(os.EX_OK)
 
 
