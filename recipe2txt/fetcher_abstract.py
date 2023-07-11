@@ -1,4 +1,3 @@
-from sys import version_info
 from os import linesep
 from typing import Final
 from recipe2txt.utils.ContextLogger import get_logger
@@ -7,10 +6,7 @@ import recipe2txt.sql as sql
 import recipe2txt.html2recipe as h2r
 from recipe2txt.utils.markdown import *
 from abc import ABC, abstractmethod
-if version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum # type: ignore
+from recipe2txt.utils.conditional_imports import StrEnum
 
 logger = get_logger(__name__)
 

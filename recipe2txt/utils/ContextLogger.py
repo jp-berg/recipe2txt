@@ -4,11 +4,7 @@ from os import linesep
 from logging.handlers import RotatingFileHandler
 from types import TracebackType
 from typing import Final, Callable, Literal, Any, Generator
-from sys import version_info
-if version_info >= (3, 11):
-    from typing import LiteralString
-else:
-    from typing_extensions import LiteralString
+from recipe2txt.utils.conditional_imports import LiteralString
 
 string2level: Final[dict[LiteralString, int]] = {
     "debug": logging.DEBUG,

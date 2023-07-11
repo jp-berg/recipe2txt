@@ -8,21 +8,13 @@ from time import gmtime, strftime
 
 from recipe2txt.html2recipe import errors2str
 
-if sys.version_info >= (3, 11):
-    from typing import LiteralString
-else:
-    from typing_extensions import LiteralString
 from shutil import rmtree
 from xdg_base_dirs import xdg_data_home
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
 from recipe2txt.utils.misc import *
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 from recipe2txt.fetcher_abstract import Cache
-
-try:
-    from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
-except ImportError:
-    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
+from recipe2txt.utils.conditional_imports import LiteralString, Fetcher
 
 logger = get_logger(__name__)
 

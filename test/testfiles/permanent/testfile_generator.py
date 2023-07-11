@@ -10,12 +10,7 @@ from recipe2txt.utils.misc import URL, is_url, File, ensure_accessible_file_crit
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 import recipe_scrapers
-from sys import version_info
-
-if version_info >= (3, 11):
-    from enum import StrEnum
-else:
-    from backports.strenum import StrEnum # type: ignore
+from recipe2txt.utils.conditional_imports import LiteralString
 
 __all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
 

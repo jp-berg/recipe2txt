@@ -3,11 +3,6 @@ import urllib
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any, Callable
 from sys import version_info
-
-if version_info >= (3, 11):
-    from typing import LiteralString
-else:
-    from typing_extensions import LiteralString
 from os import linesep
 import traceback
 from importlib_metadata import version
@@ -17,6 +12,7 @@ from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoun
 from recipe2txt.utils.markdown import *
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 from recipe2txt.utils.misc import URL, Counts, dict2str, get_shared_frames, format_stacks
+from recipe2txt.utils.conditional_imports import LiteralString
 
 logger = get_logger(__name__)
 
