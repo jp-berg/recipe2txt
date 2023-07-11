@@ -9,9 +9,9 @@ import validators
 from recipe2txt.utils.ContextLogger import get_logger
 from typing import NewType, Any, TypeGuard, Optional
 
-__all__ = ["URL", "is_url", "File", "is_file", "full_path", "ensure_existence_dir", "ensure_accessible_file",
-           "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str", "extract_urls",
-           "get_shared_frames", "format_stacks"]
+__all__ = ["URL", "is_url", "File", "is_file", "Directory", "is_dir", "full_path", "ensure_existence_dir",
+           "ensure_accessible_file", "ensure_accessible_file_critical", "read_files", "Counts", "dict2str",
+           "head_str", "extract_urls", "get_shared_frames", "format_stacks"]
 
 logger = get_logger(__name__)
 
@@ -55,6 +55,13 @@ def is_file(value: str) -> TypeGuard[File]:
     return os.path.isfile(value)
 
 
+Directory = NewType('Directory', str)
+
+
+def is_dir(value: str) -> TypeGuard[Directory]:
+    return os.path.isdir(value)
+
+
 def full_path(*pathelements: str) -> str:
     path = os.path.join(*pathelements)
     path = path.strip()
@@ -64,47 +71,43 @@ def full_path(*pathelements: str) -> str:
     return path
 
 
-def ensure_existence_dir(*pathelements: str) -> Optional[str]:
+def ensure_existence_dir(*pathelements: str) -> Optional[Directory]:
     path = full_path(*pathelements)
-    if not os.path.isdir(path):
+    if not is_dir(path):
         try:
             logger.info("Creating directory: %s", path)
             makedirs(path, exist_ok=True)
         except OSError:
             return None
-    return path
+
+    return Directory(path)
 
 
-def ensure_accessible_file(filename: str, *pathelements: str) -> Optional[File]:
-    if dirpath := ensure_existence_dir(*pathelements):
-        path = os.path.join(dirpath, filename)
-    else:
-        return None
+def ensure_accessible_file(filename: str, directory: Optional[Directory] = None) -> Optional[File]:
+    filepath = os.path.join(directory, filename) if directory else filename
     try:
-        with open(path, 'a'):
+        with open(filepath, 'a'):
             pass
     except OSError:
         return None
-    return File(path)
+    return File(filepath)
 
 
-def ensure_accessible_file_critical(filename: str, *pathelements: str) -> File:
+def ensure_accessible_file_critical(filename: str, directory: Optional[Directory] = None) -> File:
     try:
-        path = full_path(*pathelements)
-        os.makedirs(path, exist_ok=True)
-        path = os.path.join(path, filename)
-        with open(path, 'a'):
+        filepath = os.path.join(directory, filename) if directory else filename
+        with open(filepath, 'a'):
             pass
 
     except OSError as e:
         print("Error while creating or accessing file {}: {}"
-              .format(full_path(full_path(*pathelements, filename)), getattr(e, 'message', repr(e))),
+              .format(full_path(full_path(filepath)), getattr(e, 'message', repr(e))),
               file=sys.stderr)
         if logger.isEnabledFor(logging.DEBUG):
             exception_trace = "".join(traceback.format_exception(e))
             logger.debug(exception_trace)
         sys.exit(os.EX_IOERR)
-    return File(path)
+    return File(filepath)
 
 
 def read_files(*paths: str) -> list[str]:

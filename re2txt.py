@@ -3,7 +3,7 @@ import os.path
 import argparse
 import sys
 from os import linesep
-from typing import Final, Tuple
+from typing import Final, Tuple, Literal
 from time import gmtime, strftime
 
 from recipe2txt.html2recipe import errors2str
@@ -31,16 +31,17 @@ DEFAULT_URLS_NAME: Final[LiteralString] = "urls.txt"
 DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.txt"
 
 
-def get_data_directory(debug: bool) -> str:
-    data_path = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
-    if not ensure_existence_dir(data_path):
-        print("Data directory cannot be created: ", data_path, file=sys.stderr)
+def get_data_directory(debug: bool = False) -> Directory:
+    tmp = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
+    if not (data_path := ensure_existence_dir(tmp)):
+        print("Data directory cannot be created: ", tmp, file=sys.stderr)
         sys.exit(os.EX_IOERR)
     return data_path
 
 
 def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
     data_path = get_data_directory(debug)
+    log_file = ensure_accessible_file_critical(LOG_NAME, data_path)
 
     db_path = os.path.join(data_path, DB_NAME)
     if is_accessible_db(db_path):
@@ -49,11 +50,8 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
         print("Database not accessible:", db_path, file=sys.stderr)
         sys.exit(os.EX_IOERR)
 
-    log_file = ensure_accessible_file_critical(LOG_NAME, data_path)
-
     if output:
-        base, filename = os.path.split(output)
-        output = ensure_accessible_file_critical(filename, base)
+        output = ensure_accessible_file_critical(output)
     else:
         if debug:
             output_location_file = os.path.join(DEBUG_DATA_DIRECTORY, DEFAULT_OUTPUT_LOCATION_NAME)
@@ -65,13 +63,13 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
                 if markdown:
                     output = file.readline().rstrip(linesep)
             base, filename = os.path.split(output)
-            output = ensure_accessible_file_critical(filename, base)
+            output = ensure_accessible_file_critical(output)
         else:
             if markdown:
                 recipes_name = RECIPES_NAME_MD
             else:
                 recipes_name = RECIPES_NAME_TXT
-            output = ensure_accessible_file_critical(recipes_name, os.getcwd())
+            output = ensure_accessible_file_critical(recipes_name, Directory(os.getcwd()))
 
     return db_file, output, log_file
 
@@ -258,34 +256,25 @@ def erase_files() -> None:
         rmtree(DEBUG_DATA_DIRECTORY)
 
 
-def set_default_output(filepath: str) -> None:
+def set_default_output(filepath: File | Literal["RESET"]) -> None:
     if filepath == "RESET":
         try:
-            os.remove(os.path.join(DEFAULT_DATA_DIRECTORY, DEFAULT_OUTPUT_LOCATION_NAME))
+            os.remove(os.path.join(get_data_directory(), DEFAULT_OUTPUT_LOCATION_NAME))
             print("Removed default output location. When called without specifying the output-file recipes will"
                   " now be written in the current working directory with the name", RECIPES_NAME_TXT)
         except FileNotFoundError:
             print("No default output set")
         except OSError as e:
             print("Error while deleting file {}: {}"
-                  .format(full_path(full_path(filepath)), getattr(e, 'message', repr(e))),
-                  file=sys.stderr)
-            sys.exit(os.EX_IOERR)
-    else:
-        base, name = os.path.split(filepath)
-        filepath = ensure_accessible_file_critical(name, base)
-
-        try:
-            ensure_existence_dir(DEFAULT_DATA_DIRECTORY)
-            with open(os.path.join(DEFAULT_DATA_DIRECTORY, DEFAULT_OUTPUT_LOCATION_NAME), 'a') as file:
-                file.write(filepath)
-                file.write(linesep)
-            print("Set default output location to", filepath)
-        except OSError as e:
-            print("Error while creating or accessing file {}: {}"
                   .format(filepath, getattr(e, 'message', repr(e))),
                   file=sys.stderr)
             sys.exit(os.EX_IOERR)
+    else:
+        filepath = ensure_accessible_file_critical(DEFAULT_OUTPUT_LOCATION_NAME, get_data_directory())
+        with open(filepath, 'a') as file:
+            file.write(filepath)
+            file.write(os.linesep)
+        print("Set default output location to", filepath)
 
 
 def mutex_args(a: argparse.Namespace) -> None:
