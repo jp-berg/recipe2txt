@@ -11,9 +11,4 @@ else:
     from backports.strenum import StrEnum # type: ignore
 
 
-try:
-    from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
-except ImportError:
-    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
-
-__all__ = ["LiteralString", "Fetcher", "StrEnum"]
+__all__ = ["LiteralString", "StrEnum"]

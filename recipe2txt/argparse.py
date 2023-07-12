@@ -3,11 +3,17 @@ import logging
 import os
 import sys
 from typing import Final, Tuple
-from recipe2txt.utils.conditional_imports import LiteralString, Fetcher
+from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.fetcher_abstract import Cache
 from recipe2txt.file_setup import show_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
 from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, ensure_accessible_file_critical
+
+
+try:
+    from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
+except ImportError:
+    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
 
 logger = get_logger(__name__)
 
