@@ -1,50 +1,33 @@
 VENV = .venv
-ACTIVATE = . $(VENV)/bin/activate
-# delete this file to reinstall the requirements to the venv:
-REQ = .req
+PYTHON = $(VENV)/bin/python
+PIP = $(PYTHON) -m pip
 
+testrun: testrun1 testrun2 testrun3
 
-SRC_DIR = recipe2txt
-UTILS_DIR = $(SRC_DIR)/utils
+testrun1: $(PYTHON)
+	$^ re2txt.py -v info -d -md -f ./test/testfiles/urls.txt -o ./test/testfiles/recipe_test.md -con 10 -t 20
 
-SRC = $(wildcard $(SRC_DIR)/*.py)
-UTILS = $(wildcard $(UTILS_DIR)/*.py)
-ALL_PY = $(SRC) $(UTILS) re2txt.py
+testrun2: $(PYTHON)
+	$^ re2txt.py -v info -d -f ./test/testfiles/urls2.txt -o ./test/testfiles/recipe_test2.txt -con 1 -t 20
 
-DEBUG_OUT = tests/testfiles/recipe_test.txt tests/testfiles/recipe_test.md
-JUNK = $(DEBUG_OUT)
+testrun3: $(PYTHON)
+	$^ re2txt.py -v info -d -md -f ./test/testfiles/urls3.txt ./test/testfiles/urls4.txt ./test/testfiles/urls5.txt -o ./test/testfiles/recipe_test3.md -con 10 -t 20
 
+$(PYTHON):
+	python3 -m venv $(VENV);
+	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements_performance.txt
 
-testrun: clean testrun1 testrun2 testrun3
+mypy: $(PYTHON)
+	mypy -m re2txt -m test.testfiles.permanent.testfile_generator --python-executable $^ --strict
 
-testrun1: $(REQ)
-	$(ACTIVATE); python3 re2txt.py -v info -d -md -f ./test/testfiles/urls.txt -o ./test/testfiles/recipe_test.md -con 10 -t 20
+test: $(PYTHON) testfiles
+	$(PYTHON) -m unittest
 
-testrun2: $(REQ)
-	$(ACTIVATE); python3 re2txt.py -v info -d -f ./test/testfiles/urls2.txt -o ./test/testfiles/recipe_test2.txt -con 1 -t 20
+testfiles: $(PYTHON)
+	$^ -m test.testfiles.html2recipe.testfile_generator;
 
-testrun3: $(REQ)
-	$(ACTIVATE); python3 re2txt.py -v info -d -md -f ./test/testfiles/urls3.txt ./test/testfiles/urls4.txt ./test/testfiles/urls5.txt -o ./test/testfiles/recipe_test3.md -con 10 -t 20
-
-$(REQ): $(VENV)
-	$(ACTIVATE); pip install -r requirements.txt && pip install -r requirements_performance.txt && touch $@
-
-$(VENV):
-	python3 -m venv $@
-
-mypy: $(REQ)
-	$(ACTIVATE); mypy -m re2txt -m test.testfiles.permanent.testfile_generator --python-executable .venv/bin/python3 --strict
-
-test: $(REQ)
-	$(ACTIVATE); python3 -m unittest
-
-testfiles: $(REQ)
-	$(ACTIVATE); python3 -m test.testfiles.html2recipe.testfile_generator;
-
-clean:
-	rm  $(JUNK) || true
-	
 uninstall:
-	rm -rf $(VENV) || rm $(REQ) 
+	rm -rf $(VENV)
 
 .PHONY: test testfiles test1 test2 test3
