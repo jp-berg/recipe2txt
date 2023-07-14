@@ -3,12 +3,13 @@ import sys
 import urllib.request
 import os
 from typing import Final
+from pathlib import Path
 
 import recipe2txt.html2recipe as h2r
 from recipe2txt.fetcher_abstract import AbstractFetcher, Cache
 from recipe2txt.utils.misc import URL, is_url, File, Directory, ensure_accessible_file_critical
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging
-from recipe2txt.sql import is_accessible_db, AccessibleDatabase
+from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 import recipe_scrapers
 from recipe2txt.utils.conditional_imports import StrEnum
 
@@ -18,7 +19,7 @@ if __name__ == '__main__':
     root_log_setup(logging.DEBUG)
 
 logger = get_logger(__name__)
-root = os.path.dirname(__file__)
+root: Final[Directory] = Directory(Path().resolve())
 
 
 def get_urls() -> list[URL]:
@@ -40,7 +41,7 @@ class FileExtension(StrEnum):
 
 def gen_full_path(filename: str, file_extension: FileExtension) -> File:
     f_e = f"{file_extension}"
-    return ensure_accessible_file_critical(filename + f_e, root, f_e[1:])
+    return ensure_accessible_file_critical(root, f_e[1:], filename + f_e)
 
 
 filenames: Final[list[str]] = [url.rsplit(":", 1)[1] for url in url_list if is_url(url)]
@@ -163,12 +164,8 @@ recipe_list: Final[list[h2r.Recipe]] = gen_parsed(filenames)
 md_list: Final[list[str]] = gen_formatted(filenames, FileExtension.md)
 txt_list: Final[list[str]] = gen_formatted(filenames, FileExtension.txt)
 
-db: AccessibleDatabase
-_db = os.path.join(root, "testfile_db.sqlite3")
-if is_accessible_db(_db):
-    db = _db
-else:
-    sys.exit(f"Database not accessible: {_db}")
+db: AccessibleDatabase = ensure_accessible_db_critical(root, "testfile_db.sqlite3")
+
 
 url2html: dict[str, bytes] = {url: html for url, html in zip(url_list, html_list)}
 
