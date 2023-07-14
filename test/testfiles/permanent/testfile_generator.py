@@ -6,11 +6,11 @@ from typing import Final
 
 import recipe2txt.html2recipe as h2r
 from recipe2txt.fetcher_abstract import AbstractFetcher, Cache
-from recipe2txt.utils.misc import URL, is_url, File, ensure_accessible_file_critical
+from recipe2txt.utils.misc import URL, is_url, File, Directory, ensure_accessible_file_critical
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging
 from recipe2txt.sql import is_accessible_db, AccessibleDatabase
 import recipe_scrapers
-from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.conditional_imports import StrEnum
 
 __all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
 
@@ -47,7 +47,7 @@ filenames: Final[list[str]] = [url.rsplit(":", 1)[1] for url in url_list if is_u
 filenames.sort()
 
 
-def fetch_url(url: URL, filename: str) -> bytes:
+def fetch_url(url: URL, filename: File) -> bytes:
     if not os.path.getsize(filename) > 0:
         logger.info("Generating %s from %s", filename, url)
         html = urllib.request.get(url).content
@@ -57,7 +57,7 @@ def fetch_url(url: URL, filename: str) -> bytes:
         logger.info("Already available: %s", filename)
         with open(filename, "rb") as file:
             html = file.read()
-    return html
+    return bytes(html)
 
 
 def gen_html(filenames: list[str]) -> list[bytes]:
@@ -72,7 +72,7 @@ def gen_html(filenames: list[str]) -> list[bytes]:
 delim = "---"
 
 
-def parse_html(filename: str, filename_parsed: str, url: URL) -> h2r.Recipe:
+def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
     with open(filename, "rb") as file:
         html = file.read()
         r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
@@ -96,7 +96,7 @@ def parse_html(filename: str, filename_parsed: str, url: URL) -> h2r.Recipe:
     return recipe
 
 
-def parse_txt(path: str) -> h2r.Recipe:
+def parse_txt(path: File) -> h2r.Recipe:
     attributes = []
     tmp = []
     with open(path, "r") as file:
@@ -175,7 +175,7 @@ url2html: dict[str, bytes] = {url: html for url, html in zip(url_list, html_list
 
 class TestFileFetcher(AbstractFetcher):
 
-    def fetch(self, urls: set[URL]):
+    def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)
         for url in urls:
             html = url2html[url]
