@@ -2,6 +2,7 @@ import logging
 import os
 import sqlite3
 import sys
+from pathlib import Path
 from os import linesep
 from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
 from recipe2txt.utils.conditional_imports import LiteralString
@@ -77,10 +78,10 @@ _GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECI
 _DROP_ALL: Final[LiteralString] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; " \
                                   "DROP TABLE IF EXISTS contents"
 
-AccessibleDatabase = NewType("AccessibleDatabase", str)
+AccessibleDatabase = NewType("AccessibleDatabase", Path)
 
 
-def is_accessible_db(path: str) -> TypeGuard[AccessibleDatabase]:
+def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
     try:
         con = sqlite3.connect(path)
     except sqlite3.OperationalError:
@@ -97,12 +98,13 @@ def is_accessible_db(path: str) -> TypeGuard[AccessibleDatabase]:
     return True
 
 
-def ensure_accessible_db_critical(db_name: str, directory: Directory) -> AccessibleDatabase:
-    db_path = os.path.join(directory, db_name)
+def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
+    db_path = full_path(*path_elem)
+    directory = ensure_existence_dir_critical(db_path.parents[0])
     if is_accessible_db(db_path):
         db_file = db_path
     else:
-        print("Database not accessible:", db_path, file=sys.stderr)
+        logger.critical("Database not accessible: %s", db_path)
         sys.exit(os.EX_IOERR)
     return db_file
 

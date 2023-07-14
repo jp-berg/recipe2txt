@@ -138,15 +138,15 @@ def ensure_accessible_file_critical(*path_elem: str | Path) -> File:
     return file
 
 
-def read_files(*paths: str) -> list[str]:
+def read_files(*possible_paths: str | Path) -> list[str]:
     lines = []
-    for path in paths:
-        path = full_path(path)
-        if os.path.isfile(path):
+    for p in possible_paths:
+        path = full_path(p)
+        if path.is_file():
             logger.info("Reading %s", path)
-            with open(path, 'r') as file:
-                for line in file.readlines():
-                    lines.append(line)
+            path.read_text()
+            with path.open("r") as file:
+                lines += [line for line in file.readlines()]
         else:
             logger.error("Not a file: %s", path)
     return lines

@@ -7,7 +7,7 @@ from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.fetcher_abstract import Cache
 from recipe2txt.file_setup import show_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
-from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, ensure_accessible_file_critical
+from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, ensure_accessible_file_critical, File
 
 
 try:
@@ -133,7 +133,7 @@ def mutex_args(a: argparse.Namespace) -> None:
     sys.exit(os.EX_OK)
 
 
-def sancheck_args(a: argparse.Namespace, output: str) -> None:
+def sancheck_args(a: argparse.Namespace, output: File) -> None:
     if not (a.file or a.url):
         parser.error("Nothing to process: No file or url passed")
     if a.connections < 1:
@@ -157,7 +157,7 @@ def sancheck_args(a: argparse.Namespace, output: str) -> None:
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     db_file, recipe_file, log_file = file_setup(a.debug, a.output, a.markdown)
-    root_log_setup(string2level[a.verbosity], log_file)
+    root_log_setup(string2level[a.verbosity], str(log_file))
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("CLI-ARGS: %s\t%s", os.linesep, (os.linesep + '\t').join(args2strs(a)))
     logger.info("--- Preparing arguments ---")

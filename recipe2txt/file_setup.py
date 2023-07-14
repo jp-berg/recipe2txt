@@ -3,6 +3,7 @@ import sys
 from shutil import rmtree
 from time import strftime, gmtime
 from typing import Final, Tuple, Literal
+from pathlib import Path
 
 from xdg_base_dirs import xdg_data_home
 
@@ -39,11 +40,11 @@ def get_data_directory(debug: bool = False) -> Directory:
 
 def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
     data_path = get_data_directory(debug)
-    db_file = ensure_accessible_db_critical(DB_NAME, data_path)
-    log_file = ensure_accessible_file_critical(LOG_NAME, data_path)
+    db_file = ensure_accessible_db_critical(data_path, DB_NAME)
+    log_file = ensure_accessible_file_critical(data_path, LOG_NAME)
 
     if output:
-        output = ensure_accessible_file_critical(output)
+        output_file = ensure_accessible_file_critical(output)
     else:
         if debug:
             output_location_file = os.path.join(DEBUG_DATA_DIRECTORY, DEFAULT_OUTPUT_LOCATION_NAME)
@@ -54,21 +55,21 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
                 output = file.readline().rstrip(os.linesep)
                 if markdown:
                     output = file.readline().rstrip(os.linesep) # SOLLTE DAS FÜR MARKDOWN UND TXT NICHT GLEICH SEIN?
-            output = ensure_accessible_file_critical(output)
+            output_file = ensure_accessible_file_critical(output)
         else:
             if markdown:
                 recipes_name = RECIPES_NAME_MD
             else:
                 recipes_name = RECIPES_NAME_TXT
-            output = ensure_accessible_file_critical(recipes_name, Directory(os.getcwd()))
+            output_file = ensure_accessible_file_critical(Directory(Path.cwd()), recipes_name)
 
-    return db_file, output, log_file
+    return db_file, output_file, log_file
 
 
 def show_files() -> None:
     files = []
     if os.path.isdir(DEFAULT_DATA_DIRECTORY):
-        files = [os.path.join(DEFAULT_DATA_DIRECTORY, file) for file in os.listdir(DEFAULT_DATA_DIRECTORY))]
+        files = [os.path.join(DEFAULT_DATA_DIRECTORY, file) for file in os.listdir(DEFAULT_DATA_DIRECTORY)]
     if os.path.isdir(DEBUG_DATA_DIRECTORY):
         files += [os.path.join(DEBUG_DATA_DIRECTORY, file) for file in os.listdir(DEBUG_DATA_DIRECTORY)]
 
@@ -103,9 +104,7 @@ def set_default_output(filepath: File | Literal["RESET"]) -> None:
             sys.exit(os.EX_IOERR)
     else:
         config_file = ensure_accessible_file_critical(DEFAULT_OUTPUT_LOCATION_NAME, get_data_directory())
-        with open(config_file, 'a') as file:
-            file.write(filepath)
-            file.write(os.linesep)
+        config_file.write_text(str(filepath) + os.linesep)
         print("Set default output location to", filepath)
 
 
