@@ -50,7 +50,7 @@ filenames.sort()
 def fetch_url(url: URL, filename: File) -> bytes:
     if not os.path.getsize(filename) > 0:
         logger.info("Generating %s from %s", filename, url)
-        html = urllib.request.get(url).content
+        html = urllib.request.urlopen(url).read()
         with open(filename, "wb") as file:
             file.write(html)
     else:
