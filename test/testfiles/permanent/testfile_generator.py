@@ -19,11 +19,12 @@ if __name__ == '__main__':
     root_log_setup(logging.DEBUG)
 
 logger = get_logger(__name__)
-root: Final[Directory] = Directory(Path().resolve())
+root: Final[Directory] = Directory(Path(__file__).parent)
 
 
 def get_urls() -> list[URL]:
-    with open(os.path.join(root, "URLs"), "r") as file:
+    urls_file = root / "URLs"
+    with urls_file.open() as file:
         urls = [line.rstrip(os.linesep) for line in file.readlines() if is_url(line)]
     urls.sort()
     return urls  # type: ignore
@@ -49,24 +50,19 @@ filenames.sort()
 
 
 def fetch_url(url: URL, filename: File) -> bytes:
-    if not os.path.getsize(filename) > 0:
+    if not filename.stat().st_size > 0:
         logger.info("Generating %s from %s", filename, url)
         html = urllib.request.urlopen(url).read()
-        with open(filename, "wb") as file:
-            file.write(html)
+        filename.write_bytes(html)
     else:
         logger.info("Already available: %s", filename)
-        with open(filename, "rb") as file:
-            html = file.read()
+        html = filename.read_bytes()
     return bytes(html)
 
 
 def gen_html(filenames: list[str]) -> list[bytes]:
     html_paths = [gen_full_path(name, FileExtension.html) for name in filenames]
-    html = []
-
-    for url, filename in zip(url_list, html_paths):
-        html.append(fetch_url(url, filename))
+    html = [fetch_url(url, filename) for url, filename in zip(url_list, html_paths)]
     return html
 
 
@@ -74,21 +70,20 @@ delim = "---"
 
 
 def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
-    with open(filename, "rb") as file:
-        html = file.read()
-        r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
-        attributes = []
-        with QCM(logger, logger.info, "Scraping %s", url):
-            for method in h2r.METHODS:
-                try:
-                    a = getattr(r, method)()
-                    attributes.append(a)
-                except Exception:
-                    logger.error("%s not found", method)
-                    attributes.append(h2r.NA)
-            attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
-            recipe = h2r.Recipe(*attributes)
-    with open(filename_parsed, "w") as file:
+    html =  filename.read_bytes()
+    r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
+    attributes = []
+    with QCM(logger, logger.info, "Scraping %s", url):
+        for method in h2r.METHODS:
+            try:
+                a = getattr(r, method)()
+                attributes.append(a)
+            except Exception:
+                logger.error("%s not found", method)
+                attributes.append(h2r.NA)
+        attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
+        recipe = h2r.Recipe(*attributes)
+    with filename_parsed.open('w') as file:
         for a in attributes:
             if isinstance(a, list):
                 a = os.linesep.join(a)
@@ -100,7 +95,7 @@ def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
 def parse_txt(path: File) -> h2r.Recipe:
     attributes = []
     tmp = []
-    with open(path, "r") as file:
+    with path.open() as file:
         for line in file.readlines():
             line = line.rstrip(os.linesep)
             if line != delim:
@@ -122,7 +117,7 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
     recipes = []
 
     for html, parsed, url in zip(files_html, files_parsed, url_list):
-        if not os.path.getsize(parsed) > 0:
+        if not parsed.stat().st_size > 0:
             logger.info("Generating %s from %s", parsed, html)
             recipes.append(parse_html(html, parsed, url))
         else:
@@ -138,21 +133,19 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
     files_formatted = [gen_full_path(name, file_extension) for name in filenames]
     formatted_recipes = []
     for parsed, formatted_file in zip(files_parsed, files_formatted):
-        if not os.path.getsize(formatted_file) > 0:
+        if not formatted_file.stat().st_size > 0:
             logger.info("Generating %s from %s", formatted_file, parsed)
             recipe = parse_txt(parsed)
             if file_extension is FileExtension.md:
                 tmp_list = h2r._re2md(recipe)
             else:
                 tmp_list = h2r._re2txt(recipe)
-            with open(formatted_file, "w") as f:
-                f.writelines(tmp_list)
             formatted = "".join(tmp_list)
+            formatted_file.write_text(formatted)
             formatted_recipes.append(formatted)
         else:
             logger.info("Already available: %s",  formatted_file)
-            with open(formatted_file, "r") as f:
-                formatted_recipes.append("".join(f.readlines()))
+            formatted_recipes.append(formatted_file.read_text())
     return formatted_recipes
 
 
@@ -185,9 +178,8 @@ class TestFileFetcher(AbstractFetcher):
 def gen_formatted_full(urls: set[URL], file_extension: FileExtension) -> list[str]:
     name = "recipes"
     file = gen_full_path(name, file_extension)
-    file_exists = os.path.getsize(file) > 0
 
-    if not file_exists:
+    if not file.stat().st_size > 0:
         f = TestFileFetcher(output=file, database=db, cache=Cache.new)
         f.markdown = file_extension is FileExtension.md
         logger.info("Generating %s", file)

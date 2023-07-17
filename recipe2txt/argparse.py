@@ -144,7 +144,7 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
     if a.timeout <= 0.0:
         logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
-    _dummy, ext = os.path.splitext(output)
+    ext = output.suffix
     if a.markdown:
         if ext != ".md":
             logger.warning("The application is instructed to output a markdown file, but the filename extension"

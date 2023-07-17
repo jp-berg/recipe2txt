@@ -1,5 +1,6 @@
 import os
 from xdg_base_dirs import xdg_data_home
+from pathlib import Path
 from tempfile import gettempdir
 from typing import Final
 from shutil import rmtree
@@ -10,22 +11,21 @@ from recipe2txt.utils.ContextLogger import disable_loggers
 disable_loggers()
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
-           "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes"]
+           "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes", "is_accessible_file"]
 
 tmpdir_name: Final[str] = "tmp_testfiles_re2txt"
 filedir_name: Final[str] = "testfiles"
 
-test_filedir: Final[str] = os.path.join(os.path.dirname(__file__), "testfiles")
-test_project_tmpdir: Final[str] = os.path.join(test_filedir, tmpdir_name)
-os.makedirs(test_project_tmpdir, exist_ok=True)
+test_filedir: Final[Path] = Path(__file__).parent / "testfiles"
 
-xdg_tmpdir: Final[str] = os.path.join(xdg_data_home(), tmpdir_name)
-os.makedirs(xdg_tmpdir, exist_ok=True)
+test_project_tmpdir: Final[Path] = Path(test_filedir, tmpdir_name)
+xdg_tmpdir: Final[Path] = Path(xdg_data_home(), tmpdir_name)
+tmpdir: Final[Path] = Path(gettempdir(), tmpdir_name)
 
-tmpdir: Final[str] = os.path.join(gettempdir(), tmpdir_name)
-os.makedirs(tmpdir, exist_ok=True)
+tmpdirs:Final[list[Path]] = [test_project_tmpdir, xdg_tmpdir, tmpdir]
 
-tmpdirs:Final[list[str]] = [test_project_tmpdir, xdg_tmpdir, tmpdir]
+for directory in tmpdirs:
+    directory.mkdir(parents=True, exist_ok=True)
 
 
 test_recipes: list[h2r.Recipe] = [
@@ -52,9 +52,9 @@ test_recipes: list[h2r.Recipe] = [
 def create_tmpdirs() -> bool:
     res = True
     for directory in tmpdirs:
-        if not os.path.isdir(directory):
+        if not directory.is_dir():
             try:
-                os.makedirs(directory, exist_ok=True)
+                directory.mkdir(parents=True, exist_ok=True)
             except OSError:
                 res = res and False
     return res
@@ -63,7 +63,7 @@ def create_tmpdirs() -> bool:
 def delete_tmpdirs() -> bool:
     res = True
     for directory in tmpdirs:
-        if os.path.isdir(directory):
+        if directory.is_dir():
             try:
                 rmtree(directory)
             except OSError:

@@ -84,7 +84,6 @@ class AbstractFetcher(ABC):
         return titles + recipes
 
     def write(self, lines: list[str]) -> None:
-        with open(self.output, "w") as file:
-            logger.info("--- Writing to output ---")
-            logger.info("Writing to %s", self.output)
-            file.writelines(lines)
+        logger.info("--- Writing to output ---")
+        logger.info("Writing to %s", self.output)
+        self.output.write_text("".join(lines))

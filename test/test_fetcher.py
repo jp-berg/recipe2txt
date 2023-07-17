@@ -11,13 +11,12 @@ from test.test_sql import db_path, out_path_txt, out_path_md, out_name_txt, out_
 class Test(unittest.TestCase):
 
     def setUp(self) -> None:
-        if not ensure_existence_dir(test_project_tmpdir):
-            self.fail(f"Could not create tmpdir: {test_project_tmpdir}")
+        create_tmpdirs()
         if not is_accessible_db(db_path):
             self.fail(f"Could not create tmp database: {db_path}")
-        if not ensure_accessible_file(out_name_txt, test_project_tmpdir):
+        if not ensure_accessible_file(test_project_tmpdir, out_name_txt):
             self.fail(f"Could not create/access tmp file: {out_path_txt}")
-        if not ensure_accessible_file(out_name_md, test_project_tmpdir):
+        if not ensure_accessible_file(test_project_tmpdir, out_name_md):
             self.fail(f"Could not create/access tmp file: {out_path_txt}")
 
     def tearDown(self) -> None:

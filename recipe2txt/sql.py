@@ -100,7 +100,7 @@ def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
 
 def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
     db_path = full_path(*path_elem)
-    directory = ensure_existence_dir_critical(db_path.parents[0])
+    directory = ensure_existence_dir_critical(db_path.parent)
     if is_accessible_db(db_path):
         db_file = db_path
     else:
@@ -125,8 +125,8 @@ class Database:
         self.con = sqlite3.connect(database)
         self.cur = self.con.cursor()
         self.cur.executescript(_CREATE_TABLES)
-        self.filepath = output_file
-        self.cur.execute(_INSERT_FILE, (output_file,))
+        self.filepath = str(output_file)
+        self.cur.execute(_INSERT_FILE, (self.filepath,))
         self.con.commit()
 
     def new_recipe(self, recipe: Recipe) -> Recipe:
