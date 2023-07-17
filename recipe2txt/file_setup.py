@@ -17,8 +17,8 @@ logger = get_logger(__name__)
 
 PROGRAM_NAME: Final[LiteralString] = "recipes2txt"
 
-DEFAULT_DATA_DIRECTORY: Final[str] = os.path.join(xdg_data_home(), PROGRAM_NAME)
-DEBUG_DATA_DIRECTORY: Final[str] = os.path.join(os.path.dirname(__file__), "test", "testfiles", "data")
+DEFAULT_DATA_DIRECTORY: Final[str] = Path(xdg_data_home(), PROGRAM_NAME)
+DEBUG_DATA_DIRECTORY: Final[str] = Path(Path(__file__).parent, "test", "testfiles", "data")
 
 
 LOG_NAME: Final[LiteralString] = "debug.log"
@@ -131,28 +131,26 @@ def write_errors(debug: bool = False) -> int:
 
     data_path = get_data_directory(debug)
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
-        logger.error("Could not create %s, no reports will be written", os.path.join(data_path, "error_reports"))
+        logger.error("Could not create %s, no reports will be written", data_path / "error_reports")
         return 0
-    how_to_report_file = os.path.join(error_dir, "how_to_report_errors.txt")
-    if not os.path.isfile(how_to_report_file):
-        with open(how_to_report_file, "w") as f:
-            f.write(how_to_report_txt)
+    how_to_report_file = error_dir / "how_to_report_errors.txt"
+    if not how_to_report_file.is_file():
+        how_to_report_file.write_text(how_to_report_txt)
 
     current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-    current_error_dir = os.path.join(error_dir, current_time)
+    current_error_dir = error_dir / current_time
 
     i = 1
     tmp = current_error_dir
-    while os.path.isdir(tmp):
-        tmp = f"{current_error_dir}-{i}"
+    while tmp.is_dir():
+        tmp.with_stem(f"{tmp.stem}-{i}")
         i += 1
     current_error_dir = tmp
-    os.mkdir(current_error_dir)
+    current_error_dir.mkdir(parents=True, exist_ok=True)
 
     for title, msg in errors:
-        filename = os.path.join(current_error_dir, title + ".md")
-        with open(filename, "w") as f:
-            f.write(msg)
+        filename = (current_error_dir / title).with_suffix(".md")
+        filename.write_text(msg)
 
     warn_msg = f"During its execution the program encountered recipes " \
                f"that could not be (completely) scraped.{os.linesep}" \
