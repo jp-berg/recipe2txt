@@ -88,6 +88,17 @@ class FileTests(unittest.TestCase):
         for test in none_dirs:
             self.assertIsNone(misc.ensure_accessible_file(*test, testfile))
 
+    def test_ensure_critical(self):
+        crit_fail_path = none_dirs[1]
+
+        with self.assertRaises(SystemExit) as e:
+            misc.ensure_existence_dir_critical(*crit_fail_path)
+        self.assertEqual(e.exception.code, os.EX_IOERR)
+
+        with self.assertRaises(SystemExit) as e:
+            misc.ensure_accessible_file_critical(*crit_fail_path, testfile)
+        self.assertEqual(e.exception.code, os.EX_IOERR)
+
     def test_read_files(self):
         file1_content = ["one", "two", "three", "four"]
         file2_content = ["five", "six", "seven", "eight"]
