@@ -74,7 +74,11 @@ def full_path(*pathelements: str | Path) -> Path:
 
 
 def _ensure_existence_dir(path: Path) -> tuple[Optional[Directory], tuple[str, Any, Any]]:
-    if not is_dir(path):
+    try:
+        exists = is_dir(path)
+    except OSError as e:
+        return None, ("Directory cannot be accessed: %s (%s)", path, getattr(e, 'message', repr(e)))
+    if not exists:
         try:
             logger.info("Creating directory: %s", path)
             path.mkdir(parents=True, exist_ok=True)
@@ -102,8 +106,12 @@ def ensure_existence_dir_critical(*path_elem: str | Path) -> Directory:
 
 
 def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any, Any]]:
-    if not is_file(path):
-        directory, msg = _ensure_existence_dir(path.parents[0])
+    try:
+        exists = path.is_file()
+    except OSError as e:
+        return None, ("File cannot be accessed: %s (%s)", path, getattr(e, 'message', repr(e)))
+    if not exists:
+        directory, msg = _ensure_existence_dir(path.parent)
         if directory:
             try:
                 logger.info("Creating file: %s", path)

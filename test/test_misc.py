@@ -6,7 +6,8 @@ from .testfiles.permanent.gen_stack import GenTraces
 
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
 testfile = "TESTFILE.txt"
-none_dirs = [["/dev", "null"] + testdirs]
+none_dirs = [["/dev", "null"] + testdirs,
+             ["/root"] + testdirs]
 normal_dirs = [[folder] + testdirs for folder in tmpdirs]
 
 
