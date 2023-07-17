@@ -58,17 +58,14 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
     return db_file, output_file, log_file
 
 
-def show_files() -> None:
+def get_files(debug: bool = False) -> list[str]:
     files = []
-    if os.path.isdir(DEFAULT_DATA_DIRECTORY):
-        files = [os.path.join(DEFAULT_DATA_DIRECTORY, file) for file in os.listdir(DEFAULT_DATA_DIRECTORY)]
-    if os.path.isdir(DEBUG_DATA_DIRECTORY):
-        files += [os.path.join(DEBUG_DATA_DIRECTORY, file) for file in os.listdir(DEBUG_DATA_DIRECTORY)]
+    if DEFAULT_DATA_DIRECTORY.is_dir() and not debug:
+        files = [str(file) for file in DEFAULT_DATA_DIRECTORY.iterdir()]
+    if DEBUG_DATA_DIRECTORY.is_dir():
+        files += [str(file) for file in DEBUG_DATA_DIRECTORY.iterdir()]
 
-    if files:
-        print(*files, sep=os.linesep)
-    else:
-        print("No files found", file=sys.stderr)
+    return files
 
 
 def erase_files() -> None:
