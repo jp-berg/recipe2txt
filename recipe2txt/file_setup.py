@@ -11,7 +11,7 @@ from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.html2recipe import errors2str
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory
+from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory, full_path
 
 logger = get_logger(__name__)
 
@@ -38,22 +38,7 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
     if output:
         output_file = ensure_accessible_file_critical(output)
     else:
-        if debug:
-            output_location_file = os.path.join(DEBUG_DATA_DIRECTORY, DEFAULT_OUTPUT_LOCATION_NAME)
-        else:
-            output_location_file = os.path.join(DEFAULT_DATA_DIRECTORY, DEFAULT_OUTPUT_LOCATION_NAME)
-        if os.path.isfile(output_location_file):
-            with open(output_location_file, 'r') as file:
-                output = file.readline().rstrip(os.linesep)
-                if markdown:
-                    output = file.readline().rstrip(os.linesep) # SOLLTE DAS FÜR MARKDOWN UND TXT NICHT GLEICH SEIN?
-            output_file = ensure_accessible_file_critical(output)
-        else:
-            if markdown:
-                recipes_name = RECIPES_NAME_MD
-            else:
-                recipes_name = RECIPES_NAME_TXT
-            output_file = ensure_accessible_file_critical(Directory(Path.cwd()), recipes_name)
+        output_file = get_default_output(Directory(data_path), markdown)
 
     return db_file, output_file, log_file
 
@@ -76,6 +61,22 @@ def erase_files(debug: bool = False) -> None:
     if DEBUG_DATA_DIRECTORY.is_dir():
         logger.warning("Deleting: %s", DEBUG_DATA_DIRECTORY)
         rmtree(DEBUG_DATA_DIRECTORY)
+
+
+def get_default_output(data_path: Directory, markdown: bool) -> File:
+    output_location_file = data_path / DEFAULT_OUTPUT_LOCATION_NAME
+    if output_location_file.is_file():
+        text = output_location_file.read_text().split(os.linesep)
+        text = [line for line in text if line]
+        if len(text) != 2:
+            logger.error(f"The config file ({output_location_file}) has unexpected content.")
+            sys.exit(os.EX_DATAERR)
+        output = text[1] if markdown else text[0]
+        output_file = ensure_accessible_file_critical(output)
+    else:
+        recipes_name = RECIPES_NAME_MD if markdown else RECIPES_NAME_TXT
+        output_file = ensure_accessible_file_critical(Directory(Path.cwd()), recipes_name)
+    return output_file
 
 
 def set_default_output(filepath: str | Literal["RESET"], debug: bool = False) -> None:
