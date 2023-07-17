@@ -199,7 +199,7 @@ def anonymize_paths(stack: traceback.StackSummary, first_visible_dir:str) -> tra
             frame.filename = os.path.join("...", remaining_path)
         else:
             remaining_path = tmp[1]
-            if remaining_path.startswith("/"):
+            if remaining_path.startswith(os.sep):
                 remaining_path = remaining_path[1:]
             frame.filename = os.path.join("...", first_visible_dir, remaining_path)
     return stack
