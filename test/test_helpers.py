@@ -71,5 +71,19 @@ def delete_tmpdirs() -> bool:
     return res
 
 
+def is_accessible_file(file: Path, not_empty: bool=False) -> bool:
+    if not file.is_file():
+        return False
+    with file.open("r") as f:
+        if not f.readable():
+            return False
+    with file.open("w") as f:
+        if not f.writable():
+            return False
+    if not_empty and file.stat().st_size == 0:
+        return False
+    return True
+
+
 
 
