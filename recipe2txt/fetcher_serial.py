@@ -13,17 +13,20 @@ class SerialFetcher(AbstractFetcher):
 
     def fetch_url(self, url: URL) -> None:
         with QCM(logger, logger.info, "Fetching %s", url):
+            html = None
             try:
                 html = urllib.request.urlopen(url, timeout=self.timeout).read()
-                self.html2db(url, html)
-            except AttributeError:
-                logger.error("Attribute Error encountered")
             except urllib.error.HTTPError as he:
                 logger.error("Connection Error: %s", getattr(he, 'message', repr(he)))
             except (TimeoutError, urllib.error.URLError):
                 logger.error("Unable to reach Website")
             except Exception as e:
                 logger.error("Error: %s", getattr(e, 'message', repr(e)))
+
+            if html:
+                self.html2db(url, html)
+            else:
+                self.db.insert_recipe_unreachable(url)
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)

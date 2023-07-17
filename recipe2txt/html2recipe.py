@@ -181,6 +181,7 @@ def errors2str() -> list[tuple[str, str]]:
 
     return reports
 
+
 def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
     unexpected_type = True
@@ -227,9 +228,9 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
     log = logger.error if method in ON_DISPLAY else logger.warning
     method_name = method.replace("_", " ")
 
+    info = None
     try:
         info = getattr(data, method)()
-        return info
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
         handle_parsing_error(url, e, method_name, log)
     except NotImplementedError:
@@ -239,8 +240,8 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
         if logger.isEnabledFor(logging.DEBUG):
             exception_trace = "\t" + "\t".join(traceback.format_exception(e))
             logger.debug(exception_trace)
-    finally:
-        return NA
+
+    return info if info else NA
 
 
 BETWEEN_RECIPES: Final[str] = linesep * 5
