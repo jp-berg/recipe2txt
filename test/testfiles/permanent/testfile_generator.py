@@ -150,9 +150,9 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
 
 
 html_list: Final[list[bytes]] = gen_html(filenames)
-_bad_url: Final[str] = "https://creativecommons.org/licenses/by/4.0/"
+_bad_url: Final[str] = "https://en.wikipedia.org/wiki/Recipe"
 html_bad: Final[tuple[str, bytes]] = (_bad_url, fetch_url(URL(_bad_url),
-                                                          gen_full_path("FAIL_cc_4_0", FileExtension.html)))
+                                                          gen_full_path("FAIL_RECIPE", FileExtension.html)))
 recipe_list: Final[list[h2r.Recipe]] = gen_parsed(filenames)
 md_list: Final[list[str]] = gen_formatted(filenames, FileExtension.md)
 txt_list: Final[list[str]] = gen_formatted(filenames, FileExtension.txt)
