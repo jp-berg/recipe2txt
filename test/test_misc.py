@@ -45,7 +45,8 @@ class FileTests(unittest.TestCase):
         params = [
             (["~", "Documents", "File1"], os.path.expanduser(os.path.join("~", "Documents", "File1"))),
             (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt")),
-            ([".", "file"], os.path.join(os.getcwd(), "file"))
+            ([".", "file"], os.path.join(os.getcwd(), "file")),
+            (["$HOME", "Documents", "File1"], os.path.expandvars(os.path.join("$HOME", "Documents", "File1")))
         ]
 
         for test, validation in params:
