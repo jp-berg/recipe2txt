@@ -154,7 +154,7 @@ def read_files(*possible_paths: str | Path) -> list[str]:
             logger.info("Reading %s", path)
             path.read_text()
             with path.open("r") as file:
-                lines += [line for line in file.readlines()]
+                lines += list(file.readlines())
         else:
             logger.error("Not a file: %s", path)
     return lines
