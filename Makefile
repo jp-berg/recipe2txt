@@ -1,17 +1,18 @@
 VENV = .venv
 PYTHON = $(VENV)/bin/python
 PIP = $(PYTHON) -m pip
+TESTFILES = ./test/testfiles
 
 testrun: testrun1 testrun2 testrun3
 
 testrun1: $(PYTHON)
-	$^ re2txt.py -v info -d -md -f ./test/testfiles/urls.txt -o ./test/testfiles/recipe_test.md -con 10 -t 20
+	$^ re2txt.py -v info -d -md -f $(TESTFILES)/urls.txt -o $(TESTFILES)/recipe_test.md -con 10 -t 20
 
 testrun2: $(PYTHON)
-	$^ re2txt.py -v info -d -f ./test/testfiles/urls2.txt -o ./test/testfiles/recipe_test2.txt -con 1 -t 20
+	$^ re2txt.py -v info -d -f $(TESTFILES)/urls2.txt -o $(TESTFILES)/recipe_test2.txt -con 1 -t 20
 
 testrun3: $(PYTHON)
-	$^ re2txt.py -v info -d -md -f ./test/testfiles/urls3.txt ./test/testfiles/urls4.txt ./test/testfiles/urls5.txt -o ./test/testfiles/recipe_test3.md -con 10 -t 20
+	$^ re2txt.py -v info -d -md -f $(TESTFILES)/urls3.txt $(TESTFILES)/urls4.txt $(TESTFILES)/urls5.txt -o $(TESTFILES)/recipe_test3.md -con 10 -t 20
 
 $(PYTHON):
 	python3 -m venv $(VENV);
@@ -19,13 +20,10 @@ $(PYTHON):
 	$(PIP) install -r requirements_performance.txt
 
 mypy: $(PYTHON)
-	mypy -m re2txt -m test.testfiles.permanent.testfile_generator --python-executable $^ --strict
+	mypy -m re2txt -m $(TESTFILE_GEN) -m test.test_helpers --python-executable $^ --strict
 
-test: $(PYTHON) testfiles
+test: $(PYTHON)
 	$(PYTHON) -m unittest
-
-testfiles: $(PYTHON)
-	$^ -m test.testfiles.html2recipe.testfile_generator;
 
 uninstall:
 	rm -rf $(VENV)
