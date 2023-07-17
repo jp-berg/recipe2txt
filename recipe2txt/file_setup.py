@@ -30,16 +30,8 @@ DEFAULT_URLS_NAME: Final[LiteralString] = "urls.txt"
 DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.txt"
 
 
-def get_data_directory(debug: bool = False) -> Directory:
-    tmp = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
-    if not (data_path := ensure_existence_dir(tmp)):
-        print("Data directory cannot be created: ", tmp, file=sys.stderr)
-        sys.exit(os.EX_IOERR)
-    return data_path
-
-
 def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
-    data_path = get_data_directory(debug)
+    data_path = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
     db_file = ensure_accessible_db_critical(data_path, DB_NAME)
     log_file = ensure_accessible_file_critical(data_path, LOG_NAME)
 
@@ -134,7 +126,7 @@ def write_errors(debug: bool = False) -> int:
 
     logger.info("---Writing error reports---")
 
-    data_path = get_data_directory(debug)
+    data_path = DEBUG_DATA_DIRECTORY if debug else DEBUG_DATA_DIRECTORY
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
         logger.error("Could not create %s, no reports will be written", data_path / "error_reports")
         return 0
