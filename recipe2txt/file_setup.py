@@ -68,13 +68,13 @@ def get_files(debug: bool = False) -> list[str]:
     return files
 
 
-def erase_files() -> None:
-    if os.path.isdir(DEFAULT_DATA_DIRECTORY):
-        print("Deleting:", DEFAULT_DATA_DIRECTORY)
+def erase_files(debug: bool = False) -> None:
+    if DEFAULT_DATA_DIRECTORY.is_dir() and not debug:
+        logger.warning("Deleting %s", DEFAULT_DATA_DIRECTORY)
         rmtree(DEFAULT_DATA_DIRECTORY)
 
-    if os.path.isdir(DEBUG_DATA_DIRECTORY):
-        print("Deleting:", DEBUG_DATA_DIRECTORY)
+    if DEBUG_DATA_DIRECTORY.is_dir():
+        logger.warning("Deleting: %s", DEBUG_DATA_DIRECTORY)
         rmtree(DEBUG_DATA_DIRECTORY)
 
 
