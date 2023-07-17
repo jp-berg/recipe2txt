@@ -1,8 +1,8 @@
 import unittest
 import recipe2txt.utils.misc as misc
 import os
-from .test_helpers import *
-from .testfiles.permanent.gen_stack import GenTraces
+from test.test_helpers import *
+from test.testfiles.permanent.gen_stack import GenTraces
 
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
 testfile = "TESTFILE.txt"
