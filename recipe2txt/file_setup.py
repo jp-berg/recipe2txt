@@ -89,23 +89,28 @@ def erase_files() -> None:
         rmtree(DEBUG_DATA_DIRECTORY)
 
 
-def set_default_output(filepath: File | Literal["RESET"]) -> None:
+def set_default_output(filepath: str | Literal["RESET"], debug: bool = False) -> None:
+    data_dir = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
     if filepath == "RESET":
         try:
-            os.remove(os.path.join(get_data_directory(), DEFAULT_OUTPUT_LOCATION_NAME))
-            print("Removed default output location. When called without specifying the output-file recipes will"
-                  " now be written in the current working directory with the name", RECIPES_NAME_TXT)
+            os.remove(data_dir / DEFAULT_OUTPUT_LOCATION_NAME)
+            logger.warning("Removed default output location. When called without specifying the output-file recipes"
+                           " will now be written in the current working directory with the name %s", RECIPES_NAME_TXT)
         except FileNotFoundError:
-            print("No default output set")
+            logger.warning("No default output set")
         except OSError as e:
-            print("Error while deleting file {}: {}"
-                  .format(filepath, getattr(e, 'message', repr(e))),
-                  file=sys.stderr)
+            logger.error("Error while deleting file %s: %s", filepath, getattr(e, 'message', repr(e)))
             sys.exit(os.EX_IOERR)
     else:
-        config_file = ensure_accessible_file_critical(DEFAULT_OUTPUT_LOCATION_NAME, get_data_directory())
-        config_file.write_text(str(filepath) + os.linesep)
-        print("Set default output location to", filepath)
+        config_file = ensure_accessible_file_critical(data_dir, DEFAULT_OUTPUT_LOCATION_NAME)
+
+        path = full_path(filepath)
+        path_txt = path.with_suffix(".txt")
+        path_md = path.with_suffix(".md")
+
+        new_config = f"{path_txt}{os.linesep}{path_md}{os.linesep}"
+        config_file.write_text(new_config)
+        logger.warning(f"Set default output location to {path_txt}, {path_md}")
 
 
 how_to_report_txt: Final[LiteralString] = \
