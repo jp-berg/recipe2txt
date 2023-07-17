@@ -162,7 +162,10 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
         logger.debug("CLI-ARGS: %s\t%s", os.linesep, (os.linesep + '\t').join(args2strs(a)))
     logger.info("--- Preparing arguments ---")
     sancheck_args(a, recipe_file)
-    logger.info("Output set to: %s", recipe_file)
+    if recipe_file.stat().st_size > 0:
+        logger.warning("The output-file %s already exists. It will be overwritten.")
+    else:
+        logger.info("Output set to: %s", recipe_file)
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = extract_urls(unprocessed)
