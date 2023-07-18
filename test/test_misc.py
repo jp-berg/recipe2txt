@@ -1,12 +1,12 @@
 import unittest
 import recipe2txt.utils.misc as misc
 import os
-
-from .test_helpers import *
+from test.test_helpers import *
 
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
 testfile = "TESTFILE.txt"
-none_dirs = [["/dev", "null"] + testdirs]
+none_dirs = [["/dev", "null"] + testdirs,
+             ["/root"] + testdirs]
 normal_dirs = [[folder] + testdirs for folder in tmpdirs]
 
 
@@ -21,11 +21,11 @@ class FileTests(unittest.TestCase):
             self.fail()
 
     def test_extract_urls(self):
-        obscured_urls = os.path.join(test_filedir, "permanent", "obscured_urls.txt")
-        unobscured_urls = os.path.join(test_filedir, "permanent", "unobscured_urls.txt")
-        if not os.path.isfile(obscured_urls):
+        obscured_urls = test_filedir / "permanent" / "obscured_urls.txt"
+        unobscured_urls = obscured_urls.with_name("unobscured_urls.txt")
+        if not obscured_urls.is_file():
             self.fail(f"{obscured_urls} does not exist.")
-        if not os.path.isfile(unobscured_urls):
+        if not unobscured_urls.is_file():
             self.fail(f"{unobscured_urls} does not exist.")
 
         validation = set()
@@ -44,12 +44,13 @@ class FileTests(unittest.TestCase):
         params = [
             (["~", "Documents", "File1"], os.path.expanduser(os.path.join("~", "Documents", "File1"))),
             (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt")),
-            ([".", "file"], os.path.join(os.getcwd(), "file"))
+            ([".", "file"], os.path.join(os.getcwd(), "file")),
+            (["$HOME", "Documents", "File1"], os.path.expandvars(os.path.join("$HOME", "Documents", "File1")))
         ]
 
         for test, validation in params:
             with self.subTest(i=test):
-                self.assertEqual(misc.full_path(*test), validation)
+                self.assertEqual(str(misc.full_path(*test)), validation)
 
     def test_ensure_existence_dir(self):
         params_path = [(test, os.path.join(*test)) for test in normal_dirs]
@@ -67,7 +68,7 @@ class FileTests(unittest.TestCase):
         params_path = [(test, os.path.join(*test, testfile)) for test in normal_dirs]
         for test, validation in params_path:
             with self.subTest(i=test):
-                self.assertTrue(os.path.samefile(misc.ensure_accessible_file(testfile, *test), validation))
+                self.assertTrue(os.path.samefile(misc.ensure_accessible_file(*test, testfile), validation))
                 if not os.path.isfile(validation):
                     self.fail("File", validation, "was not created")
                 try:
@@ -84,22 +85,29 @@ class FileTests(unittest.TestCase):
                 os.rmdir(os.path.dirname(validation))
 
         for test in none_dirs:
-            self.assertIsNone(misc.ensure_accessible_file(testfile, *test))
+            self.assertIsNone(misc.ensure_accessible_file(*test, testfile))
+
+    def test_ensure_critical(self):
+        crit_fail_path = none_dirs[1]
+
+        with self.assertRaises(SystemExit) as e:
+            misc.ensure_existence_dir_critical(*crit_fail_path)
+        self.assertEqual(e.exception.code, os.EX_IOERR)
+
+        with self.assertRaises(SystemExit) as e:
+            misc.ensure_accessible_file_critical(*crit_fail_path, testfile)
+        self.assertEqual(e.exception.code, os.EX_IOERR)
 
     def test_read_files(self):
         file1_content = ["one", "two", "three", "four"]
         file2_content = ["five", "six", "seven", "eight"]
 
-        file1_path = os.path.join(test_project_tmpdir, "testfile1.txt")
-        file2_path = os.path.join(xdg_tmpdir, "testfile2.txt")
-        file_notafile_path = os.path.join(test_project_tmpdir, "NOTAFILE")
+        file1_path = test_project_tmpdir / "testfile1.txt"
+        file2_path = xdg_tmpdir / "testfile2.txt"
+        file_notafile_path = test_project_tmpdir / "NOTAFILE"
 
-        with open(file1_path, "w") as file:
-            for line in file1_content:
-                file.write(line + os.linesep)
-        with open(file2_path, "w") as file:
-            for line in file2_content:
-                file.write((line + os.linesep))
+        file1_path.write_text(os.linesep.join(file1_content) + os.linesep)
+        file2_path.write_text(os.linesep.join(file2_content) + os.linesep)
 
         str_list = misc.read_files(file1_path, file_notafile_path, file2_path)
 

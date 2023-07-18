@@ -1,7 +1,8 @@
 import os
 import unittest
 
-import recipe2txt.utils
+import recipe2txt.utils.traceback_utils as tb_u
+from test.testfiles.permanent.gen_stack import GenTraces
 
 
 class TracebackTests(unittest.TestCase):
@@ -13,17 +14,17 @@ class TracebackTests(unittest.TestCase):
 
         path_start = os.path.join("...", "test")
         for val, trace in zip(self.gen_tbs.error_vals, self.gen_tbs.tb_ex_list):
-            anon_stack = recipe2txt.utils.traceback_utils.shorten_paths(trace.stack, "test")
+            anon_stack = tb_u.shorten_paths(trace.stack, "test")
             for frame in anon_stack:
                 with self.subTest(i=f"partial anonymization | Number = {val} | Frame = {frame}"):
                     self.assertTrue(frame.filename.startswith(path_start))
-            anon_stack = recipe2txt.utils.traceback_utils.shorten_paths(trace.stack, "tests")
+            anon_stack = tb_u.shorten_paths(trace.stack, "tests")
             for frame in anon_stack:
                 with self.subTest(i=f"full anonymization | Number = {val} | Frame = {frame}"):
                     self.assertEqual(frame.filename, ".../gen_stack.py")
 
     def test_get_shared_frames(self):
-        shared = recipe2txt.utils.traceback_utils.get_shared_frames(self.gen_tbs.tb_ex_list)
+        shared = tb_u.get_shared_frames(self.gen_tbs.tb_ex_list)
 
         i = 0
         for shared_frame in shared:
@@ -58,7 +59,7 @@ class TracebackTests(unittest.TestCase):
 
         validation = "".join(self.gen_tbs.get_formatted())
 
-        shared_frames = recipe2txt.utils.traceback_utils.get_shared_frames(self.gen_tbs.tb_ex_list)
-        lines_list = recipe2txt.utils.traceback_utils.format_stacks(self.gen_tbs.tb_ex_list, shared_frames, "test")
+        shared_frames = tb_u.get_shared_frames(self.gen_tbs.tb_ex_list)
+        lines_list = tb_u.format_stacks(self.gen_tbs.tb_ex_list, shared_frames, "test")
         test = "".join([line for lines in lines_list for line in lines])
         self.assertEqual(validation, test)

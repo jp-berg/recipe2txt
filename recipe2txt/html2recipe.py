@@ -2,12 +2,6 @@ import logging
 import urllib
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any, Callable
-from sys import version_info
-
-if version_info >= (3, 11):
-    from typing import LiteralString
-else:
-    from typing_extensions import LiteralString
 from os import linesep
 import traceback
 from importlib_metadata import version
@@ -16,8 +10,9 @@ from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoun
     ElementNotFoundInHtml
 from recipe2txt.utils.markdown import *
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-from recipe2txt.utils.misc import URL, Counts, dict2str
 from recipe2txt.utils.traceback_utils import get_shared_frames, format_stacks
+from recipe2txt.utils.misc import URL, dict2str, Counts
+from recipe2txt.utils.conditional_imports import LiteralString
 
 logger = get_logger(__name__)
 
@@ -187,26 +182,10 @@ def errors2str() -> list[tuple[str, str]]:
     return reports
 
 
-def _get_info(method: str, data: Parsed, url: URL) -> str:
+def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
-
-    method_name = method.replace("_", " ")
-    try:
-        info = getattr(data, method)()
-    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
-        handle_parsing_error(url, e, method_name, log)
-        return NA
-    except NotImplementedError:
-        log("%s not implemented for this website", method_name.capitalize())
-        return NA
-    except Exception as e:
-        log("Extraction error: %s", method_name)
-        if logger.isEnabledFor(logging.DEBUG):
-            exception_trace = "\t" + "\t".join(traceback.format_exception(e))
-            logger.debug(exception_trace)
-        return NA
-
     unexpected_type = True
+    method_name = method.replace("_", " ")
 
     if isinstance(info, (int, float)):
         info = None if info == 0 else str(info)
@@ -245,6 +224,26 @@ def _get_info(method: str, data: Parsed, url: URL) -> str:
     return str(info)
 
 
+def _get_info(method: str, data: Parsed, url: URL) -> Any:
+    log = logger.error if method in ON_DISPLAY else logger.warning
+    method_name = method.replace("_", " ")
+
+    info = None
+    try:
+        info = getattr(data, method)()
+    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
+        handle_parsing_error(url, e, method_name, log)
+    except NotImplementedError:
+        log("%s not implemented for this website", method_name.capitalize())
+    except Exception as e:
+        log("Extraction error: %s", method_name)
+        if logger.isEnabledFor(logging.DEBUG):
+            exception_trace = "\t" + "\t".join(traceback.format_exception(e))
+            logger.debug(exception_trace)
+
+    return info if info else NA
+
+
 BETWEEN_RECIPES: Final[str] = linesep * 5
 HEAD_SEP: Final[str] = linesep * 2
 
@@ -267,7 +266,12 @@ def gen_status(infos: list[str]) -> RecipeStatus:
 
 def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
     logger.info("Parsing HTML")
-    infos = [_get_info(method, parsed, url) for method in METHODS]
+    infos = []
+    for method in METHODS:
+        info = _get_info(method, parsed, url)
+        info_str = info2str(method, info)
+        infos.append(info_str)
+
     status = gen_status(infos)
     recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
                     ingredients=infos[0], instructions=infos[1],
@@ -313,7 +317,7 @@ def _re2txt(recipe: Recipe) -> list[str]:
 
 
 def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[list[str]]:
-    if recipe.status < RecipeStatus.INCOMPLETE_ESSENTIAL:
+    if recipe.status <= RecipeStatus.INCOMPLETE_ESSENTIAL:
         logger.error("Nothing worthwhile could be extracted. Skipping...")
         return None
     if counts:

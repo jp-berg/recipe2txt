@@ -1,11 +1,7 @@
 import re
 from typing import Pattern, Final, Optional
-from sys import version_info
-if version_info >= (3, 11):
-    from typing import LiteralString
-else:
-    from typing_extensions import LiteralString
 from os import linesep
+from recipe2txt.utils.conditional_imports import LiteralString
 import hashlib
 
 __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "superscript", "code", "codeblock",

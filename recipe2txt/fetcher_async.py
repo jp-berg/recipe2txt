@@ -1,4 +1,7 @@
+import logging
+import traceback
 import asyncio
+from typing import Literal
 import aiohttp
 from recipe2txt.utils.misc import URL
 from recipe2txt.fetcher_abstract import AbstractFetcher
@@ -8,6 +11,7 @@ logger = get_logger(__name__)
 
 
 class AsyncFetcher(AbstractFetcher):
+    is_async: Literal[True] = True
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)
@@ -30,13 +34,24 @@ class AsyncFetcher(AbstractFetcher):
             while not url_queue.empty():
                 url = await url_queue.get()
                 with QCM(logger, logger.info, "Fetching %s", url, defer_emit=True):
+                    html = None
                     try:
                         async with session.get(url) as response:
                             html = await response.text()
                         self.counts.reached += 1
-
-                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                        logger.error("Unable to reach Website")
-                        self.db.insert_recipe_unreachable(url)
+                        self.html2db(url, html)
                         continue
-                self.html2db(url, html)
+                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
+                        logger.error("Unable to reach website")
+                        self.db.insert_recipe_unreachable(url)
+                    except Exception as e:
+                        logger.error("Error while connecting to website: %s", getattr(e, 'message', repr(e)))
+                        if logger.isEnabledFor(logging.DEBUG):
+                            exception_trace = "".join(traceback.format_exception(e))
+                            logger.debug(exception_trace)
+
+                    if html:
+                        self.html2db(url, html)
+                    else:
+                        self.db.insert_recipe_unreachable(url)
+

@@ -13,10 +13,10 @@ out_name = "out"
 out_name_txt = out_name + ".txt"
 out_name_md = out_name + ".md"
 
-db_path = os.path.join(test_project_tmpdir, db_name)
-db_paths = [os.path.join(folder, db_name) for folder in tmpdirs]
-out_path_txt = os.path.join(test_project_tmpdir, out_name_txt)
-out_path_md = os.path.join(test_project_tmpdir, out_name_md)
+db_path = test_project_tmpdir / db_name
+db_paths = [folder / db_name for folder in tmpdirs]
+out_path_txt = test_project_tmpdir / out_name_txt
+out_path_md = test_project_tmpdir / out_name_md
 
 db: sql.Database
 
@@ -98,7 +98,7 @@ class TestDatabase(unittest.TestCase):
                     except sqlite3.OperationalError:
                         self.fail("ERROR")
         else:
-            self.fail("Database " + db_path + " not accessible")
+            self.fail(f"Database {db_path} not accessible")
 
     def tearDown(self) -> None:
         db.empty_db()

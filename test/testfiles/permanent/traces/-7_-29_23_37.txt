@@ -1,0 +1,64 @@
+  File ".../test/testfiles/permanent/gen_stack.py", line 53, in _provoke_exception
+    y = fun5(x)
+        ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 41, in fun5
+    return fun4(x) + 4321
+           ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 37, in fun4
+    return fun3(x) + 0.1
+           ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 33, in fun3
+    return fun2(x) * 4.56
+           ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 29, in fun2
+    return fun1_1(x) - 12
+           ^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 22, in fun1_1
+    return fun0_1(x) * 3
+           ^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 10, in fun0_1
+    return sqrt(x)
+           ^^^^^^^
+ValueError: math domain error
+	...
+  File ".../test/testfiles/permanent/gen_stack.py", line 33, in fun3
+    return fun2(x) * 4.56
+           ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 29, in fun2
+    return fun1_1(x) - 12
+           ^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 22, in fun1_1
+    return fun0_1(x) * 3
+           ^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 10, in fun0_1
+    return sqrt(x)
+           ^^^^^^^
+ValueError: math domain error
+	...
+  File ".../test/testfiles/permanent/gen_stack.py", line 33, in fun3
+    return fun2(x) * 4.56
+           ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 27, in fun2
+    return fun1_2(x * 0)
+           ^^^^^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 18, in fun1_2
+    return fun0_2(x) * 10
+           ^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 14, in fun0_2
+    return 13 / x
+           ~~~^~~
+ZeroDivisionError: division by zero
+	...
+  File ".../test/testfiles/permanent/gen_stack.py", line 33, in fun3
+    return fun2(x) * 4.56
+           ^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 27, in fun2
+    return fun1_2(x * 0)
+           ^^^^^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 18, in fun1_2
+    return fun0_2(x) * 10
+           ^^^^^^^^^
+  File ".../test/testfiles/permanent/gen_stack.py", line 14, in fun0_2
+    return 13 / x
+           ~~~^~~
+ZeroDivisionError: division by zero
