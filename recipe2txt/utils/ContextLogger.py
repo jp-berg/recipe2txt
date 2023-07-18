@@ -8,7 +8,7 @@ from logging.handlers import RotatingFileHandler
 from types import TracebackType
 from typing import Final, Callable, Literal, Any, Generator, Optional
 from recipe2txt.utils.conditional_imports import LiteralString
-from traceback_utils import shorten_paths
+from recipe2txt.utils.traceback_utils import shorten_paths
 
 
 string2level: Final[dict[LiteralString, int]] = {

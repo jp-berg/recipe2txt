@@ -1,9 +1,9 @@
 from math import sqrt
 from pathlib import Path
 import traceback
-import os
 
-from recipe2txt.utils.misc import get_shared_frames, format_stacks, ensure_accessible_file
+from recipe2txt.utils.traceback_utils import get_shared_frames, format_stacks
+from recipe2txt.utils.misc import ensure_accessible_file
 
 
 def fun0_1(x):
