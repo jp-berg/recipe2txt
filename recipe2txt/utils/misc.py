@@ -3,15 +3,13 @@ import os.path
 import sys
 import traceback
 import urllib.parse
-from copy import deepcopy
 from os import makedirs, linesep
 import validators
 from recipe2txt.utils.ContextLogger import get_logger
 from typing import NewType, Any, TypeGuard, Optional
 
 __all__ = ["URL", "is_url", "File", "is_file", "full_path", "ensure_existence_dir", "ensure_accessible_file",
-           "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str", "extract_urls",
-           "get_shared_frames", "format_stacks"]
+           "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str", "extract_urls"]
 
 logger = get_logger(__name__)
 
@@ -158,57 +156,3 @@ def head_str(o: Any, max_length: int = 50) -> str:
     if len(s) > max_length:
         s = s[:max_length - 3].rstrip() + "..."
     return s.replace(linesep, " ")
-
-
-def anonymize_paths(stack: traceback.StackSummary, first_visible_dir:str) -> traceback.StackSummary:
-    for frame in stack:
-        tmp = frame.filename.split(first_visible_dir, 1)
-        if len(tmp) == 1:
-            remaining_path = os.path.split(tmp[0])[1] # Just the filename
-            frame.filename = os.path.join("...", remaining_path)
-        else:
-            remaining_path = tmp[1]
-            if remaining_path.startswith("/"):
-                remaining_path = remaining_path[1:]
-            frame.filename = os.path.join("...", first_visible_dir, remaining_path)
-    return stack
-
-
-def get_shared_frames(tb_exes: list[traceback.TracebackException]) -> traceback.StackSummary:
-    stacks = [tb_ex.stack for tb_ex in tb_exes]
-    shortest = deepcopy(min(stacks, key=len))
-    equal = True
-    shared_list = []
-    for i in range(len(shortest)):
-        comp = stacks[0][i]
-        for stack in stacks[1:]:
-            if stack[i] != comp:
-                equal = False
-                break
-        if not equal:
-            i = i - 1 if i > 0 else i
-            shared_list = shortest[:i]
-            break
-    if equal:
-        shared_list = shortest[:-1]
-    shared = traceback.StackSummary.from_list(shared_list)
-    return shared
-
-
-def format_stacks(tb_exes: list[traceback.TracebackException],
-                  shared_stack: traceback.StackSummary,
-                  first_visible_dir:Optional[str] = None) -> list[list[str]]:
-    shared_stack_len = len(shared_stack)
-    tb_exes_copy = deepcopy(tb_exes)
-    for tb_ex in tb_exes_copy:
-        tb_ex.stack = traceback.StackSummary.from_list(tb_ex.stack[shared_stack_len:])
-        if first_visible_dir:
-            tb_ex.stack = anonymize_paths(tb_ex.stack, first_visible_dir)
-    if first_visible_dir:
-        shared_stack = anonymize_paths(shared_stack, first_visible_dir)
-    first_stack = shared_stack.format() + list(tb_exes_copy[0].format())[1:]
-
-    sep = ["\t..." + linesep] if shared_stack else []
-    stacks = [sep + list(tb_ex.format())[1:] for tb_ex in tb_exes_copy[1:]]
-
-    return [first_stack] + stacks

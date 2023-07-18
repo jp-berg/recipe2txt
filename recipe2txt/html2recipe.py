@@ -16,7 +16,8 @@ from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoun
     ElementNotFoundInHtml
 from recipe2txt.utils.markdown import *
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-from recipe2txt.utils.misc import URL, Counts, dict2str, get_shared_frames, format_stacks
+from recipe2txt.utils.misc import URL, Counts, dict2str
+from recipe2txt.utils.traceback_utils import get_shared_frames, format_stacks
 
 logger = get_logger(__name__)
 
