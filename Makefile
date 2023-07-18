@@ -20,7 +20,7 @@ $(PYTHON):
 	$(PIP) install -r requirements_performance.txt
 
 mypy: $(PYTHON)
-	mypy -m re2txt -m $(TESTFILE_GEN) -m test.test_helpers --python-executable $^ --strict
+	mypy -m re2txt -m test.testfiles.permanent.testfile_generator -m test.test_helpers --python-executable $^ --strict
 
 test: $(PYTHON)
 	$(PYTHON) -m unittest
