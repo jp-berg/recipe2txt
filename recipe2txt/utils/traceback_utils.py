@@ -5,16 +5,18 @@ from os import linesep
 from typing import Optional
 
 
-def shorten_paths(stack: traceback.StackSummary, first_visible_dir: Optional[str] = None) -> traceback.StackSummary:
+def shorten_paths(stack: traceback.StackSummary, first_visible_dir: Optional[str] = None,
+                  skip_first: bool = False) -> traceback.StackSummary:
     if first_visible_dir is None:
         paths = [frame.filename for frame in stack]
         shared = os.path.commonpath(paths)
         first_visible_dir = os.path.basename(shared)
 
-    for frame in stack:
+    start = 1 if skip_first else 0
+    for frame in stack[start:]:
         tmp = frame.filename.split(first_visible_dir, 1)
         if len(tmp) == 1:
-            remaining_path = os.path.split(tmp[0])[1] # Just the filename
+            remaining_path = os.path.split(tmp[0])[1]  # Just the filename
             frame.filename = os.path.join("...", remaining_path)
         else:
             remaining_path = tmp[1]
