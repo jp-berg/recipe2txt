@@ -1,11 +1,15 @@
 import contextlib
 import asyncio
 import logging
+import traceback
 from os import linesep
+import os
 from logging.handlers import RotatingFileHandler
 from types import TracebackType
 from typing import Final, Callable, Literal, Any, Generator, Optional
 from sys import version_info
+from traceback_utils import shorten_paths
+
 if version_info >= (3, 11):
     from typing import LiteralString
 else:
@@ -37,6 +41,23 @@ logger_list: list[logging.Logger] = []
 _stream_handler: Optional[logging.StreamHandler[Any]] = None
 
 
+def format_exception(exc_info: tuple[type[BaseException], BaseException, TracebackType | None],
+                     indent_for_context: bool = False, full: bool = False) -> str:
+    ex_class, exception, trace = exc_info
+    if full:
+        tb_ex = traceback.TracebackException.from_exception(exception)
+        tb_ex.stack = shorten_paths(tb_ex.stack, skip_first=True)
+        tb = tb_ex.format()
+        indent = "\t\t" if indent_for_context else "\t"
+        tb_lines = [indent + line + os.linesep
+                    for frame in tb for line in frame.split(os.linesep) if line]
+        formatted = linesep + "".join(tb_lines)
+    else:
+        formatted = f"{ex_class.__name__} - {exception}"
+
+    return formatted
+
+
 class Context:
     def __init__(self) -> None:
         self.context_msg: str = ""
@@ -56,7 +77,17 @@ class Context:
         self.defer_emit = False
         self.deferred_records.clear()
 
-    def dispatch(self, record: logging.LogRecord) -> bool:
+    def attach_exception(self, record: logging.LogRecord, log_level: int) -> logging.LogRecord:
+        exc_info = record.exc_info
+        if exc_info and exc_info[0] and exc_info[1]:
+            record.exc_info = None
+            record.exc_text = None
+            formatted_exception = format_exception(exc_info, self.with_context, log_level <= logging.DEBUG)
+            record.msg = record.msg + formatted_exception
+        return record
+
+    def dispatch(self, record: logging.LogRecord, log_level: int) -> bool:
+        self.attach_exception(record, log_level)
         if self.defer_emit:
             self.deferred_records.append(record)
             return False
@@ -68,7 +99,7 @@ class Context:
         self.with_context = True
         if log_level <= record.levelno:
             self.triggered = True
-            return self.dispatch(record)
+            return self.dispatch(record, log_level)
         else:
             self.with_context = True
             self.context_msg = record.msg
@@ -96,7 +127,6 @@ class Context:
 
     def process(self, record: logging.LogRecord, log_level: int) -> bool:
         record.ctx = ""
-
         is_context = getattr(record, CTX_ATTR, None)
         if is_context:
             return self.set_context(record, log_level)
@@ -109,7 +139,7 @@ class Context:
         if log_level <= record.levelno:  # If record should be emitted
             if self.with_context:
                 record.ctx = self.get_context()
-            return self.dispatch(record)
+            return self.dispatch(record, log_level)
 
         return False
 
