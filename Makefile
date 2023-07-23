@@ -2,6 +2,9 @@ VENV = .venv
 PYTHON = $(VENV)/bin/python
 PIP = $(PYTHON) -m pip
 TESTFILES = ./test/testfiles
+TESTFILES_PERMANENT_PY = $(filter-out %__init__.py, $(wildcard $(TESTFILES)/permanent/*.py)) # get all .py-files, except __init__.py
+TESTFILE_PERMANENT_TMP = $(patsubst ./%.py, -m %, $(TESTFILES_PERMANENT_PY)) # Remove leading './' and trailing '.py', add '-m' in front
+TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP)) # replace '/' with '.'
 
 testrun: testrun1 testrun2 testrun3
 
@@ -20,7 +23,7 @@ $(PYTHON):
 	$(PIP) install -r requirements_performance.txt
 
 mypy: $(PYTHON)
-	mypy -m re2txt -m test.testfiles.permanent.testfile_generator -m test.test_helpers --python-executable $^ --strict
+	mypy -m re2txt $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $^ --strict
 
 test: $(PYTHON)
 	$(PYTHON) -m unittest
