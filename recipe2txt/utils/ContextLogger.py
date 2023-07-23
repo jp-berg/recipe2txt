@@ -180,7 +180,7 @@ def format_context(msg: Any, args: Any) -> str:
     return str(msg % args)
 
 
-def set_context(record: logging.LogRecord) -> logging.LogRecord:
+def add_context(record: logging.LogRecord) -> logging.LogRecord:
     with_context = getattr(record, WITH_CTX_ATTR, False)
     if with_context:
         context_msg = getattr(record, CTX_MSG_ATTR, None)
@@ -197,7 +197,7 @@ def set_context(record: logging.LogRecord) -> logging.LogRecord:
 class QueueContextFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
-        record = set_context(record)
+        record = add_context(record)
         exc_info = None
         exc_text = None
         fmt_ex = ""
