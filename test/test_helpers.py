@@ -1,4 +1,6 @@
 import os
+import unittest
+
 from xdg_base_dirs import xdg_data_home
 from pathlib import Path
 from tempfile import gettempdir
@@ -11,7 +13,8 @@ from recipe2txt.utils.ContextLogger import disable_loggers
 disable_loggers()
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
-           "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes", "is_accessible_file"]
+           "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes",
+           "is_accessible_file", "assertFilesEqual"]
 
 tmpdir_name: Final[str] = "tmp_testfiles_re2txt"
 filedir_name: Final[str] = "testfiles"
@@ -83,6 +86,15 @@ def is_accessible_file(file: Path, not_empty: bool=False) -> bool:
     if not_empty and file.stat().st_size == 0:
         return False
     return True
+
+
+def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) -> None:
+    with test.open('r') as test_file:
+        with validation.open('r') as validation_file:
+            for idx, (test_line, validation_line) in \
+                    enumerate(zip(test_file.readlines(), validation_file.readlines())):
+                with testcase.subTest(i=f"Files '{test}' and '{validation}': Line {idx} is not equal"):
+                    testcase.assertEqual(test_line, validation_line)
 
 
 
