@@ -38,11 +38,10 @@ DO_NOT_LOG: Final[LiteralString] = "THIS MESSAGE SHOULD NOT BE LOGGED"
 DEFAULT_CONTEXT: Final[LiteralString] = "default_context"
 
 logger_list: list[logging.Logger] = []
-_stream_handler: Optional[logging.StreamHandler[Any]] = None
 
 
 class Context:
-    def __init__(self) -> None:
+    def __init__(self, handler: logging.Handler) -> None:
         self.context_msg: str = ""
         self.context_args: Any = ()
         self.with_context: bool = False
@@ -50,6 +49,7 @@ class Context:
         self.context_id: int = 0
         self.defer_emit: bool = False
         self.deferred_records: list[logging.LogRecord] = []
+        self.handler = handler
 
     def reset(self) -> None:
         self.context_msg = ""
@@ -84,11 +84,8 @@ class Context:
 
     def close_context(self) -> None:
         if self.with_context and self.deferred_records:
-            if _stream_handler:
-                for record in self.deferred_records:
-                    _stream_handler.emit(record)
-            else:
-                logging.warning("No stream handler configured.")
+            for record in self.deferred_records:
+                self.handler.emit(record)
         self.reset()
 
     def process(self, record: logging.LogRecord, log_level: int) -> bool:
@@ -118,10 +115,17 @@ class Context:
 
 
 class QueueContextFilter(logging.Filter):
-    def __init__(self, log_level: int) -> None:
+    def __init__(self, log_level: int = logging.NOTSET, handler: logging.Handler | None = None) -> None:
         self.log_level = log_level
         # TODO: Add reset
-        self.tasklocal_context: dict[str, Context] = {DEFAULT_CONTEXT: Context()}
+        self.handler = handler if handler else logging.NullHandler()
+        self.tasklocal_context: dict[str, Context] = {DEFAULT_CONTEXT: Context(self.handler)}
+
+
+    def set_handler(self, handler: logging.Handler | None = None) -> None:
+        self.handler = handler if handler else logging.NullHandler()
+        for context in self.tasklocal_context.values():
+            context.handler = self.handler
 
     def get_context(self) -> Context:
         try:
@@ -131,11 +135,11 @@ class QueueContextFilter(logging.Filter):
         task_name = t.get_name() if t else DEFAULT_CONTEXT
         context = self.tasklocal_context.get(task_name)
         if not context:
-            context = Context()
+            context = Context(self.handler)
             self.tasklocal_context[task_name] = context
         return context
 
-    def set_level(self, log_level: int) -> int:
+    def set_level(self, log_level: int = logging.NOTSET) -> int:
         if self.get_context().with_context:
             logging.error("Modifying logging-level during context is not possible")
         else:
@@ -143,6 +147,11 @@ class QueueContextFilter(logging.Filter):
         return self.log_level
 
     def filter(self, record: logging.LogRecord) -> bool:
+        if self.log_level is logging.NOTSET:
+            logging.warning("Log-level not set")
+        if isinstance(self.handler, logging.NullHandler):
+            logging.warning("Handler not set")
+
         var = self.get_context()
         return var.process(record, self.log_level)
 
@@ -267,12 +276,9 @@ def get_file_handler(file: str = LOGFILE, level: int = logging.DEBUG) -> logging
 def get_stream_handler(level: int = logging.WARNING) -> logging.StreamHandler[Any]:
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
-    f = QueueContextFilter(level)
+    f = QueueContextFilter(level, stream_handler)
     stream_handler.addFilter(f)
     stream_handler.setFormatter(QueueContextFormatter(_LOG_FORMAT_STREAM))
-
-    global _stream_handler
-    _stream_handler = stream_handler
 
     return stream_handler
 
