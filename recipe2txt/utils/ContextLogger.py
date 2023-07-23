@@ -102,7 +102,10 @@ class Context:
             if self.with_context:
                 if not self.triggered:
                     setattr(record, CTX_MSG_ATTR, self.context_msg)
+                    self.context_msg = ""
                     setattr(record, CTX_ARGS_ATTR, self.context_args)
+                    self.context_args = ()
+                    self.triggered = True
                 setattr(record, WITH_CTX_ATTR, True)
             return self.dispatch(record, log_level)
 
