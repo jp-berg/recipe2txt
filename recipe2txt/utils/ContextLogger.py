@@ -162,7 +162,7 @@ def format_exception(exc_info: tuple[type[BaseException], BaseException, Traceba
     ex_class, exception, trace = exc_info
     if full:
         tb_ex = traceback.TracebackException.from_exception(exception)
-        tb_ex.stack = shorten_paths(tb_ex.stack, skip_first=True)
+        tb_ex.stack = shorten_paths(tb_ex.stack, first_visible_dir="Rezepte")
         tb = tb_ex.format()
         indent = "\t\t" if indent_for_context else "\t"
         tb_lines = [indent + line + os.linesep
