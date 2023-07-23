@@ -10,7 +10,7 @@ class TracebackTests(unittest.TestCase):
     def setUp(self) -> None:
         self.gen_tbs = GenTraces(-7, -29, 23, 37)
 
-    def test_anonymize_paths(self):
+    def test_shorten_paths(self):
 
         path_start = os.path.join("...", "test")
         for val, trace in zip(self.gen_tbs.error_vals, self.gen_tbs.tb_ex_list):
