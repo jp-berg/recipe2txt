@@ -46,7 +46,6 @@ class Context:
         self.context_args: Any = ()
         self.with_context: bool = False
         self.triggered: bool = False
-        self.context_id: int = 0
         self.defer_emit: bool = False
         self.deferred_records: list[logging.LogRecord] = []
         self.handler = handler
@@ -56,7 +55,6 @@ class Context:
         self.context_args = ()
         self.with_context = False
         self.triggered = False
-        self.context_id = 0
         self.defer_emit = False
         self.deferred_records.clear()
 
