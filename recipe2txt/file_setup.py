@@ -124,7 +124,7 @@ def write_errors(debug: bool = False) -> int:
 
     logger.info("---Writing error reports---")
 
-    data_path = DEBUG_DATA_DIRECTORY if debug else DEBUG_DATA_DIRECTORY
+    data_path = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
         logger.error("Could not create %s, no reports will be written", data_path / "error_reports")
         return 0
