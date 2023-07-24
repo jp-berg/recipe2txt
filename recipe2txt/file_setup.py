@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 PROGRAM_NAME: Final[LiteralString] = "recipes2txt"
 
 DEFAULT_DATA_DIRECTORY: Final[Path] = Path(xdg_data_home(), PROGRAM_NAME)
-DEBUG_DATA_DIRECTORY: Final[Path] = Path(Path(__file__).parent, "test", "testfiles", "data")
+DEBUG_DATA_DIRECTORY: Final[Path] = Path(Path(__file__).parents[1], "test", "testfiles", "data")
 
 
 LOG_NAME: Final[LiteralString] = "debug.log"
