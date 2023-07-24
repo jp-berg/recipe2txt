@@ -5,6 +5,7 @@ TESTFILES = ./test/testfiles
 TESTFILES_PERMANENT_PY = $(filter-out %__init__.py, $(wildcard $(TESTFILES)/permanent/*.py)) # get all .py-files, except __init__.py
 TESTFILE_PERMANENT_TMP = $(patsubst ./%.py, -m %, $(TESTFILES_PERMANENT_PY)) # Remove leading './' and trailing '.py', add '-m' in front
 TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP)) # replace '/' with '.'
+TMP_TESTFILE_DIR = $(TESTFILES)/tmp_testfiles_re2txt
 
 testrun: testrun1 testrun2 testrun3
 
@@ -27,6 +28,7 @@ mypy: $(PYTHON)
 
 test: $(PYTHON)
 	$(PYTHON) -m unittest
+	rm -rf $(TMP_TESTFILE_DIR) || True
 
 uninstall:
 	rm -rf $(VENV)
