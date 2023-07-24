@@ -21,7 +21,7 @@ class SerialFetcher(AbstractFetcher):
             except (TimeoutError, urllib.error.URLError):
                 logger.error("Unable to reach Website")
             except Exception as e:
-                logger.error("Error: %s", getattr(e, 'message', repr(e)))
+                logger.error("Error: ", exc_info=e)
 
             if html:
                 self.html2db(url, html)

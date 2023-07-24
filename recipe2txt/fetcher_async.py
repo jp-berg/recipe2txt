@@ -1,5 +1,3 @@
-import logging
-import traceback
 import asyncio
 from typing import Literal
 import aiohttp
@@ -45,13 +43,8 @@ class AsyncFetcher(AbstractFetcher):
                         logger.error("Unable to reach website")
                         self.db.insert_recipe_unreachable(url)
                     except Exception as e:
-                        logger.error("Error while connecting to website: %s", getattr(e, 'message', repr(e)))
-                        if logger.isEnabledFor(logging.DEBUG):
-                            exception_trace = "".join(traceback.format_exception(e))
-                            logger.debug(exception_trace)
-
+                        logger.error("Error while connecting to website: ", exc_info=e)
                     if html:
                         self.html2db(url, html)
                     else:
                         self.db.insert_recipe_unreachable(url)
-

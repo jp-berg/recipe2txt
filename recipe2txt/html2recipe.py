@@ -103,9 +103,9 @@ def handle_parsing_error(url: URL, exception: Exception, method: Optional[str] =
     exception_name = type(exception).__name__
     log = log if log else logger.error
     if method:
-        log("No %s found (%s)", method, exception_name)
+        log("No %s found: ", method, exc_info=exception)
     else:
-        log("Parsing error (%s)", url, exception_name)
+        log("Parsing error: ", exc_info=exception)
 
     if not save_error:
         return None
@@ -236,10 +236,7 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
     except Exception as e:
-        log("Extraction error: %s", method_name)
-        if logger.isEnabledFor(logging.DEBUG):
-            exception_trace = "\t" + "\t".join(traceback.format_exception(e))
-            logger.debug(exception_trace)
+        log("Extraction error for attribute %s:", method_name, exc_info=e)
 
     return info if info else NA
 
@@ -343,10 +340,7 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         handle_parsing_error(url, e)
         return None
     except Exception as e:
-        logger.error("Parsing error: %s", getattr(e, 'message', repr(e)))
-        if logger.isEnabledFor(logging.DEBUG):
-            exception_trace = "".join(traceback.format_exception(e))
-            logger.debug(exception_trace)
+        logger.error("Parsing error: ", exc_info=e)
         return None
 
     return parsed
