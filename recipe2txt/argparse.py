@@ -79,7 +79,7 @@ parser.add_argument("-o", "--output", default="",
                     help="Specifies an output file. If empty or not specified recipes will either be written into"
                          "the current working directory or into the default output file (if set).")
 parser.add_argument("-v", "--verbosity", default="critical", choices=["debug", "info", "warning", "error", "critical"],
-                    help="Sets the 'chattiness' of the program (default 'critical'")
+                    help="Sets the 'chattiness' of the program (default 'critical')")
 parser.add_argument("-con", "--connections", type=int, default=4 if Fetcher.is_async else 1,
                     help="Sets the number of simultaneous connections (default 4). If package 'aiohttp' is not "
                          "installed the number of simultaneous connections will always be 1.")
