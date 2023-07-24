@@ -12,11 +12,14 @@ from recipe2txt.utils.misc import ensure_existence_dir, full_path
 
 COPY_DEBUG_DATA_DIRECTORY = fs.DEBUG_DATA_DIRECTORY
 tmp_data_dir = test_project_tmpdir / "data"
+COPY_DEFAULT_OUTPUT_LOCATION_NAME = fs.DEFAULT_OUTPUT_LOCATION_NAME
 
 disable_loggers()
 
+
 def name_back():
     fs.DEBUG_DATA_DIRECTORY = COPY_DEBUG_DATA_DIRECTORY
+    fs.DEFAULT_OUTPUT_LOCATION_NAME = COPY_DEFAULT_OUTPUT_LOCATION_NAME
 
 
 def remove_dir():
@@ -32,6 +35,7 @@ class Test(unittest.TestCase):
 
     def setUp(self) -> None:
         fs.DEBUG_DATA_DIRECTORY = tmp_data_dir
+        fs.DEFAULT_OUTPUT_LOCATION_NAME = "NOTAFILE"
         if not ensure_existence_dir(fs.DEBUG_DATA_DIRECTORY):
             self.fail("Could not create %s", fs.DEBUG_DATA_DIRECTORY)
 
@@ -40,7 +44,6 @@ class Test(unittest.TestCase):
         remove_dir()
 
     def test_file_setup(self):
-        self.tearDown()
         db_path = fs.DEBUG_DATA_DIRECTORY / fs.DB_NAME
         log_path = fs.DEBUG_DATA_DIRECTORY / fs.LOG_NAME
         testfile_txt = test_project_tmpdir / testfile
