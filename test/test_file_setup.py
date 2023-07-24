@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
     def setUp(self) -> None:
         fs.DEBUG_DATA_DIRECTORY = tmp_data_dir
         if not ensure_existence_dir(fs.DEBUG_DATA_DIRECTORY):
-            self.Fail("Could not create %s", fs.DEBUG_DATA_DIRECTORY)
+            self.fail("Could not create %s", fs.DEBUG_DATA_DIRECTORY)
 
     def tearDown(self) -> None:
         name_back()
