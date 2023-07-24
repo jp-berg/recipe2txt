@@ -14,7 +14,7 @@ disable_loggers()
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
            "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes",
-           "is_accessible_file", "assertFilesEqual"]
+           "assertAccessibleFile", "assertFilesEqual"]
 
 tmpdir_name: Final[str] = "tmp_testfiles_re2txt"
 filedir_name: Final[str] = "testfiles"
@@ -74,18 +74,17 @@ def delete_tmpdirs() -> bool:
     return res
 
 
-def is_accessible_file(file: Path, not_empty: bool=False) -> bool:
+def assertAccessibleFile(testcase: unittest.TestCase, file: Path, not_empty: bool = False) -> None:
     if not file.is_file():
-        return False
+        testcase.fail(f"{file} is not a file")
     with file.open("r") as f:
         if not f.readable():
-            return False
+            testcase.fail(f"{file} is not readable")
     with file.open("w") as f:
         if not f.writable():
-            return False
+            testcase.fail(f"{file} is not writable")
     if not_empty and file.stat().st_size == 0:
-        return False
-    return True
+        testcase.fail(f"{file} is empty")
 
 
 def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) -> None:

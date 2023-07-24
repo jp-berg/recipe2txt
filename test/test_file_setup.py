@@ -5,7 +5,7 @@ from shutil import rmtree
 
 from recipe2txt.sql import is_accessible_db
 from recipe2txt.utils.ContextLogger import disable_loggers
-from test.test_helpers import test_project_tmpdir, is_accessible_file
+from test.test_helpers import test_project_tmpdir, assertAccessibleFile
 from test.test_misc import testfile
 import recipe2txt.file_setup as fs
 from recipe2txt.utils.misc import ensure_existence_dir, full_path
@@ -52,11 +52,12 @@ class Test(unittest.TestCase):
                    (db_path, testfile_txt.with_suffix(".md"), log_path))
                   ]
 
-        for test, validation in params:
+        for idx, (test, validation) in enumerate(params):
             fs.file_setup(*test)
-            self.assertTrue(is_accessible_db(validation[0]))
-            self.assertTrue(is_accessible_file(validation[1]))
-            self.assertTrue(is_accessible_file(validation[2]))
+            with self.subTest(i=idx):
+                is_accessible_db(validation[0])
+                assertAccessibleFile(self, validation[1])
+                assertAccessibleFile(self, validation[2])
 
     def test_get_files(self):
         file1 = fs.DEBUG_DATA_DIRECTORY / "file1"
@@ -110,7 +111,7 @@ class Test(unittest.TestCase):
         output = fs.get_default_output(fs.DEBUG_DATA_DIRECTORY, markdown=False)
 
         self.assertEqual(str(output), testpath + ".txt")
-        self.assertTrue(is_accessible_file(output))
+        assertAccessibleFile(self, output)
 
         with self.assertRaises(SystemExit) as ex:
             fs.set_default_output("/root/recipe", True)
@@ -123,7 +124,7 @@ class Test(unittest.TestCase):
         output = fs.get_default_output(fs.DEBUG_DATA_DIRECTORY, markdown=False)
 
         default_recipe_file = Path.cwd() / fs.RECIPES_NAME_TXT
-        self.assertTrue(is_accessible_file(default_recipe_file))
+        assertAccessibleFile(self, default_recipe_file)
         self.assertEqual(output, default_recipe_file)
 
         os.remove(default_recipe_file)
