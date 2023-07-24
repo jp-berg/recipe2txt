@@ -13,6 +13,7 @@ from recipe2txt.utils.misc import ensure_existence_dir, full_path
 COPY_DEBUG_DATA_DIRECTORY = fs.DEBUG_DATA_DIRECTORY
 tmp_data_dir = test_project_tmpdir / "data"
 COPY_DEFAULT_OUTPUT_LOCATION_NAME = fs.DEFAULT_OUTPUT_LOCATION_NAME
+COPY_RECIPES_NAME_TXT = fs.RECIPES_NAME_TXT
 
 disable_loggers()
 
@@ -20,6 +21,7 @@ disable_loggers()
 def name_back():
     fs.DEBUG_DATA_DIRECTORY = COPY_DEBUG_DATA_DIRECTORY
     fs.DEFAULT_OUTPUT_LOCATION_NAME = COPY_DEFAULT_OUTPUT_LOCATION_NAME
+    fs.RECIPES_NAME_TXT = COPY_RECIPES_NAME_TXT
 
 
 def remove_dir():
@@ -36,6 +38,7 @@ class Test(unittest.TestCase):
     def setUp(self) -> None:
         fs.DEBUG_DATA_DIRECTORY = tmp_data_dir
         fs.DEFAULT_OUTPUT_LOCATION_NAME = "NOTAFILE"
+        fs.RECIPES_NAME_TXT = testfile
         if not ensure_existence_dir(fs.DEBUG_DATA_DIRECTORY):
             self.fail("Could not create %s", fs.DEBUG_DATA_DIRECTORY)
 
@@ -61,6 +64,8 @@ class Test(unittest.TestCase):
                 is_accessible_db(validation[0])
                 assertAccessibleFile(self, validation[1])
                 assertAccessibleFile(self, validation[2])
+
+        os.remove(Path.cwd() / fs.RECIPES_NAME_TXT)
 
     def test_get_files(self):
         file1 = fs.DEBUG_DATA_DIRECTORY / "file1"
