@@ -3,8 +3,8 @@ Calling fun1_1
 Value caused error: ValueError - math domain error
 Total is 202
 Needs 798 more
-Creating directory: /home/pc/sciebo/Dokumente/Programming/Rezepte/test/testfiles/permanent/logfiles/gen_log_res
-Creating file: /home/pc/sciebo/Dokumente/Programming/Rezepte/test/testfiles/permanent/logfiles/gen_log_res/202
+Creating directory: /home/pc/sciebo/Dokumente/Programming/Tmp/Rezepte/2/recipe2txt/test/testfiles/permanent/logfiles/gen_log_res
+Creating file: /home/pc/sciebo/Dokumente/Programming/Tmp/Rezepte/2/recipe2txt/test/testfiles/permanent/logfiles/gen_log_res/202
 THIS MESSAGE SHOULD NOT BE LOGGED
 Processing 29
 Calling fun1_2
@@ -30,7 +30,7 @@ THIS MESSAGE SHOULD NOT BE LOGGED
 Processing 3
 Calling fun1_1
 Total is 8999
-Creating file: /home/pc/sciebo/Dokumente/Programming/Rezepte/test/testfiles/permanent/logfiles/gen_log_res/4290
+Creating file: /home/pc/sciebo/Dokumente/Programming/Tmp/Rezepte/2/recipe2txt/test/testfiles/permanent/logfiles/gen_log_res/4290
 THIS MESSAGE SHOULD NOT BE LOGGED
 Processing 44
 Calling fun1_2
@@ -53,7 +53,7 @@ THIS MESSAGE SHOULD NOT BE LOGGED
 Processing 1
 Calling fun1_1
 Total is 17867
-Creating file: /home/pc/sciebo/Dokumente/Programming/Rezepte/test/testfiles/permanent/logfiles/gen_log_res/4280
+Creating file: /home/pc/sciebo/Dokumente/Programming/Tmp/Rezepte/2/recipe2txt/test/testfiles/permanent/logfiles/gen_log_res/4280
 THIS MESSAGE SHOULD NOT BE LOGGED
 Processing 6
 Calling fun1_1
