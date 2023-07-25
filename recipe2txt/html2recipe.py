@@ -164,6 +164,7 @@ def errors2str() -> list[tuple[str, str]]:
         for method, exception_names in methoddict.items():
             for exception_name, parsing_error_list in exception_names.items():
                 msg = pre_check_msg
+                host = host[4:] if host.startswith("www.") else host
                 title = f"{host} - {method} - {exception_name} (found by recipe2txt)"
 
                 urls = [parsing_error.url for parsing_error in parsing_error_list]
@@ -251,6 +252,8 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
     except Exception as e:
+        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+            raise e
         log("Extraction error for attribute %s:", method_name, exc_info=e)
 
     return info if info else NA
@@ -355,6 +358,8 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         handle_parsing_error(url, e)
         return None
     except Exception as e:
+        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+            raise e
         logger.error("Parsing error: ", exc_info=e)
         return None
 

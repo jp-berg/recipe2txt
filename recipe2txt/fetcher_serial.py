@@ -31,11 +31,13 @@ class SerialFetcher(AbstractFetcher):
             html = None
             try:
                 html = urllib.request.urlopen(url, timeout=self.timeout).read()
-            except urllib.error.HTTPError as he:
-                logger.error("Connection Error: %s", getattr(he, 'message', repr(he)))
-            except (TimeoutError, urllib.error.URLError):
-                logger.error("Unable to reach Website")
+            except urllib.error.HTTPError as e:
+                logger.error("Connection Error: ", exc_info=e)
+            except (TimeoutError, urllib.error.URLError) as e:
+                logger.error("Unable to reach Website: ", exc_info=e)
             except Exception as e:
+                if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+                    raise e
                 logger.error("Error: ", exc_info=e)
 
             if html:

@@ -22,7 +22,7 @@ from recipe2txt.utils.ContextLogger import get_logger
 
 logger = get_logger(__name__)
 
-if __name__ == '__main__':
+def main() -> None:
     a = parser.parse_args()
     mutex_args(a)
     urls, fetcher = process_params(a)
@@ -32,3 +32,7 @@ if __name__ == '__main__':
         logger.info(fetcher.get_counts())
     write_errors(a.debug)
     sys.exit(os.EX_OK)
+
+if __name__ == '__main__':
+    main()
+
