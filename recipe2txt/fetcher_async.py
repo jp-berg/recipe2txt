@@ -58,6 +58,8 @@ class AsyncFetcher(AbstractFetcher):
                         logger.error("Unable to reach website")
                         self.db.insert_recipe_unreachable(url)
                     except Exception as e:
+                        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+                            raise e
                         logger.error("Error while connecting to website: ", exc_info=e)
                     if html:
                         self.html2db(url, html)

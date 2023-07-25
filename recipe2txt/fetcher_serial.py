@@ -36,6 +36,8 @@ class SerialFetcher(AbstractFetcher):
             except (TimeoutError, urllib.error.URLError):
                 logger.error("Unable to reach Website")
             except Exception as e:
+                if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+                    raise e
                 logger.error("Error: ", exc_info=e)
 
             if html:

@@ -251,6 +251,8 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
     except Exception as e:
+        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+            raise e
         log("Extraction error for attribute %s:", method_name, exc_info=e)
 
     return info if info else NA
@@ -355,6 +357,8 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         handle_parsing_error(url, e)
         return None
     except Exception as e:
+        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+            raise e
         logger.error("Parsing error: ", exc_info=e)
         return None
 
