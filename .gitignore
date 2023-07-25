@@ -7,6 +7,8 @@ test/testfiles/recipe_test*.md
 test/testfiles/markdown
 test/testfiles/permanent/testfile_db.sqlite3
 test/ignore_*
+dist/*
+recipe2txt.egg-info/*
 .kateproject
 .kdev4
 .project

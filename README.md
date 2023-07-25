@@ -14,7 +14,11 @@ THIS SOFTWARE IS AT AN EARLY DEVELOPEMENT STAGE.
 
 BE CAREFUL SETTING THE `--output`-FLAG, ANY EXISTING FILES WITH THE SAME NAME WILL BE OVERWRITTEN.
 
+TESTED ONLY ON KUBUNTU 23.04.
+
 # Usage
+
+Install with `pip install recipe2txt`. You can either use `recipe2txt` or `re2txt` to run the program.
 
 ```
 usage: recipes2txt [-h] [-u URL [URL ...]] [-f FILE [FILE ...]] [-o OUTPUT]

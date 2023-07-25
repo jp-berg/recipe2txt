@@ -9,8 +9,8 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "recipe2txt_jp-berg"
-version = "0.1.0"
+name = "recipe2txt"
+version = "0.1.1"
 authors = [
   { name="Jan Philipp Berg", email="git.7ksst@aleeas.com" },
 ]
@@ -21,7 +21,7 @@ license = {text = "GNU General Public License v3 or later (GPLv3+)"}
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: Ubuntu",
+    "Operating System :: POSIX :: Linux",
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Framework :: aiohttp",
@@ -39,7 +39,7 @@ dependencies = [
   "xdg-base-dirs ~= 6.0",
   "validators ~= 0.20",
   "importlib-metadata ~= 6.8",
-  "backports.strenum ~= 1.2; python_version < '3.11'"
+  "backports.strenum ~= 1.2; python_version < '3.11'",
   "typing_extensions ~= 4.6.2; python_version < '3.11'"
 ]
 
