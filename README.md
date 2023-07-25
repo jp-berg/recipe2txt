@@ -8,6 +8,12 @@
 
 The program is a wrapper for the [recipe-scrapers](https://github.com/hhursev/recipe-scrapers)-library. Please visit their README.md if you would like to know which sites are supported.
 
+# WARNING
+
+THIS SOFTWARE IS AT AN EARLY DEVELOPEMENT STAGE.
+
+BE CAREFUL SETTING THE `--output`-FLAG, ANY EXISTING FILES WITH THE SAME NAME WILL BE OVERWRITTEN.
+
 # Usage
 
 ```
@@ -24,10 +30,11 @@ options:
   -f FILE [FILE ...], --file FILE [FILE ...]
                         Text-files containing URLs (one per line) whose recipes should be added to the recipe-file
   -o OUTPUT, --output OUTPUT
-                        Specifies an output file. If empty or not specified recipes will either be written into the
-                        current working directory or into the default output file (if set).
+                        Specifies an output file. If empty or not specified recipes will either be written into
+                        the current working directory or into the default output file (if set). THIS WILL
+                        OVERWRITE ANY EXISTING FILE WITH THE SAME NAME.
   -v {debug,info,warning,error,critical}, --verbosity {debug,info,warning,error,critical}
-                        Sets the 'chattiness' of the program (default 'critical'
+                        Sets the 'chattiness' of the program (default 'critical')
   -con CONNECTIONS, --connections CONNECTIONS
                         Sets the number of simultaneous connections (default 4). If package 'aiohttp' is not
                         installed the number of simultaneous connections will always be 1.
@@ -62,3 +69,4 @@ options:
 ```bash
 python3 -m recipe2txt -u www.example-url.com/tastyrecipe www.other-examle-url.org/deliciousmeal -o ~/Documents/great-recipes.txt
 ```
+See the [Makefile](Makefile)-targets testrun1, testrun2 and testrun3 for more examples.
