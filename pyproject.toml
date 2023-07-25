@@ -1,0 +1,39 @@
+[tool.pylsp-mypy]
+enabled = true
+live_mode = true
+strict = true
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "recipe2txt_jp-berg"
+version = "0.1.0"
+authors = [
+  { name="Jan Philipp Berg", email="git.7ksst@aleeas.com" },
+]
+description = "Scrapes recipes and converts them to txt or markdown"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Ubuntu",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Framework :: aiohttp",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Topic :: Internet",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Typing :: Typed"
+]
+keywords = ["recipes", "cooking", "scraping", "website"]
+
+[project.urls]
+"Homepage" = "https://github.com/jp-berg/recipe2txt"
+"Bug Tracker" = "https://github.com/jp-berg/recipe2txt/issues"
