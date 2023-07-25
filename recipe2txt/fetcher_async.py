@@ -54,9 +54,8 @@ class AsyncFetcher(AbstractFetcher):
                         self.counts.reached += 1
                         self.html2db(url, html)
                         continue
-                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError):
-                        logger.error("Unable to reach website")
-                        self.db.insert_recipe_unreachable(url)
+                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError) as e:
+                        logger.error("Unable to reach website:", exc_info=e)
                     except Exception as e:
                         if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
                             raise e
