@@ -77,7 +77,7 @@ parser.add_argument("-f", "--file", nargs='+', default=[],
                     help="Text-files containing URLs (one per line) whose recipes should be added to the recipe-file")
 parser.add_argument("-o", "--output", default="",
                     help="Specifies an output file. If empty or not specified recipes will either be written into"
-                         "the current working directory or into the default output file (if set).")
+                         " the current working directory or into the default output file (if set).")
 parser.add_argument("-v", "--verbosity", default="critical", choices=["debug", "info", "warning", "error", "critical"],
                     help="Sets the 'chattiness' of the program (default 'critical')")
 parser.add_argument("-con", "--connections", type=int, default=4 if Fetcher.is_async else 1,

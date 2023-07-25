@@ -24,7 +24,7 @@ options:
   -f FILE [FILE ...], --file FILE [FILE ...]
                         Text-files containing URLs (one per line) whose recipes should be added to the recipe-file
   -o OUTPUT, --output OUTPUT
-                        Specifies an output file. If empty or not specified recipes will either be written intothe
+                        Specifies an output file. If empty or not specified recipes will either be written into the
                         current working directory or into the default output file (if set).
   -v {debug,info,warning,error,critical}, --verbosity {debug,info,warning,error,critical}
                         Sets the 'chattiness' of the program (default 'critical'
