@@ -164,6 +164,7 @@ def errors2str() -> list[tuple[str, str]]:
         for method, exception_names in methoddict.items():
             for exception_name, parsing_error_list in exception_names.items():
                 msg = pre_check_msg
+                host = host[4:] if host.startswith("www.") else host
                 title = f"{host} - {method} - {exception_name} (found by recipe2txt)"
 
                 urls = [parsing_error.url for parsing_error in parsing_error_list]
