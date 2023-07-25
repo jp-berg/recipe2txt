@@ -352,7 +352,7 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
-        logger.error("Unknown Website. Extraction not supported", url)
+        logger.error("Unknown Website. Extraction not supported")
         return None
     except (AttributeError, TypeError) as e:
         handle_parsing_error(url, e)
