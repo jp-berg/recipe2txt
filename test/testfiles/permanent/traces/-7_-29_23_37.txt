@@ -1,64 +1,64 @@
-  File ".../test/testfiles/permanent/gen_stack.py", line 58, in _provoke_exception
+  File ".../test/testfiles/permanent/gen_stack.py", line 73, in _provoke_exception
     y = fun5(x)
         ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 46, in fun5
+  File ".../test/testfiles/permanent/gen_stack.py", line 61, in fun5
     return fun4(x) + 4321
            ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 42, in fun4
+  File ".../test/testfiles/permanent/gen_stack.py", line 57, in fun4
     return fun3(x) + 0.1
            ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 38, in fun3
+  File ".../test/testfiles/permanent/gen_stack.py", line 53, in fun3
     return fun2(x) * 4.56
            ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 34, in fun2
+  File ".../test/testfiles/permanent/gen_stack.py", line 49, in fun2
     return fun1_1(x) - 12
            ^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 25, in fun1_1
+  File ".../test/testfiles/permanent/gen_stack.py", line 40, in fun1_1
     return fun0_1(x) * 3
            ^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 13, in fun0_1
+  File ".../test/testfiles/permanent/gen_stack.py", line 28, in fun0_1
     return sqrt(x)
            ^^^^^^^
 ValueError: math domain error
 	...
-  File ".../test/testfiles/permanent/gen_stack.py", line 38, in fun3
+  File ".../test/testfiles/permanent/gen_stack.py", line 53, in fun3
     return fun2(x) * 4.56
            ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 34, in fun2
+  File ".../test/testfiles/permanent/gen_stack.py", line 49, in fun2
     return fun1_1(x) - 12
            ^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 25, in fun1_1
+  File ".../test/testfiles/permanent/gen_stack.py", line 40, in fun1_1
     return fun0_1(x) * 3
            ^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 13, in fun0_1
+  File ".../test/testfiles/permanent/gen_stack.py", line 28, in fun0_1
     return sqrt(x)
            ^^^^^^^
 ValueError: math domain error
 	...
-  File ".../test/testfiles/permanent/gen_stack.py", line 38, in fun3
+  File ".../test/testfiles/permanent/gen_stack.py", line 53, in fun3
     return fun2(x) * 4.56
            ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 31, in fun2
+  File ".../test/testfiles/permanent/gen_stack.py", line 46, in fun2
     return fun1_2(x * 0)
            ^^^^^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 21, in fun1_2
+  File ".../test/testfiles/permanent/gen_stack.py", line 36, in fun1_2
     return fun0_2(x) * 10
            ^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 17, in fun0_2
+  File ".../test/testfiles/permanent/gen_stack.py", line 32, in fun0_2
     return 13 / x
            ~~~^~~
 ZeroDivisionError: division by zero
 	...
-  File ".../test/testfiles/permanent/gen_stack.py", line 38, in fun3
+  File ".../test/testfiles/permanent/gen_stack.py", line 53, in fun3
     return fun2(x) * 4.56
            ^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 31, in fun2
+  File ".../test/testfiles/permanent/gen_stack.py", line 46, in fun2
     return fun1_2(x * 0)
            ^^^^^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 21, in fun1_2
+  File ".../test/testfiles/permanent/gen_stack.py", line 36, in fun1_2
     return fun0_2(x) * 10
            ^^^^^^^^^
-  File ".../test/testfiles/permanent/gen_stack.py", line 17, in fun0_2
+  File ".../test/testfiles/permanent/gen_stack.py", line 32, in fun0_2
     return 13 / x
            ~~~^~~
 ZeroDivisionError: division by zero
