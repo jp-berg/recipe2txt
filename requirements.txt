@@ -1,6 +1,6 @@
-recipe-scrapers ~= 14.36
+recipe-scrapers ~= 14.39
 xdg-base-dirs ~= 6.0
 validators ~= 0.20
-importlib-metadata ~= 6.6
+importlib-metadata ~= 6.8
 backports.strenum ~= 1.2; python_version < "3.11"
 typing_extensions ~= 4.6.2; python_version < "3.11"

@@ -17,6 +17,7 @@ authors = [
 description = "Scrapes recipes and converts them to txt or markdown"
 readme = "README.md"
 requires-python = ">=3.10"
+license = {text = "GNU General Public License v3 or later (GPLv3+)"}
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -33,7 +34,22 @@ classifiers = [
     "Typing :: Typed"
 ]
 keywords = ["recipes", "cooking", "scraping", "website"]
+dependencies = [
+  "recipe-scrapers ~= 14.39",
+  "xdg-base-dirs ~= 6.0",
+  "validators ~= 0.20",
+  "importlib-metadata ~= 6.8",
+  "backports.strenum ~= 1.2; python_version < '3.11'"
+  "typing_extensions ~= 4.6.2; python_version < '3.11'"
+]
+
+[project.optional-dependencies]
+performance = ["aiohttp ~= 3.8", "aiodns ~= 3.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/jp-berg/recipe2txt"
 "Bug Tracker" = "https://github.com/jp-berg/recipe2txt/issues"
+
+[project.scripts]
+re2txt = "recipe2txt.re2txt:main"
+recipe2txt = "recipe2txt.re2txt:main"
