@@ -14,7 +14,6 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import logging
-import sys
 import urllib.request
 import os
 from typing import Final
@@ -23,17 +22,23 @@ from pathlib import Path
 import recipe2txt.html2recipe as h2r
 from recipe2txt.fetcher_abstract import AbstractFetcher, Cache
 from recipe2txt.utils.misc import URL, is_url, File, Directory, ensure_accessible_file_critical
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging, \
+    disable_loggers
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 import recipe_scrapers
 from recipe2txt.utils.conditional_imports import StrEnum
 
 __all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
 
-if __name__ == '__main__':
-    root_log_setup(logging.DEBUG)
-
 logger = get_logger(__name__)
+
+
+if __name__ == '__main__':
+    root_log_setup(logging.INFO)
+else:
+    disable_loggers()
+
+
 root: Final[Directory] = Directory(Path(__file__).parent)
 
 
@@ -85,19 +90,20 @@ delim = "---"
 
 
 def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
-    html =  filename.read_bytes()
+    html = filename.read_bytes()
     r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
     attributes = []
     with QCM(logger, logger.info, "Scraping %s", url):
         for method in h2r.METHODS:
+            a = None
             try:
                 a = getattr(r, method)()
-                attributes.append(a)
             except Exception:
                 logger.error("%s not found", method)
-                attributes.append(h2r.NA)
-        attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
-        recipe = h2r.Recipe(*attributes)
+            a = h2r.info2str(method, a)
+            attributes.append(a)
+        attributes += [url, str(int(h2r.gen_status(attributes))), h2r.SCRAPER_VERSION]
+        recipe = h2r.Recipe(*attributes) # type: ignore
     with filename_parsed.open('w') as file:
         for a in attributes:
             if isinstance(a, list):

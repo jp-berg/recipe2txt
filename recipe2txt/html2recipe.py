@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import logging
 import urllib
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any, Callable
+import re
 from os import linesep
 import traceback
 from importlib_metadata import version
@@ -177,7 +177,7 @@ def errors2str() -> list[tuple[str, str]]:
 
                 tb_ex_list = [error.traceback for error in parsing_error_list]
                 shared_frames = get_shared_frames(tb_ex_list)
-                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "Rezepte")
+                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "recipe2txt")
 
                 if len(urls) > 1:
                     dot_explanation = italic("'...' indicates frames present in all traces"
@@ -197,6 +197,8 @@ def errors2str() -> list[tuple[str, str]]:
 
     return reports
 
+
+contains_alphanumeric = re.compile("\w")
 
 def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
@@ -232,6 +234,7 @@ def info2str(method: str, info: Any) -> str:
             elif isinstance(info, list):
                 info = linesep.join(info)
                 unexpected_type = False
+    info = info if info and contains_alphanumeric.search(info) else None
     if not info or info.isspace() or info == "None":
         log("%s contains nothing", method_name.capitalize())
         return NA

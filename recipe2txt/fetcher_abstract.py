@@ -79,12 +79,14 @@ class AbstractFetcher(ABC):
 
     def gen_lines(self) -> list[str]:
         recipes = []
+        count = 0
         for recipe in self.db.get_recipes():
             if formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown):
+                count += 1
                 for line in formatted:
                     recipes.append(line)
 
-        if len(recipes) > 2:
+        if count > 3:
             titles_raw = self.db.get_titles()
             if self.markdown:
                 titles_md_fmt = [f"{section_link(esc(name), fragmentified=True)} - {esc(host)}{linesep}"
