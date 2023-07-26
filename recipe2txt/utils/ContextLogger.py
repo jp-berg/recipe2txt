@@ -280,7 +280,7 @@ class EndContextFilter(logging.Filter):
 
 
 def get_file_handler(file: str = LOGFILE, level: int = logging.DEBUG) -> logging.FileHandler:
-    file_handler = RotatingFileHandler(file, mode='w', maxBytes=100000, backupCount=4, encoding="utf-8")
+    file_handler = RotatingFileHandler(file, mode='w', maxBytes=10000000, backupCount=4, encoding="utf-8")
     file_handler.setLevel(level)
     f = EndContextFilter()
     file_handler.addFilter(f)
