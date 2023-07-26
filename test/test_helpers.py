@@ -95,7 +95,7 @@ def assertAccessibleFile(testcase: unittest.TestCase, file: Path, not_empty: boo
     with file.open("r") as f:
         if not f.readable():
             testcase.fail(f"{file} is not readable")
-    with file.open("w") as f:
+    with file.open("a") as f:
         if not f.writable():
             testcase.fail(f"{file} is not writable")
     if not_empty and file.stat().st_size == 0:
