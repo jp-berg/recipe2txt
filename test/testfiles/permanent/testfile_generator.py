@@ -14,7 +14,6 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import logging
-import sys
 import urllib.request
 import os
 from typing import Final
@@ -91,19 +90,20 @@ delim = "---"
 
 
 def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
-    html =  filename.read_bytes()
+    html = filename.read_bytes()
     r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
     attributes = []
     with QCM(logger, logger.info, "Scraping %s", url):
         for method in h2r.METHODS:
+            a = None
             try:
                 a = getattr(r, method)()
-                attributes.append(a)
             except Exception:
                 logger.error("%s not found", method)
-                attributes.append(h2r.NA)
-        attributes += [url, int(h2r.gen_status(attributes)), h2r.SCRAPER_VERSION]
-        recipe = h2r.Recipe(*attributes)
+            a = h2r.info2str(method, a)
+            attributes.append(a)
+        attributes += [url, str(int(h2r.gen_status(attributes))), h2r.SCRAPER_VERSION]
+        recipe = h2r.Recipe(*attributes) # type: ignore
     with filename_parsed.open('w') as file:
         for a in attributes:
             if isinstance(a, list):

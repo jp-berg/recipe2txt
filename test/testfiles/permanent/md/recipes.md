@@ -1,74 +1,10 @@
-1. [Asian Chicken Salad](#5cd69d875ed46a42e5cb8cefbcea9643402edd35) - en\.wikibooks\.org
+1. [Au Jus Sandwich](#6bb7a50bc3ae647bdd1c3ed0d391da2b11495847) - en\.wikibooks\.org
 
-2. [Arroz con Pollo](#99391dec35ac1f7fedcaa6b2c7f464154a922c7e) - en\.wikibooks\.org
+2. [Borscht](#d6def971a394256fd32eaea02f2623f0e8325cc0) - en\.wikibooks\.org
 
-3. [Au Jus Sandwich](#6bb7a50bc3ae647bdd1c3ed0d391da2b11495847) - en\.wikibooks\.org
+3. [Arroz con Pollo](#99391dec35ac1f7fedcaa6b2c7f464154a922c7e) - en\.wikibooks\.org
 
-4. [Borscht](#d6def971a394256fd32eaea02f2623f0e8325cc0) - en\.wikibooks\.org
-
-<div id="5cd69d875ed46a42e5cb8cefbcea9643402edd35"></div>
-
-## Asian Chicken Salad
-
-15 min | 4 servings
-
-* 1½ cups broccoli flowerets
-* ½ cup pea pods
-* 6 cups torn mixed greens
-* 2 cups thinly\-sliced Nappa cabbage
-* ½ cup julienned carrots
-* 1 package \(6 oz\) grilled chicken breast, cut in strips
-* ¾ cups salad dressing \(teriyaki ginger, Asian sesame with ginger, or balsamic vinaigrette\)
-* 1 mango, peeled, seeded, and thinly sliced \(optional\)
-* Sesame crackers \(optional\)
-
-<!-- -->
-1. In large saucepan quickly plunge broccoli and pea pods into boiling water for 30 seconds\. Drain vegetables\. Quickly rinse with cold water\. Drain well\.
-2. In large bowl toss together the blanched broccoli and pea pods, greens, cabbage and carrots\.
-3. Add chicken\.
-4. Drizzle with salad dressing\. Toss to coat\.
-5. Arrange on 4 serving plates\.
-6. Top with mango, if desired\.
-7. Serve with crackers\.
-
-
-_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Asian\_Chicken\_Salad)
-
-<div id="99391dec35ac1f7fedcaa6b2c7f464154a922c7e"></div>
-
-## Arroz con Pollo
-
-60.0 min | N/A
-
-* 1 ea\. \(1\.3–1\.8 kg\) chicken, cut into serving pieces
-* Salt to taste
-* Pepper to taste
-* Olive oil
-* 4 cloves of fresh garlic, minced
-* 1 medium onion, chopped
-* 225 g diced red bell pepper
-* 425 g \(1 can\) diced tomatoes
-* 7\.5 g \(½ tablespoon\) sweet paprika
-* 14 g \(½ oz\) chopped cilantro
-* 1\.4 liter \(6 cups\) chicken stock
-* 8 saffron threads or 1 teaspoon food coloring for yellow rice
-* 370 g \(2 cups\) medium or long\-grain rice
-* 225 g \(8 oz\) canned peas \(thoroughly drained\)
-
-<!-- -->
-1. Season the chicken with two pinches of salt and a pinch of pepper\.
-2. Pour enough olive oil into a large skillet to just barely cover the bottom\.
-3. Sauté chicken in oil until brown\. There are two ways to proceed from here: either remove the chicken from the skillet or keep it there\.
-4. Sauté garlic until brown\. Be careful, garlic burns easily\.
-5. Add the onion, bell pepper, tomatoes and paprika\. Sauté until the vegetables are tender\.
-6. Transfer the ingredients to a large stewing pot\.
-7. Add the cilantro, bouillon and saffron \(or food coloring\)\. Bring to a rolling boil\.
-8. Add the rice and mix well\. Simmer over medium heat until the rice is cooked and the liquid is absorbed\. Add more broth or water if the liquid evaporates before the rice is cooked\.
-9. Add the chicken to the pot \(if you removed it previously\) and cover it with rice\. Wait two to three minutes to allow the chicken to warm\.
-10. Sprinkle peas on top of the rice\.
-
-
-_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Arroz\_con\_Pollo)
+4. [Asian Chicken Salad](#5cd69d875ed46a42e5cb8cefbcea9643402edd35) - en\.wikibooks\.org
 
 <div id="6bb7a50bc3ae647bdd1c3ed0d391da2b11495847"></div>
 
@@ -124,4 +60,68 @@ _from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Au\_Jus\
 
 
 _from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Borscht)
+
+<div id="99391dec35ac1f7fedcaa6b2c7f464154a922c7e"></div>
+
+## Arroz con Pollo
+
+60.0 min | N/A
+
+* 1 ea\. \(1\.3–1\.8 kg\) chicken, cut into serving pieces
+* Salt to taste
+* Pepper to taste
+* Olive oil
+* 4 cloves of fresh garlic, minced
+* 1 medium onion, chopped
+* 225 g diced red bell pepper
+* 425 g \(1 can\) diced tomatoes
+* 7\.5 g \(½ tablespoon\) sweet paprika
+* 14 g \(½ oz\) chopped cilantro
+* 1\.4 liter \(6 cups\) chicken stock
+* 8 saffron threads or 1 teaspoon food coloring for yellow rice
+* 370 g \(2 cups\) medium or long\-grain rice
+* 225 g \(8 oz\) canned peas \(thoroughly drained\)
+
+<!-- -->
+1. Season the chicken with two pinches of salt and a pinch of pepper\.
+2. Pour enough olive oil into a large skillet to just barely cover the bottom\.
+3. Sauté chicken in oil until brown\. There are two ways to proceed from here: either remove the chicken from the skillet or keep it there\.
+4. Sauté garlic until brown\. Be careful, garlic burns easily\.
+5. Add the onion, bell pepper, tomatoes and paprika\. Sauté until the vegetables are tender\.
+6. Transfer the ingredients to a large stewing pot\.
+7. Add the cilantro, bouillon and saffron \(or food coloring\)\. Bring to a rolling boil\.
+8. Add the rice and mix well\. Simmer over medium heat until the rice is cooked and the liquid is absorbed\. Add more broth or water if the liquid evaporates before the rice is cooked\.
+9. Add the chicken to the pot \(if you removed it previously\) and cover it with rice\. Wait two to three minutes to allow the chicken to warm\.
+10. Sprinkle peas on top of the rice\.
+
+
+_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Arroz\_con\_Pollo)
+
+<div id="5cd69d875ed46a42e5cb8cefbcea9643402edd35"></div>
+
+## Asian Chicken Salad
+
+15 min | 4 servings
+
+* 1½ cups broccoli flowerets
+* ½ cup pea pods
+* 6 cups torn mixed greens
+* 2 cups thinly\-sliced Nappa cabbage
+* ½ cup julienned carrots
+* 1 package \(6 oz\) grilled chicken breast, cut in strips
+* ¾ cups salad dressing \(teriyaki ginger, Asian sesame with ginger, or balsamic vinaigrette\)
+* 1 mango, peeled, seeded, and thinly sliced \(optional\)
+* Sesame crackers \(optional\)
+
+<!-- -->
+1. In large saucepan quickly plunge broccoli and pea pods into boiling water for 30 seconds\. Drain vegetables\. Quickly rinse with cold water\. Drain well\.
+2. In large bowl toss together the blanched broccoli and pea pods, greens, cabbage and carrots\.
+3. Add chicken\.
+4. Drizzle with salad dressing\. Toss to coat\.
+5. Arrange on 4 serving plates\.
+6. Top with mango, if desired\.
+7. Serve with crackers\.
+
+
+_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Asian\_Chicken\_Salad)
 
