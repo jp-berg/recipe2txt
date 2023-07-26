@@ -177,7 +177,7 @@ def errors2str() -> list[tuple[str, str]]:
 
                 tb_ex_list = [error.traceback for error in parsing_error_list]
                 shared_frames = get_shared_frames(tb_ex_list)
-                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "Rezepte")
+                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "recipe2txt")
 
                 if len(urls) > 1:
                     dot_explanation = italic("'...' indicates frames present in all traces"
