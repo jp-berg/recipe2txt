@@ -25,16 +25,21 @@ from test.test_misc import testfile
 import recipe2txt.file_setup as fs
 from recipe2txt.utils.misc import ensure_existence_dir, full_path
 
-COPY_DEBUG_DATA_DIRECTORY = fs.DEBUG_DATA_DIRECTORY
-tmp_data_dir = test_project_tmpdir / "data"
+copy_debug_dirs = fs.debug_dirs
+tmp_data_dir = test_project_tmpdir / "test-xdg-dirs"
+
 COPY_DEFAULT_OUTPUT_LOCATION_NAME = fs.DEFAULT_OUTPUT_LOCATION_NAME
 COPY_RECIPES_NAME_TXT = fs.RECIPES_NAME_TXT
 
 disable_loggers()
 
 
+test_debug_dirs = fs.ProgramDirectories(tmp_data_dir / "data",
+                                        tmp_data_dir / "config",
+                                        tmp_data_dir / "state")
+
 def name_back():
-    fs.DEBUG_DATA_DIRECTORY = COPY_DEBUG_DATA_DIRECTORY
+    fs.debug_dirs = copy_debug_dirs
     fs.DEFAULT_OUTPUT_LOCATION_NAME = COPY_DEFAULT_OUTPUT_LOCATION_NAME
     fs.RECIPES_NAME_TXT = COPY_RECIPES_NAME_TXT
 
@@ -51,19 +56,20 @@ unittest.addModuleCleanup(remove_dir)
 class Test(unittest.TestCase):
 
     def setUp(self) -> None:
-        fs.DEBUG_DATA_DIRECTORY = tmp_data_dir
+        fs.debug_dirs = test_debug_dirs
         fs.DEFAULT_OUTPUT_LOCATION_NAME = "NOTAFILE"
         fs.RECIPES_NAME_TXT = testfile
-        if not ensure_existence_dir(fs.DEBUG_DATA_DIRECTORY):
-            self.fail("Could not create %s", fs.DEBUG_DATA_DIRECTORY)
+        for directory in test_debug_dirs:
+            if not ensure_existence_dir(directory):
+                self.fail(f"Could not create {directory}")
 
     def tearDown(self) -> None:
         name_back()
         remove_dir()
 
     def test_file_setup(self):
-        db_path = fs.DEBUG_DATA_DIRECTORY / fs.DB_NAME
-        log_path = fs.DEBUG_DATA_DIRECTORY / fs.LOG_NAME
+        db_path = test_debug_dirs.data / fs.DB_NAME
+        log_path = test_debug_dirs.state / fs.LOG_NAME
         testfile_txt = test_project_tmpdir / testfile
         params = [((True,),
                    (db_path, Path.cwd() / fs.RECIPES_NAME_TXT, log_path)),
@@ -83,15 +89,15 @@ class Test(unittest.TestCase):
         os.remove(Path.cwd() / fs.RECIPES_NAME_TXT)
 
     def test_get_files(self):
-        file1 = fs.DEBUG_DATA_DIRECTORY / "file1"
-        file2 = fs.DEBUG_DATA_DIRECTORY / "file2"
-        file3 = fs.DEBUG_DATA_DIRECTORY / "file3"
+        file1 = fs.debug_dirs.config / "file1"
+        file2 = fs.debug_dirs.data / "file2"
+        file3 = fs.debug_dirs.data / "file3"
 
         file1.write_text("TESTFILE")
         file2.write_text("TESTFILE")
 
-        db_path = fs.DEBUG_DATA_DIRECTORY / fs.DB_NAME
-        log_path = fs.DEBUG_DATA_DIRECTORY / fs.LOG_NAME
+        db_path = fs.debug_dirs.data / fs.DB_NAME
+        log_path = fs.debug_dirs.state / fs.LOG_NAME
         fs.file_setup(True, file3)
 
         test_files = set(fs.get_files(True))
@@ -105,23 +111,24 @@ class Test(unittest.TestCase):
             self.fail(f"Files in validation_files but not in test_files: {diff2}")
 
     def test_erase_files(self):
-        self.assertTrue(fs.DEBUG_DATA_DIRECTORY.is_dir())
+        for directory in fs.debug_dirs:
+            self.assertTrue(directory.is_dir())
 
-        file1 = fs.DEBUG_DATA_DIRECTORY / "file1"
-        file2 = fs.DEBUG_DATA_DIRECTORY / "file2"
-        file1.write_text("TESTFILE")
-        file2.write_text("TESTFILE")
-        self.assertTrue(file1.is_file())
-        self.assertTrue(file2.is_file())
+        files = [directory / f"file-{idx}" for idx, directory in enumerate(fs.debug_dirs)]
+        for file in files:
+            file.write_text("TESTFILE")
+            assertAccessibleFile(self, file, True)
 
         fs.erase_files(True)
-        self.assertFalse(file1.is_file())
-        self.assertFalse(file2.is_file())
-        self.assertFalse(fs.DEBUG_DATA_DIRECTORY.is_dir())
+
+        for file in files:
+            self.assertFalse(file.is_file())
+        for directory in fs.debug_dirs:
+            self.assertFalse(directory.is_dir())
 
     def test_default_output(self):
         testpath = str(full_path(test_project_tmpdir / "out"))
-        default_output = fs.DEBUG_DATA_DIRECTORY / fs.DEFAULT_OUTPUT_LOCATION_NAME
+        default_output = fs.debug_dirs.config / fs.DEFAULT_OUTPUT_LOCATION_NAME
 
         self.assertFalse(default_output.is_file())
         fs.set_default_output(testpath, True)
@@ -131,20 +138,20 @@ class Test(unittest.TestCase):
         self.assertEqual(content[0], testpath + ".txt")
         self.assertEqual(content[1], testpath + ".md")
 
-        output = fs.get_default_output(fs.DEBUG_DATA_DIRECTORY, markdown=False)
+        output = fs.get_default_output(fs.debug_dirs.config, markdown=False)
 
         self.assertEqual(str(output), testpath + ".txt")
         assertAccessibleFile(self, output)
 
         with self.assertRaises(SystemExit) as ex:
             fs.set_default_output("/root/recipe", True)
-            fs.get_default_output(fs.DEBUG_DATA_DIRECTORY, markdown=False)
+            fs.get_default_output(fs.debug_dirs.config, markdown=False)
             self.assertEqual(ex.exception.code, os.EX_IOERR)
 
         fs.set_default_output("RESET", True)
         self.assertFalse(default_output.is_file())
 
-        output = fs.get_default_output(fs.DEBUG_DATA_DIRECTORY, markdown=False)
+        output = fs.get_default_output(fs.debug_dirs.config, markdown=False)
 
         default_recipe_file = Path.cwd() / fs.RECIPES_NAME_TXT
         assertAccessibleFile(self, default_recipe_file)

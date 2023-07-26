@@ -1,11 +1,14 @@
 TODO.txt
 __pycache__/
 argparse_test.py
-test/testfiles/data/*
+test/testfiles/debug-dirs/*
+!test/testfiles/debug-dirs/config/
 test/testfiles/recipe_test*.txt
 test/testfiles/recipe_test*.md
 test/testfiles/markdown
 test/testfiles/permanent/testfile_db.sqlite3
+test/testfiles/default_output_file.txt
+test/testfiles/default_output_file.md
 test/ignore_*
 .kateproject
 .kdev4

@@ -1,2 +1,0 @@
-./test/testfiles/recipe_test.txt
-./test/testfiles/recipe_test.md
