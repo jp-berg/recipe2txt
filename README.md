@@ -71,6 +71,6 @@ options:
 # Examples
 
 ```bash
-python3 -m recipe2txt -u www.example-url.com/tastyrecipe www.other-examle-url.org/deliciousmeal -o ~/Documents/great-recipes.txt
+recipe2txt -u www.example-url.com/tastyrecipe www.other-examle-url.org/deliciousmeal -o ~/Documents/great-recipes.txt
 ```
 See the [Makefile](Makefile)-targets testrun1, testrun2 and testrun3 for more examples.
