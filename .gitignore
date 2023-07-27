@@ -10,6 +10,8 @@ test/testfiles/permanent/testfile_db.sqlite3
 test/testfiles/default_output_file.txt
 test/testfiles/default_output_file.md
 test/ignore_*
+dist/*
+recipe2txt.egg-info/*
 .kateproject
 .kdev4
 .project
