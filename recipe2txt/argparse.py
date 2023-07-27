@@ -112,7 +112,7 @@ settings.add_argument("-do", "--default-output-file", default="",
                            " output-file is explicitly passed via '-o' or '--output'." +
                            " Pass 'RESET' to reset the default output to the current working directory." +
                            " Does not work in debug mode (default-output-file is automatically set by"
-                           " 'tests/testfiles/data/default_output_location.txt').")
+                           " 'tests/testfiles/default_output_location.txt').")
 
 
 def mutex_args_check(a: argparse.Namespace) -> None:
