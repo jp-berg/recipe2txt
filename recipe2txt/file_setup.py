@@ -26,7 +26,8 @@ from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.html2recipe import errors2str
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory, full_path
+from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory, full_path, \
+    create_timestamped_dir
 
 logger = get_logger(__name__)
 
@@ -159,16 +160,10 @@ def write_errors(debug: bool = False) -> int:
     if not how_to_report_file.is_file():
         how_to_report_file.write_text(how_to_report_txt)
 
-    current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-    current_error_dir = error_dir / current_time
-
-    i = 1
-    tmp = current_error_dir
-    while tmp.is_dir():
-        tmp.with_stem(f"{tmp.stem}-{i}")
-        i += 1
-    current_error_dir = tmp
-    current_error_dir.mkdir(parents=True, exist_ok=True)
+    current_error_dir = create_timestamped_dir(error_dir)
+    if not current_error_dir:
+        logger.error("Could not create directory for error reporting, no reports will be written.")
+        return 0
 
     for title, msg in errors:
         filename = (current_error_dir / title).with_suffix(".md")
