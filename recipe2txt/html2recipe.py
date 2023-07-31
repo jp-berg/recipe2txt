@@ -164,8 +164,9 @@ def errors2str() -> list[tuple[str, str]]:
         for method, exception_names in methoddict.items():
             for exception_name, parsing_error_list in exception_names.items():
                 msg = pre_check_msg
+
                 host = host[4:] if host.startswith("www.") else host
-                title = f"{host} - {method} - {exception_name} (found by recipe2txt)"
+                title = f"{host.split('.')[0]}: {method} - {exception_name} (found by recipe2txt)"
 
                 urls = [parsing_error.url for parsing_error in parsing_error_list]
                 triggered_by = f"scrape_html()" if method == "general parsing error" else f".{method}()"
@@ -263,7 +264,6 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
 
 
 BETWEEN_RECIPES: Final[str] = linesep * 5
-HEAD_SEP: Final[str] = linesep * 2
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
@@ -323,12 +323,12 @@ def _re2md(recipe: Recipe) -> list[str]:
 def _re2txt(recipe: Recipe) -> list[str]:
     title = recipe.title if recipe.title != NA else recipe.url
     txt = [title,
-           HEAD_SEP,
-           recipe.total_time + " min | " + recipe.yields + linesep,
+           linesep*2,
+           recipe.total_time + " min | " + recipe.yields + linesep*2,
            recipe.ingredients,
            linesep * 2,
            recipe.instructions.replace(linesep, linesep * 2),
-           linesep,
+           linesep * 2,
            "from: " + recipe.url,
            BETWEEN_RECIPES]
     return txt

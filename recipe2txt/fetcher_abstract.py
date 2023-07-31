@@ -14,7 +14,6 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 from os import linesep
-from typing import Final
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import URL, File, Counts
 import recipe2txt.sql as sql
@@ -94,7 +93,7 @@ class AbstractFetcher(ABC):
                 titles = ordered(*titles_md_fmt)
             else:
                 titles = [f"{name} - {host}{linesep}" for name, host in titles_raw]
-                titles = titles + [paragraph(), ("-" * 10) + h2r.HEAD_SEP, paragraph()]
+                titles = titles + [paragraph(), ("-" * 10) + linesep*2, paragraph()]
         else:
             titles = []
 
