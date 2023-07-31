@@ -1,23 +1,29 @@
 VENV = .venv
 PYTHON = $(VENV)/bin/python
 PIP = $(PYTHON) -m pip
-TESTFILES = ./test/testfiles
-TESTFILES_PERMANENT_PY = $(filter-out %__init__.py, $(wildcard $(TESTFILES)/permanent/*.py)) # get all .py-files, except __init__.py
-TESTFILE_PERMANENT_TMP = $(patsubst ./%.py, -m %, $(TESTFILES_PERMANENT_PY)) # Remove leading './' and trailing '.py', add '-m' in front
-TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP)) # replace '/' with '.'
-TMP_TESTFILE_DIR = $(TESTFILES)/tmp_testfiles_re2txt
 RE2TXT = -m recipe2txt.re2txt
 
-testrun: testrun1 testrun2 testrun3
+TESTFILES = ./test/testfiles
+TMP_TESTFILE_DIR = $(TESTFILES)/tmp_testfiles_re2txt
+TEST4RE2TXT = -m test.test4recipe2txt
 
-testrun1: $(PYTHON)
-	$^ $(RE2TXT) -v info -d -md -f $(TESTFILES)/urls.txt -o $(TESTFILES)/recipe_test.md -con 10 -t 20
+TESTFILES_PERMANENT_PY = $(filter-out %__init__.py, $(wildcard $(TESTFILES)/permanent/*.py)) 	# get all .py-files, except __init__.py
+TESTFILE_PERMANENT_TMP = $(patsubst ./%.py, -m %, $(TESTFILES_PERMANENT_PY)) 			# Remove leading './' and trailing '.py', add '-m' in front
+TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP)) 				# replace '/' with '.'
 
-testrun2: $(PYTHON)
-	$^ $(RE2TXT) -v info -d -f $(TESTFILES)/urls2.txt -o $(TESTFILES)/recipe_test2.txt -con 1 -t 20
 
-testrun3: $(PYTHON)
-	$^ $(RE2TXT) -v info -d -md -f $(TESTFILES)/urls3.txt $(TESTFILES)/urls4.txt $(TESTFILES)/urls5.txt -o $(TESTFILES)/recipe_test3.md -con 10 -t 20
+
+test-all: $(PYTHON)
+	$^ $(TEST4RE2TXT) --format md -i file --long-timeout --delete-database
+
+test-txt: $(PYTHON)
+	$^ $(TEST4RE2TXT) --format txt --delete-database
+
+test-md: $(PYTHON)
+	$^ $(TEST4RE2TXT) --format md --delete-database
+
+test-synchronous: $(PYTHON)
+	$^ $(TEST4RE2TXT) --delete-database --connections 1
 
 $(PYTHON):
 	python3 -m venv $(VENV);
@@ -25,13 +31,14 @@ $(PYTHON):
 	$(PIP) install -r requirements_performance.txt
 
 mypy: $(PYTHON)
-	mypy $(RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $^ --strict
+	mypy $(RE2TXT) $(TEST4RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $^ --strict
 
-test: $(PYTHON)
+unittest: mypy
 	$(PYTHON) -m unittest
 	rm -rf $(TMP_TESTFILE_DIR) || True
 
 uninstall:
+test: unittest test-all
 	rm -rf $(VENV)
 
-.PHONY: test testfiles test1 test2 test3
+.PHONY: test
