@@ -25,6 +25,9 @@ ARTIFACTS = $(TMP_TESTFILE_DIR) dist $(TESTFILES)/debug-dirs test/reports_test4r
 install: $(PACKAGE_WHL) pipx #See EXT_DEPS
 	pipx install $^
 
+release: $(PACKAGE) twine #See PY_DEPS
+	twine upload $(PACKAGE)
+
 test-all: $(PYTHON)
 	$^ $(TEST4RE2TXT) --format md -i file --long-timeout --delete-database
 
