@@ -256,19 +256,20 @@ class QueueContextManager:
 
 def disable_loggers() -> None:
     for logger in logger_list:
+        setattr(logger, "was_disabled", logger.disabled)
         logger.disabled = True
 
 
-def enable_loggers() -> None:
+def reset_disable_loggers() -> None:
     for logger in logger_list:
-        logger.disabled = False
+        logger.disabled = getattr(logger, "was_disabled", False)
 
 
 @contextlib.contextmanager
 def suppress_logging() -> Generator[None, None, None]:
     disable_loggers()
     yield
-    enable_loggers()
+    reset_disable_loggers()
 
 
 class EndContextFilter(logging.Filter):
@@ -280,7 +281,7 @@ class EndContextFilter(logging.Filter):
 
 
 def get_file_handler(file: str = LOGFILE, level: int = logging.DEBUG) -> logging.FileHandler:
-    file_handler = RotatingFileHandler(file, mode='w', maxBytes=100000, backupCount=4, encoding="utf-8")
+    file_handler = RotatingFileHandler(file, mode='w', maxBytes=10000000, backupCount=4, encoding="utf-8")
     file_handler.setLevel(level)
     f = EndContextFilter()
     file_handler.addFilter(f)

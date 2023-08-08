@@ -112,7 +112,7 @@ settings.add_argument("-do", "--default-output-file", default="",
                            " output-file is explicitly passed via '-o' or '--output'." +
                            " Pass 'RESET' to reset the default output to the current working directory." +
                            " Does not work in debug mode (default-output-file is automatically set by"
-                           " 'tests/testfiles/data/default_output_location.txt').")
+                           " 'tests/testfiles/default_output_location.txt').")
 
 
 def mutex_args_check(a: argparse.Namespace) -> None:
@@ -180,7 +180,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     logger.info("--- Preparing arguments ---")
     sancheck_args(a, recipe_file)
     if recipe_file.stat().st_size > 0:
-        logger.warning("The output-file %s already exists. It will be overwritten.")
+        logger.warning("The output-file %s already exists. It will be overwritten.", recipe_file)
     else:
         logger.info("Output set to: %s", recipe_file)
     unprocessed: list[str] = read_files(*a.file)

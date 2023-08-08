@@ -13,10 +13,10 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import logging
 import urllib
 from enum import IntEnum
 from typing import NewType, Final, Optional, NamedTuple, Any, Callable
+import re
 from os import linesep
 import traceback
 from importlib_metadata import version
@@ -164,8 +164,9 @@ def errors2str() -> list[tuple[str, str]]:
         for method, exception_names in methoddict.items():
             for exception_name, parsing_error_list in exception_names.items():
                 msg = pre_check_msg
+
                 host = host[4:] if host.startswith("www.") else host
-                title = f"{host} - {method} - {exception_name} (found by recipe2txt)"
+                title = f"{host.split('.')[0]}: {method} - {exception_name} (found by recipe2txt)"
 
                 urls = [parsing_error.url for parsing_error in parsing_error_list]
                 triggered_by = f"scrape_html()" if method == "general parsing error" else f".{method}()"
@@ -177,7 +178,7 @@ def errors2str() -> list[tuple[str, str]]:
 
                 tb_ex_list = [error.traceback for error in parsing_error_list]
                 shared_frames = get_shared_frames(tb_ex_list)
-                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "Rezepte")
+                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "recipe2txt")
 
                 if len(urls) > 1:
                     dot_explanation = italic("'...' indicates frames present in all traces"
@@ -197,6 +198,8 @@ def errors2str() -> list[tuple[str, str]]:
 
     return reports
 
+
+contains_alphanumeric = re.compile("\w")
 
 def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
@@ -232,6 +235,7 @@ def info2str(method: str, info: Any) -> str:
             elif isinstance(info, list):
                 info = linesep.join(info)
                 unexpected_type = False
+    info = info if info and contains_alphanumeric.search(info) else None
     if not info or info.isspace() or info == "None":
         log("%s contains nothing", method_name.capitalize())
         return NA
@@ -260,7 +264,6 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
 
 
 BETWEEN_RECIPES: Final[str] = linesep * 5
-HEAD_SEP: Final[str] = linesep * 2
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
@@ -320,12 +323,12 @@ def _re2md(recipe: Recipe) -> list[str]:
 def _re2txt(recipe: Recipe) -> list[str]:
     title = recipe.title if recipe.title != NA else recipe.url
     txt = [title,
-           HEAD_SEP,
-           recipe.total_time + " min | " + recipe.yields + linesep,
+           linesep*2,
+           recipe.total_time + " min | " + recipe.yields + linesep*2,
            recipe.ingredients,
            linesep * 2,
            recipe.instructions.replace(linesep, linesep * 2),
-           linesep,
+           linesep * 2,
            "from: " + recipe.url,
            BETWEEN_RECIPES]
     return txt
@@ -352,7 +355,7 @@ def html2parsed(url: URL, content: str) -> Optional[Parsed]:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
-        logger.error("Unknown Website. Extraction not supported", url)
+        logger.error("Unknown Website. Extraction not supported")
         return None
     except (AttributeError, TypeError) as e:
         handle_parsing_error(url, e)

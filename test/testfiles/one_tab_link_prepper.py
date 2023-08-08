@@ -15,5 +15,5 @@ def convert(file: str) -> None:
 
 
 if __name__ == '__main__':
-    for arg in argv:
+    for arg in argv[1:]:
         convert(arg)

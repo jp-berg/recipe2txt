@@ -15,17 +15,17 @@
 
 import os.path
 import sys
-import traceback
 import urllib.parse
-from copy import deepcopy
 from os import linesep
+from time import localtime, strftime
+
 import validators
 from recipe2txt.utils.ContextLogger import get_logger, DO_NOT_LOG
 from typing import NewType, Any, TypeGuard, Optional
 from pathlib import Path
 __all__ = ["URL", "is_url", "File", "is_file", "Directory", "is_dir", "full_path", "ensure_existence_dir",
-           "ensure_existence_dir_critical", "ensure_accessible_file", "ensure_accessible_file_critical",
-           "read_files", "Counts", "dict2str", "head_str"]
+           "ensure_existence_dir_critical", "create_timestamped_dir", "ensure_accessible_file",
+           "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str"]
 
 logger = get_logger(__name__)
 
@@ -116,6 +116,22 @@ def ensure_existence_dir_critical(*path_elem: str | Path) -> Directory:
     if not directory:
         logger.critical(*msg)
         sys.exit(os.EX_IOERR)
+    return directory
+
+
+def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Optional[Directory]:
+    current_time = strftime("%Y-%m-%d_%H-%M-%S", localtime())
+    parent = ensure_existence_dir(*path_elem)
+    if not parent:
+        return None
+    dir_name = f"{name}__{current_time}" if name else current_time
+    i = 1
+    tmp = parent / dir_name
+    while tmp.is_dir():
+        tmp.with_stem(f"{tmp.stem}--{i}")
+        i += 1
+    directory = tmp
+    directory.mkdir(parents=True, exist_ok=True)
     return directory
 
 

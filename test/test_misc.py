@@ -20,7 +20,7 @@ from test.test_helpers import *
 
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
 testfile = "TESTFILE.txt"
-none_dirs = [["/dev", "null"] + testdirs,
+none_dirs = [[os.devnull] + testdirs,
              ["/root"] + testdirs]
 normal_dirs = [[folder] + testdirs for folder in tmpdirs]
 

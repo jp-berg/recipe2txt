@@ -1,37 +1,72 @@
 VENV = .venv
 PYTHON = $(VENV)/bin/python
 PIP = $(PYTHON) -m pip
-TESTFILES = ./test/testfiles
-TESTFILES_PERMANENT_PY = $(filter-out %__init__.py, $(wildcard $(TESTFILES)/permanent/*.py)) # get all .py-files, except __init__.py
-TESTFILE_PERMANENT_TMP = $(patsubst ./%.py, -m %, $(TESTFILES_PERMANENT_PY)) # Remove leading './' and trailing '.py', add '-m' in front
-TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP)) # replace '/' with '.'
-TMP_TESTFILE_DIR = $(TESTFILES)/tmp_testfiles_re2txt
 RE2TXT = -m recipe2txt.re2txt
 
-testrun: testrun1 testrun2 testrun3
+PY_DEPS = pyproject-build mypy twine  # installable via pip
+EXT_DEPS = python3 pipx rm find      # not installable via pip
 
-testrun1: $(PYTHON)
-	$^ $(RE2TXT) -v info -d -md -f $(TESTFILES)/urls.txt -o $(TESTFILES)/recipe_test.md -con 10 -t 20
+PACKAGE_VERSION = $(shell $(PYTHON) -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+PACKAGE_WHL = dist/recipe2txt-$(PACKAGE_VERSION)-py3-none-any.whl
+PACKAGE_TAR = dist/recipe2txt-$(PACKAGE_VERSION).tar.gz
+PACKAGE = $(PACKAGE_WHL) $(PACKAGE_TAR)
 
-testrun2: $(PYTHON)
-	$^ $(RE2TXT) -v info -d -f $(TESTFILES)/urls2.txt -o $(TESTFILES)/recipe_test2.txt -con 1 -t 20
+TESTFILES = ./test/testfiles
+TMP_TESTFILE_DIR = $(TESTFILES)/tmp_testfiles_re2txt
+TEST4RE2TXT = -m test.test4recipe2txt
 
-testrun3: $(PYTHON)
-	$^ $(RE2TXT) -v info -d -md -f $(TESTFILES)/urls3.txt $(TESTFILES)/urls4.txt $(TESTFILES)/urls5.txt -o $(TESTFILES)/recipe_test3.md -con 10 -t 20
+TESTFILES_PERMANENT_PY = $(filter-out %__init__.py, $(wildcard $(TESTFILES)/permanent/*.py))  # get all .py-files, except __init__.py
+TESTFILE_PERMANENT_TMP = $(patsubst ./%.py, -m %, $(TESTFILES_PERMANENT_PY))                  # Remove leading './' and trailing '.py', add '-m' in front
+TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP))                          # replace '/' with '.'
 
-$(PYTHON):
+PYCACHE = $(shell find -type d -name '__pycache__')
+ARTIFACTS = $(TMP_TESTFILE_DIR) dist $(TESTFILES)/debug-dirs test/reports_test4recipe2txt recipe2txt.egg-info $(PYCACHE)
+
+install: $(PACKAGE_WHL) pipx #See EXT_DEPS
+	pipx install $^
+
+release: $(PACKAGE) twine #See PY_DEPS
+	twine upload $(PACKAGE)
+
+test-all: $(PYTHON)
+	$^ $(TEST4RE2TXT) --format md -i file --long-timeout --delete-database
+
+test-txt: $(PYTHON)
+	$^ $(TEST4RE2TXT) --format txt --delete-database
+
+test-md: $(PYTHON)
+	$^ $(TEST4RE2TXT) --format md --delete-database
+
+test-synchronous: $(PYTHON)
+	$^ $(TEST4RE2TXT) --delete-database --connections 1
+
+$(PY_DEPS): # Check if the target is installed, if not try to install it via pip, if that does not work exit
+	@ command -v $@ 1> /dev/null || $(PIP) install $@ || (echo "Program '"$@"' not found and cannot be installed via '" $(PIP) "'" && exit 1)
+
+$(EXT_DEPS):
+	@ command -v $@ 1> /dev/null || (echo "Program '"$@"' not found" && exit 1)
+
+$(PYTHON): python3 #See EXT_DEPS
 	python3 -m venv $(VENV);
 	$(PIP) install -r requirements.txt
 	$(PIP) install -r requirements_performance.txt
 
-mypy: $(PYTHON)
-	mypy $(RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $^ --strict
+check: $(PYTHON) mypy #See PY_DEPS
+	mypy $(RE2TXT) $(TEST4RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $(PYTHON) --strict
 
-test: $(PYTHON)
+unittest: mypy rm #See PY_DEPS EXT_DEPS
 	$(PYTHON) -m unittest
 	rm -rf $(TMP_TESTFILE_DIR) || True
 
-uninstall:
+$(PACKAGE): unittest pyproject-build #See PY_DEPS
+	pyproject-build
+
+test: unittest test-all
+
+clean: rm find
+	rm -rf $(ARTIFACTS) || True
+
+uninstall: clean
 	rm -rf $(VENV)
 
-.PHONY: test testfiles test1 test2 test3
+.PHONY: test

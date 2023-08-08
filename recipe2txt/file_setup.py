@@ -17,24 +17,38 @@ import os
 import sys
 from shutil import rmtree
 from time import strftime, gmtime
-from typing import Final, Tuple, Literal
+from typing import Final, Tuple, Literal, NamedTuple
 from pathlib import Path
 
-from xdg_base_dirs import xdg_data_home
+from xdg_base_dirs import xdg_data_home, xdg_config_home, xdg_state_home
 
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.html2recipe import errors2str
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory, full_path
+from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory, full_path, \
+    create_timestamped_dir
 
 logger = get_logger(__name__)
 
 PROGRAM_NAME: Final[LiteralString] = "recipes2txt"
 
-DEFAULT_DATA_DIRECTORY: Final[Path] = Path(xdg_data_home(), PROGRAM_NAME)
-DEBUG_DATA_DIRECTORY: Final[Path] = Path(Path(__file__).parents[1], "test", "testfiles", "data")
 
+class ProgramDirectories(NamedTuple):
+    data: Path
+    config: Path
+    state: Path
+
+
+default_dirs: Final[ProgramDirectories] = ProgramDirectories(xdg_data_home() / PROGRAM_NAME,
+                                                             xdg_config_home() / PROGRAM_NAME,
+                                                             xdg_state_home() / PROGRAM_NAME)
+
+DEBUG_DIRECTORY_BASE: Final[Path] = Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
+
+debug_dirs: Final[ProgramDirectories] = ProgramDirectories(DEBUG_DIRECTORY_BASE / "data",
+                                                           DEBUG_DIRECTORY_BASE / "config",
+                                                           DEBUG_DIRECTORY_BASE / "state")
 
 LOG_NAME: Final[LiteralString] = "debug.log"
 DB_NAME: Final[LiteralString] = PROGRAM_NAME + ".sqlite3"
@@ -46,40 +60,39 @@ DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.tx
 
 
 def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
-    data_path = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
-    db_file = ensure_accessible_db_critical(data_path, DB_NAME)
-    log_file = ensure_accessible_file_critical(data_path, LOG_NAME)
+    directory = debug_dirs if debug else default_dirs
+
+    db_file = ensure_accessible_db_critical(directory.data, DB_NAME)
+    log_file = ensure_accessible_file_critical(directory.state, LOG_NAME)
 
     if output:
         output_file = ensure_accessible_file_critical(output)
     else:
-        output_file = get_default_output(Directory(data_path), markdown)
+        output_file = get_default_output(directory.config, markdown)
 
     return db_file, output_file, log_file
 
 
 def get_files(debug: bool = False) -> list[str]:
-    files = []
-    if DEFAULT_DATA_DIRECTORY.is_dir() and not debug:
-        files = [str(file) for file in DEFAULT_DATA_DIRECTORY.iterdir()]
-    if DEBUG_DATA_DIRECTORY.is_dir():
-        files += [str(file) for file in DEBUG_DATA_DIRECTORY.iterdir()]
-
+    directories = list(debug_dirs)
+    directories = directories if debug else directories + list(default_dirs)
+    files = [str(file) for directory in directories if directory.is_dir()
+             for file in directory.iterdir()]
     return files
 
 
 def erase_files(debug: bool = False) -> None:
-    if DEFAULT_DATA_DIRECTORY.is_dir() and not debug:
-        logger.warning("Deleting %s", DEFAULT_DATA_DIRECTORY)
-        rmtree(DEFAULT_DATA_DIRECTORY)
+    directories = list(debug_dirs)
+    directories = directories if debug else directories + list(default_dirs)
 
-    if DEBUG_DATA_DIRECTORY.is_dir():
-        logger.warning("Deleting: %s", DEBUG_DATA_DIRECTORY)
-        rmtree(DEBUG_DATA_DIRECTORY)
+    for directory in directories:
+        if directory.is_dir():
+            logger.warning("Deleting %s", directory)
+            rmtree(directory)
 
 
-def get_default_output(data_path: Directory, markdown: bool) -> File:
-    output_location_file = data_path / DEFAULT_OUTPUT_LOCATION_NAME
+def get_default_output(config_path: Path, markdown: bool) -> File:
+    output_location_file = config_path / DEFAULT_OUTPUT_LOCATION_NAME
     if output_location_file.is_file():
         text = output_location_file.read_text().split(os.linesep)
         text = [line for line in text if line]
@@ -95,7 +108,7 @@ def get_default_output(data_path: Directory, markdown: bool) -> File:
 
 
 def set_default_output(filepath: str | Literal["RESET"], debug: bool = False) -> None:
-    data_dir = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
+    data_dir = debug_dirs.config if debug else default_dirs.config
     if filepath == "RESET":
         try:
             os.remove(data_dir / DEFAULT_OUTPUT_LOCATION_NAME)
@@ -139,7 +152,7 @@ def write_errors(debug: bool = False) -> int:
 
     logger.info("---Writing error reports---")
 
-    data_path = DEBUG_DATA_DIRECTORY if debug else DEFAULT_DATA_DIRECTORY
+    data_path = debug_dirs.state if debug else default_dirs.state
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
         logger.error("Could not create %s, no reports will be written", data_path / "error_reports")
         return 0
@@ -147,16 +160,10 @@ def write_errors(debug: bool = False) -> int:
     if not how_to_report_file.is_file():
         how_to_report_file.write_text(how_to_report_txt)
 
-    current_time = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-    current_error_dir = error_dir / current_time
-
-    i = 1
-    tmp = current_error_dir
-    while tmp.is_dir():
-        tmp.with_stem(f"{tmp.stem}-{i}")
-        i += 1
-    current_error_dir = tmp
-    current_error_dir.mkdir(parents=True, exist_ok=True)
+    current_error_dir = create_timestamped_dir(error_dir)
+    if not current_error_dir:
+        logger.error("Could not create directory for error reporting, no reports will be written.")
+        return 0
 
     for title, msg in errors:
         filename = (current_error_dir / title).with_suffix(".md")
@@ -164,7 +171,7 @@ def write_errors(debug: bool = False) -> int:
 
     warn_msg = f"During its execution the program encountered recipes " \
                f"that could not be (completely) scraped.{os.linesep}" \
-               f" Please see {os.linesep}%s{os.linesep}if you want to help fix this."
+               f"Please see {os.linesep}%s{os.linesep}if you want to help fix this."
     logger.warning(warn_msg, how_to_report_file)
 
     return len(errors)

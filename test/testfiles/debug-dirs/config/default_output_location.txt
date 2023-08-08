@@ -1,0 +1,2 @@
+/home/pc/sciebo/Dokumente/Programming/recipe2txt/test/testfiles/default_output_file.txt
+/home/pc/sciebo/Dokumente/Programming/recipe2txt/test/testfiles/default_output_file.md
