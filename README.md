@@ -21,9 +21,9 @@ TESTED ONLY ON KUBUNTU 23.04.
 Install with `pip install recipe2txt`. You can either use `recipe2txt` or `re2txt` to run the program.
 
 ```
-usage: recipes2txt [-h] [-u URL [URL ...]] [-f FILE [FILE ...]] [-o OUTPUT]
-                   [-v {debug,info,warning,error,critical}] [-con CONNECTIONS] [-ia] [-c {only,new,default}] [-d]
-                   [-t TIMEOUT] [-md] [-sa | -erase | -do DEFAULT_OUTPUT_FILE]
+usage: recipes2txt [-h] [-u URL [URL ...]] [-f FILE [FILE ...]] [-o OUTPUT] [-v {debug,info,warning,error,critical}]
+                   [-con CONNECTIONS] [-ia] [-c {only,new,default}] [-d] [-t TIMEOUT] [-md] [-ua USER_AGENT]
+                   [-sa | -erase | -do DEFAULT_OUTPUT_FILE]
 
 Scrapes URLs of recipes into text files
 
@@ -34,36 +34,38 @@ options:
   -f FILE [FILE ...], --file FILE [FILE ...]
                         Text-files containing URLs (one per line) whose recipes should be added to the recipe-file
   -o OUTPUT, --output OUTPUT
-                        Specifies an output file. If empty or not specified recipes will either be written into
-                        the current working directory or into the default output file (if set). THIS WILL
-                        OVERWRITE ANY EXISTING FILE WITH THE SAME NAME.
+                        Specifies an output file. If empty or not specified recipes will either be written into the
+                        current working directory or into the default output file (if set). THIS WILL OVERWRITE ANY
+                        EXISTING FILE WITH THE SAME NAME.
   -v {debug,info,warning,error,critical}, --verbosity {debug,info,warning,error,critical}
                         Sets the 'chattiness' of the program (default 'critical')
   -con CONNECTIONS, --connections CONNECTIONS
-                        Sets the number of simultaneous connections (default 4). If package 'aiohttp' is not
-                        installed the number of simultaneous connections will always be 1.
+                        Sets the number of simultaneous connections (default: 4).
   -ia, --ignore-added   [NI]Writes recipe to file regardless if it has already been added
   -c {only,new,default}, --cache {only,new,default}
-                        Controls how the program should handle its cache: With 'only' no new data will be
-                        downloaded, the recipes will be generated from data that has been downloaded previously.
-                        If a recipe is not in the cache, it will not be written into the final output. 'new' will
-                        make the program ignore any saved data and download the requested recipes even if they
-                        have already been downloaded. Old data will be replaced by the new version, if it is
-                        available. The 'default' will fetch and merge missing data with the data already saved,
-                        only inserting new data into the cache where there was none previously.
+                        Controls how the program should handle its cache: With 'only' no new data will be downloaded,
+                        the recipes will be generated from data that has been downloaded previously. If a recipe is
+                        not in the cache, it will not be written into the final output. 'new' will make the program
+                        ignore any saved data and download the requested recipes even if they have already been
+                        downloaded. Old data will be replaced by the new version, if it is available. The 'default'
+                        will fetch and merge missing data with the data already saved, only inserting new data into
+                        the cache where there was none previously.
   -d, --debug           Activates debug-mode: Changes the directory for application data
   -t TIMEOUT, --timeout TIMEOUT
-                        Sets the number of seconds the program waits for an individual website to respond(eg. sets
-                        the connect-value of aiohttp.ClientTimeout)
-  -md, --markdown       Generates markdown-output instead of .txt
+                        Sets the number of seconds the program waits for an individual website to respond , eg. sets
+                        the connect-value of aiohttp.ClientTimeout (default: 10.0 seconds)
+  -md, --markdown       Generates markdown-output instead of '.txt'
+  -ua USER_AGENT, --user-agent USER_AGENT
+                        Sets the user-agent to be used for the requests. (default: 'Mozilla/5.0 (Windows NT 10.0;
+                        Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0')
   -sa, --show-appdata   Shows data- and cache-files used by this program
   -erase, --erase-appdata
                         Erases all data- and cache-files used by this program
   -do DEFAULT_OUTPUT_FILE, --default-output-file DEFAULT_OUTPUT_FILE
-                        Sets a file where recipes should be written to if no output-file is explicitly passed via
-                        '-o' or '--output'. Pass 'RESET' to reset the default output to the current working
-                        directory. Does not work in debug mode (default-output-file is automatically set by
-                        'tests/testfiles/data/default_output_location.txt').
+                        Sets a file where recipes should be written to if no output-file is explicitly passed via '-o'
+                        or '--output'. Pass 'RESET' to reset the default output to the current working directory. Does
+                        not work in debug mode (default-output-file is automatically set by
+                        'tests/testfiles/default_output_location.txt').
 
 [NI] = 'Not implemented (yet)'
 ```
