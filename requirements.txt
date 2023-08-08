@@ -1,4 +1,4 @@
-recipe-scrapers ~= 14.40
+recipe-scrapers ~= 14.41
 xdg-base-dirs ~= 6.0
 validators ~= 0.20
 importlib-metadata ~= 6.8
