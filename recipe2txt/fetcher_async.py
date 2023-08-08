@@ -25,6 +25,7 @@ logger = get_logger(__name__)
 
 class AsyncFetcher(AbstractFetcher):
     is_async: Literal[True] = True
+    connections = 4
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)

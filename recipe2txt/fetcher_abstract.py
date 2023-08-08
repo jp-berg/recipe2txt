@@ -33,18 +33,20 @@ class Cache(StrEnum):
 
 class AbstractFetcher(ABC):
     is_async: bool
+    connections: int = 1
+    timeout: float = 10.0
 
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
                  counts: Counts = Counts(),
-                 timeout: float = 10.0,
-                 connections: int = 1,
+                 timeout: float | None = None,
+                 connections: int | None = None,
                  markdown: bool = False,
                  cache: Cache = Cache.default) -> None:
         self.output: File = output
         self.counts: Counts = counts
-        self.timeout: float = timeout
-        self.connections: int = connections
+        self.timeout: float = timeout if timeout else self.timeout
+        self.connections: int = connections if connections else self.connections
         self.db: sql.Database = sql.Database(database, output)
         self.markdown = markdown
         self.cache = cache
