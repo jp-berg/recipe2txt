@@ -54,7 +54,7 @@ $(PYTHON): python3 #See EXT_DEPS
 check: $(PYTHON) mypy #See PY_DEPS
 	mypy $(RE2TXT) $(TEST4RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $(PYTHON) --strict
 
-unittest: mypy rm #See PY_DEPS EXT_DEPS
+unittest: check rm #See EXT_DEPS
 	$(PYTHON) -m unittest
 	rm -rf $(TMP_TESTFILE_DIR) || True
 
