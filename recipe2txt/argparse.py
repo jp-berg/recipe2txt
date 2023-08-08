@@ -55,6 +55,7 @@ _ARGNAMES: Final[list[LiteralString]] = [
     "debug",
     "timeout",
     "markdown",
+    "user_agent",
     "show_files",
     "erase_appdata",
     "standard_output_file"
@@ -104,6 +105,9 @@ parser.add_argument("-t", "--timeout", type=float, default=Fetcher.timeout,
                     ' timeout-argument of urllib.request.urlopen'} (default: {Fetcher.timeout} seconds)""")
 parser.add_argument("-md", "--markdown", action="store_true",
                     help="Generates markdown-output instead of '.txt'")
+parser.add_argument("-ua", "--user-agent", default=Fetcher.user_agent,
+                    help=f"Sets the user-agent to be used for the requests. "
+                         f" (default: '{Fetcher.user_agent}')")
 
 settings = parser.add_mutually_exclusive_group()
 settings.add_argument("-sa", "--show-appdata", action="store_true",

@@ -44,7 +44,7 @@ class AsyncFetcher(AbstractFetcher):
         await(asyncio.gather(*tasks))
 
     async def _fetch_task(self, url_queue: asyncio.queues.Queue[URL], timeout: aiohttp.client.ClientTimeout) -> None:
-        async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with aiohttp.ClientSession(timeout=timeout, headers={"User-Agent" : self.user_agent}) as session:
             while not url_queue.empty():
                 url = await url_queue.get()
                 with QCM(logger, logger.info, "Fetching %s", url, defer_emit=True):

@@ -30,7 +30,8 @@ class SerialFetcher(AbstractFetcher):
         with QCM(logger, logger.info, "Fetching %s", url):
             html = None
             try:
-                html = urllib.request.urlopen(url, timeout=self.timeout).read()
+                req = urllib.request.Request(url, headers={"User-Agent": self.user_agent})
+                html = urllib.request.urlopen(req, timeout=self.timeout).read()
             except urllib.error.HTTPError as e:
                 logger.error("Connection Error: ", exc_info=e)
             except (TimeoutError, urllib.error.URLError) as e:

@@ -35,6 +35,8 @@ class AbstractFetcher(ABC):
     is_async: bool
     connections: int = 1
     timeout: float = 10.0
+    user_agent: str = \
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0"
 
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
@@ -42,7 +44,8 @@ class AbstractFetcher(ABC):
                  timeout: float | None = None,
                  connections: int | None = None,
                  markdown: bool = False,
-                 cache: Cache = Cache.default) -> None:
+                 cache: Cache = Cache.default,
+                 user_agent: str | None = None) -> None:
         self.output: File = output
         self.counts: Counts = counts
         self.timeout: float = timeout if timeout else self.timeout
@@ -50,6 +53,7 @@ class AbstractFetcher(ABC):
         self.db: sql.Database = sql.Database(database, output)
         self.markdown = markdown
         self.cache = cache
+        self.user_agent = user_agent if user_agent else self.user_agent
 
     def get_counts(self) -> Counts:
         return self.counts
