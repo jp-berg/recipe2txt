@@ -81,9 +81,11 @@ parser.add_argument("-o", "--output", default="",
                          " ANY EXISTING FILE WITH THE SAME NAME.")
 parser.add_argument("-v", "--verbosity", default="critical", choices=["debug", "info", "warning", "error", "critical"],
                     help="Sets the 'chattiness' of the program (default 'critical')")
-parser.add_argument("-con", "--connections", type=int, default=4 if Fetcher.is_async else 1,
-                    help="Sets the number of simultaneous connections (default 4). If package 'aiohttp' is not "
-                         "installed the number of simultaneous connections will always be 1.")
+parser.add_argument("-con", "--connections", type=int, default=Fetcher.connections,
+                    help="Sets the number of simultaneous connections (default: {}).{}".format(
+                        Fetcher.connections, "" if Fetcher.is_async else
+                        " Since the package 'aiohttp' is not installed the number of simultaneous connections will"
+                        " always be 1. Thus this flag and its parameters will not be evaluated."))
 parser.add_argument("-ia", "--ignore-added", action="store_true",
                     help="[NI]Writes recipe to file regardless if it has already been added")
 parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default="default",
@@ -96,9 +98,10 @@ parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default
                          " new data into the cache where there was none previously.")
 parser.add_argument("-d", "--debug", action="store_true",
                     help="Activates debug-mode: Changes the directory for application data")
-parser.add_argument("-t", "--timeout", type=float, default=5.0,
-                    help="Sets the number of seconds the program waits for an individual website to respond" +
-                         "(eg. sets the connect-value of aiohttp.ClientTimeout)")
+parser.add_argument("-t", "--timeout", type=float, default=Fetcher.timeout,
+                    help=f""" Sets the number of seconds the program waits for an individual website to respond , eg. 
+                    {'sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async else 'sets the'
+                    ' timeout-argument of urllib.request.urlopen'} (default: {Fetcher.timeout} seconds)""")
 parser.add_argument("-md", "--markdown", action="store_true",
                     help="Generates markdown-output instead of .txt")
 
