@@ -6,7 +6,7 @@ RE2TXT = -m recipe2txt.re2txt
 PY_DEPS = pyproject-build mypy twine  # installable via pip
 EXT_DEPS = python3 pipx rm find      # not installable via pip
 
-PACKAGE_VERSION = $(shell $(PYTHON) -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+PACKAGE_VERSION = $(shell python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 PACKAGE_WHL = dist/recipe2txt-$(PACKAGE_VERSION)-py3-none-any.whl
 PACKAGE_TAR = dist/recipe2txt-$(PACKAGE_VERSION).tar.gz
 PACKAGE = $(PACKAGE_WHL) $(PACKAGE_TAR)
