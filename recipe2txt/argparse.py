@@ -103,7 +103,7 @@ parser.add_argument("-t", "--timeout", type=float, default=Fetcher.timeout,
                     {'sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async else 'sets the'
                     ' timeout-argument of urllib.request.urlopen'} (default: {Fetcher.timeout} seconds)""")
 parser.add_argument("-md", "--markdown", action="store_true",
-                    help="Generates markdown-output instead of .txt")
+                    help="Generates markdown-output instead of '.txt'")
 
 settings = parser.add_mutually_exclusive_group()
 settings.add_argument("-sa", "--show-appdata", action="store_true",
