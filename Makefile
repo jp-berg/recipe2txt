@@ -1,6 +1,6 @@
 VENV = .venv
-PYTHON = $(VENV)/bin/python
-PIP = $(PYTHON) -m pip
+PYTHON_VENV = $(VENV)/bin/python
+PIP = $(PYTHON_VENV) -m pip
 RE2TXT = -m recipe2txt.re2txt
 
 PY_DEPS = pyproject-build mypy twine  # installable via pip
@@ -31,45 +31,47 @@ get_py = $(or $(call get_path,$(1)), \
 install: $(PACKAGE_WHL) pipx #See EXT_DEPS
 	pipx install $^
 
-release: $(PACKAGE) twine #See PY_DEPS
+release: | $(PACKAGE) twine #See PY_DEPS
 	twine upload $(PACKAGE)
 
-test-all: $(PYTHON)
-	$^ $(TEST4RE2TXT) --format md -i file --long-timeout --delete-database
+test-all: | $(PYTHON_VENV)
+	$^ $(TEST4RE2TXT) --format md -i file --long-timeout --delete-database --number-of-urls -1
 
-test-txt: $(PYTHON)
+test-txt: | $(PYTHON_VENV)
 	$^ $(TEST4RE2TXT) --format txt --delete-database
 
-test-md: $(PYTHON)
+test-md: | $(PYTHON_VENV)
 	$^ $(TEST4RE2TXT) --format md --delete-database
 
-test-synchronous: $(PYTHON)
+test-synchronous: | $(PYTHON_VENV)
 	$^ $(TEST4RE2TXT) --delete-database --connections 1
 
-$(PY_DEPS): # Check if the target is installed, if not try to install it via pip, if that does not work exit
-	@ command -v $@ 1> /dev/null || $(PIP) install $@ || (echo "Program '"$@"' not found and cannot be installed via '" $(PIP) "'" && exit 1)
+$(PY_DEPS): | $(PYTHON_VENV) # Check if the target is installed, if not try to install it via pip, if that does not work exit
+	@ . .venv/bin/activate && command -v $@ 1> /dev/null || $(PIP) install $@ || (echo "Program '"$@"' not found and cannot be installed via '" $(PIP) "'" && exit 1)
 
 $(EXT_DEPS):
 	@ command -v $@ 1> /dev/null || (echo "Program '"$@"' not found" && exit 1)
 
-$(PYTHON): python3 #See EXT_DEPS
-	python3 -m venv $(VENV);
+$(VENV): | python3
+	python3 -m venv $@
+
+$(PYTHON_VENV): | $(VENV) python3 #See EXT_DEPS
 	$(PIP) install -r requirements.txt
 	$(PIP) install -r requirements_performance.txt
 
-check: $(PYTHON) mypy #See PY_DEPS
-	mypy $(RE2TXT) $(TEST4RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $(PYTHON) --strict
+check:  | $(PYTHON_VENV) mypy #See PY_DEPS
+	mypy $(RE2TXT) $(TEST4RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $(PYTHON_VENV) --strict
 
-unittest: check rm #See EXT_DEPS
-	$(PYTHON) -m unittest
+unittest: | check rm #See EXT_DEPS
+	$(PYTHON_VENV) -m unittest
 	rm -rf $(TMP_TESTFILE_DIR) || True
 
-$(PACKAGE): unittest pyproject-build #See PY_DEPS
+$(PACKAGE): | unittest pyproject-build #See PY_DEPS
 	pyproject-build
 
 test: unittest test-all
 
-clean: rm find
+clean: | rm find
 	rm -rf $(ARTIFACTS) || True
 
 uninstall: clean
