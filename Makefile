@@ -22,6 +22,12 @@ TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP))            
 PYCACHE = $(shell find -type d -name '__pycache__')
 ARTIFACTS = $(TMP_TESTFILE_DIR) dist $(TESTFILES)/debug-dirs test/reports_test4recipe2txt recipe2txt.egg-info $(PYCACHE)
 
+get_path = $(shell command -v $(1) 2> /dev/null)
+get_bin = $(or $(call get_path,$(1)), $(error '$(1)' not found in PATH))
+get_py = $(or $(call get_path,$(1)), \
+              $(and $(shell pipx install $(1)), $(call get_path,$(1))), \
+              $(error Could not install '$(1)'))
+
 install: $(PACKAGE_WHL) pipx #See EXT_DEPS
 	pipx install $^
 
