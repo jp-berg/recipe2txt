@@ -16,7 +16,6 @@
 import os
 import sys
 from shutil import rmtree
-from time import strftime, gmtime
 from typing import Final, Tuple, Literal, NamedTuple
 from pathlib import Path
 
