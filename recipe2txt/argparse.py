@@ -32,12 +32,12 @@ except ImportError:
 logger = get_logger(__name__)
 
 
-def arg2str(name: str, obj: object) -> str:
+def arg2str(name: str, args: argparse.Namespace) -> str:
     attr = name
     name = "--" + name.replace("_", "-")
     out: str = name + ": "
     try:
-        val = getattr(obj, attr)
+        val = getattr(args, attr)
         out += str(val)
     except AttributeError:
         out += "NOT FOUND"
