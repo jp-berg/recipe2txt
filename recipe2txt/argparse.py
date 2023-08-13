@@ -44,7 +44,7 @@ def arg2str(name: str, args: argparse.Namespace) -> str:
     return out
 
 
-_ARGNAMES: Final[list[LiteralString]] = [
+ARGNAMES: Final[list[LiteralString]] = [
     "url",
     "file",
     "output",
@@ -62,7 +62,7 @@ _ARGNAMES: Final[list[LiteralString]] = [
 
 
 def args2strs(a: argparse.Namespace) -> list[str]:
-    return [arg2str(name, a) for name in _ARGNAMES]
+    return [arg2str(name, a) for name in ARGNAMES]
 
 
 parser = argparse.ArgumentParser(
