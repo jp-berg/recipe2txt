@@ -33,15 +33,7 @@ logger = get_logger(__name__)
 
 
 def arg2str(name: str, args: argparse.Namespace) -> str:
-    attr = name
-    name = "--" + name.replace("_", "-")
-    out: str = name + ": "
-    try:
-        val = getattr(args, attr)
-        out += str(val)
-    except AttributeError:
-        out += "NOT FOUND"
-    return out
+    return f"--{name.replace('_', '-')}: {getattr(args, name, 'NOT FOUND')}"
 
 
 ARGNAMES: Final[list[LiteralString]] = [
