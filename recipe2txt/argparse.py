@@ -56,7 +56,6 @@ _ARGNAMES: Final[list[LiteralString]] = [
     "timeout",
     "markdown",
     "user_agent",
-    "show_files",
     "erase_appdata",
     "standard_output_file"
 ]
@@ -66,10 +65,20 @@ def args2strs(a: argparse.Namespace) -> list[str]:
     return [arg2str(name, a) for name in _ARGNAMES]
 
 
-parser = argparse.ArgumentParser(
+class FileListingArgParse(argparse.ArgumentParser):
+    def format_help(self) -> str:
+        help_msg = super().format_help()
+        files = get_files()
+        files.sort()
+        files_str = os.linesep + os.linesep.join(files) if files else " none"
+        help_msg += os.linesep + "Program files:" + files_str + os.linesep
+        return help_msg
+
+
+parser = FileListingArgParse(
     prog=PROGRAM_NAME,
     description="Scrapes URLs of recipes into text files",
-    epilog="[NI] = 'Not implemented (yet)'"
+    epilog=f"[NI] = 'Not implemented (yet)'"
 )
 
 parser.add_argument("-u", "--url", nargs='+', default=[],
@@ -100,7 +109,7 @@ parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default
 parser.add_argument("-d", "--debug", action="store_true",
                     help="Activates debug-mode: Changes the directory for application data")
 parser.add_argument("-t", "--timeout", type=float, default=Fetcher.timeout,
-                    help=f""" Sets the number of seconds the program waits for an individual website to respond , eg. 
+                    help=f"""Sets the number of seconds the program waits for an individual website to respond, eg. 
                     {'sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async else 'sets the'
                     ' timeout-argument of urllib.request.urlopen'} (default: {Fetcher.timeout} seconds)""")
 parser.add_argument("-md", "--markdown", action="store_true",
@@ -110,10 +119,8 @@ parser.add_argument("-ua", "--user-agent", default=Fetcher.user_agent,
                          f" (default: '{Fetcher.user_agent}')")
 
 settings = parser.add_mutually_exclusive_group()
-settings.add_argument("-sa", "--show-appdata", action="store_true",
-                      help="Shows data- and cache-files used by this program")
 settings.add_argument("-erase", "--erase-appdata", action="store_true",
-                      help="Erases all data- and cache-files used by this program")
+                      help="Erases all data- and cache-files used by this program (see 'Program files' below)")
 settings.add_argument("-do", "--default-output-file", default="",
                       help="Sets a file where recipes should be written to if no" +
                            " output-file is explicitly passed via '-o' or '--output'." +
@@ -126,9 +133,7 @@ def mutex_args_check(a: argparse.Namespace) -> None:
     if len(sys.argv) > 2:
 
         flag_name: str = ""
-        if a.show_appdata:
-            flag_name = "--show-appdata"
-        elif a.erase_appdata:
+        if a.erase_appdata:
             flag_name = "--erase-appdata"
         elif a.default_output_file:
             if len(sys.argv) > 3:
@@ -139,15 +144,10 @@ def mutex_args_check(a: argparse.Namespace) -> None:
 
 
 def mutex_args(a: argparse.Namespace) -> None:
-    if not (a.show_appdata or a.erase_appdata or a.default_output_file):
+    if not (a.erase_appdata or a.default_output_file):
         return
     mutex_args_check(a)
-    if a.show_appdata:
-        if files := get_files():
-            print(os.linesep.join(files))
-        else:
-            logger.warning("No files found")
-    elif a.erase_appdata:
+    if a.erase_appdata:
         erase_files()
     elif a.default_output_file:
         if a.default_output_file != "RESET":
