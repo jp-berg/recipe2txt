@@ -225,12 +225,9 @@ class Database:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore
                 if logger.isEnabledFor(logging.INFO):
-                    replaced_list = [f"\t{attr}: {head_str(old_val)} => {head_str(new_val)}"
-                                     for attr, old_val, new_val, is_replaced in
-                                     zip(RECIPE_ATTRIBUTES, old_row, new_row, updated)
-                                     if is_replaced]
-                    replaced = linesep + linesep.join(replaced_list)
-                    logger.info("Updated %s: %s", recipe.url, replaced)
+                    for attr, old_val, new_val, is_replaced in zip(RECIPE_ATTRIBUTES, old_row, new_row, updated):
+                        if is_replaced:
+                            logger.info("%s: %s => %s", attr, head_str(old_val), head_str(new_val))
                 self.replace_recipe(r)
             else:
                 r = Recipe(*merged_row)  # type: ignore
