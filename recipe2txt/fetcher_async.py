@@ -56,7 +56,7 @@ class AsyncFetcher(AbstractFetcher):
                         self.html2db(url, html)
                         continue
                     except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError) as e:
-                        logger.error("Unable to reach website:", exc_info=e)
+                        logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:
                         if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
                             raise e
