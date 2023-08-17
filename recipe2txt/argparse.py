@@ -12,7 +12,18 @@
 #
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
+"""
+Module for processing commandline-arguments.
 
+Responsible for extracting relevant parameters from the command line arguments, doing basic checking for correctness and
+constructing a :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher` from them.
+    Attributes:
+        logger (logging.Logger): The logger for the module. Receives the constructed logger from
+            :py:mod:`recipe2txt.utils.ContextLogger`
+        ARGNAMES (Final[list[LiteralString]]): The names of all CLI-flags :py:data:`parser` is configured to check.
+        parser (argparse.ArgumentParser): The argument parser used by this program
+
+"""
 import argparse
 import logging
 import os
@@ -30,9 +41,23 @@ except ImportError:
     from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
 
 logger = get_logger(__name__)
+"""The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
 
 
 def arg2str(name: str, args: argparse.Namespace) -> str:
+    """
+    Creates a string representation of a CLI-flag-argument pair.
+
+    Extracts the argument described by :py:obj:`name` from :py:obj:`args` and either returns a string representation of
+    the name and the argument or name and 'NOT FOUND' if the argument is not set.
+    Args:
+        name (): The argparse-attribute name
+        args (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+
+    Returns:
+        A string of the format '--name: argument'
+
+    """
     return f"--{name.replace('_', '-')}: {getattr(args, name, 'NOT FOUND')}"
 
 
@@ -51,9 +76,20 @@ ARGNAMES: Final[list[LiteralString]] = [
     "erase_appdata",
     "standard_output_file"
 ]
+"""The names of all CLI-flags :py:data:`parser` is configured to check."""
 
 
 def args2strs(a: argparse.Namespace) -> list[str]:
+    """
+    Converts all possible CLI-flags :py:mod:`argparse will check for and their values for this run to a list of strings.
+
+    Args:
+        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+
+    Returns:
+        A list of all 'stringified' flags and their values
+
+    """
     return [arg2str(name, a) for name in ARGNAMES]
 
 
@@ -62,6 +98,7 @@ parser = argparse.ArgumentParser(
     description="Scrapes URLs of recipes into text files",
     epilog="[NI] = 'Not implemented (yet)'"
 )
+"""The argument parser used by this program."""
 
 parser.add_argument("-u", "--url", nargs='+', default=[],
                     help="URLs whose recipes should be added to the recipe-file")
@@ -108,6 +145,14 @@ settings.add_argument("-do", "--default-output-file", default="",
 
 
 def mutex_args_check(a: argparse.Namespace) -> None:
+    """
+    Verifies that only one of the mutual exclusive flags is set.
+
+    Those flags, namely '--show-appdata', '--erase-appdata' and '--default-output-file', do not influence a normal run
+    of the program, but help review and configure the default options and data.
+    Args:
+        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+    """
     if len(sys.argv) > 2:
 
         flag_name: str = ""
@@ -124,6 +169,12 @@ def mutex_args_check(a: argparse.Namespace) -> None:
 
 
 def mutex_args(a: argparse.Namespace) -> None:
+    """
+    Processes the mutual exclusive flags (see :py:func:`mutex_args_check`)
+
+    Args:
+        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+    """
     if not (a.show_appdata or a.erase_appdata or a.default_output_file):
         return
     mutex_args_check(a)
@@ -143,6 +194,13 @@ def mutex_args(a: argparse.Namespace) -> None:
 
 
 def sancheck_args(a: argparse.Namespace, output: File) -> None:
+    """
+    Responsible for quickly verifying that certain flags contain valid values.
+
+    Args:
+        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        output (): The output file the recipes will be written to.
+    """
     if not (a.file or a.url):
         parser.error("Nothing to process: No file or url passed")
     if a.connections < 1:
@@ -165,6 +223,19 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
 
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
+    """
+    Responsible for  using the CLI-flags to construct a valid :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`
+
+    Args:
+        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+
+    Returns:
+        A tuple of:
+            A set of all possible urls gathered from the CLI-arguments.
+            An :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`, initialized with the validated parameters
+            gathered from :py:mod:`argparse`
+
+    """
     db_file, recipe_file, log_file = file_setup(a.debug, a.output, a.markdown)
     root_log_setup(string2level[a.verbosity], str(log_file))
     if logger.isEnabledFor(logging.DEBUG):
