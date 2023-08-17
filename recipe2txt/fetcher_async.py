@@ -17,22 +17,17 @@ import asyncio
 from typing import Literal
 import aiohttp
 from recipe2txt.utils.misc import URL
-from recipe2txt.fetcher_abstract import AbstractFetcher
+from recipe2txt.fetcher import Fetcher
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 
 logger = get_logger(__name__)
 
 
-class AsyncFetcher(AbstractFetcher):
+class AsyncFetcher(Fetcher):
     is_async: Literal[True] = True
 
-    def fetch(self, urls: set[URL]) -> None:
-        urls = super().require_fetching(urls)
-        if urls:
-            logger.info("--- Fetching missing recipes ---")
-            asyncio.run(self._fetch(urls))
-        lines = self.gen_lines()
-        self.write(lines)
+    def fetch_urls(self, urls: set[URL]) -> None:
+        asyncio.run(self._fetch(urls))
 
     async def _fetch(self, urls: set[URL]) -> None:
         q: asyncio.queues.Queue[URL] = asyncio.Queue()

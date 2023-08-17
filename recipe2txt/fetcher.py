@@ -13,20 +13,21 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
-Contains the AbstractFetcher-class and an Enum to support that class
+Contains the Fetcher-class and an Enum to support that class
 
 Attributes:
     logger (logging.Logger): The logger for the module. Receives the constructed logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
 """
+import urllib.request
+import urllib.error
 from os import linesep
 
-from recipe2txt.utils.ContextLogger import get_logger
+from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 from recipe2txt.utils.misc import URL, File, Counts
 import recipe2txt.sql as sql
 import recipe2txt.html2recipe as h2r
 from recipe2txt.utils.markdown import *
-from abc import ABC, abstractmethod
 from recipe2txt.utils.conditional_imports import StrEnum
 
 logger = get_logger(__name__)
@@ -42,14 +43,14 @@ class Cache(StrEnum):
     new = "new"
 
 
-class AbstractFetcher(ABC):
+class Fetcher:
     """
     Responsible for obtaining missing urls from the web and writing them to a file.
 
     Class Variables:
-        is_async(bool): Whether the subclass is asynchronous regarding fetching the urls from the internet.
+        is_async(bool): Whether the class is asynchronous regarding fetching the urls from the internet.
     """
-    is_async: bool
+    is_async: bool = False
 
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
@@ -122,16 +123,47 @@ class AbstractFetcher(ABC):
         self.counts.require_fetching += len(urls)
         return urls
 
-    @abstractmethod
-    def fetch(self, urls: set[URL]) -> None:
+    def fetch_urls(self, urls: set[URL]) -> None:
         """
-        Retrieves the recipes corresponding to the URLs from the web.
+        Fetches the missing URLs from the web and writes the results to the database.
 
         Args:
-            urls (): The URLs to be retrieved.
+            urls (): The URLs from which the method retrieves the recipes
         """
-        raise NotImplementedError("Do not use AbstractFetcher directly,"
-                                  " use a subclass that implements the 'fetch'-method")
+        for url in urls:
+            with QCM(logger, logger.info, "Fetching %s", url):
+                html = None
+                try:
+                    html = urllib.request.urlopen(url, timeout=self.timeout).read()
+                except urllib.error.HTTPError as e:
+                    logger.error("Connection Error: ", exc_info=e)
+                except (TimeoutError, urllib.error.URLError) as e:
+                    logger.error("Unable to reach Website: ", exc_info=e)
+                except Exception as e:
+                    if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
+                        raise e
+                    logger.error("Error: ", exc_info=e)
+
+                if html:
+                    self.html2db(url, html)
+                else:
+                    self.db.insert_recipe_unreachable(url)
+
+    def fetch(self, urls: set[URL]) -> None:
+        """
+        Gather the recipes and write them to :py:attr:`output`.
+
+        The urls will be filtered according to the caching-strategy. Recipes that cannot be obtained from cache will
+        be retrieved from the web. The recipes will be formatted and then written to the output-file.
+        Args:
+            urls (): The urls corresponding to the recipes that should be written to the output-file
+        """
+        urls = self.require_fetching(urls)
+        if urls:
+            logger.info("--- Fetching missing recipes ---")
+            self.fetch_urls(urls)
+        lines = self.gen_lines()
+        self.write(lines)
 
     def gen_lines(self) -> list[str]:
         """

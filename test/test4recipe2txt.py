@@ -189,7 +189,7 @@ def main() -> None:
         current_error_dir = max(ERROR_DIR.iterdir(), key=os.path.getctime)
         copy_testrun_data(current_error_dir, report_dir, start_time)
 
-    urls_to_write = test_urls + urls[no_urls:]
+    urls_to_write = urls[no_urls:] + test_urls
     URLS_SHUFFLED.write_text(os.linesep.join(urls_to_write))
 
     if test_project_tmpdir.is_dir():

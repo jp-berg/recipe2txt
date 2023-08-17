@@ -30,7 +30,7 @@ import os
 import sys
 from typing import Final, Tuple
 from recipe2txt.utils.conditional_imports import LiteralString
-from recipe2txt.fetcher_abstract import Cache
+from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
 from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File
@@ -38,7 +38,7 @@ from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
 except ImportError:
-    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
+    from recipe2txt.fetcher import Fetcher as Fetcher  # type: ignore
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
