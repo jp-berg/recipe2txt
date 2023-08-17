@@ -15,6 +15,7 @@
 
 import os
 import sys
+import textwrap
 from shutil import rmtree
 from typing import Final, Tuple, Literal, NamedTuple
 from pathlib import Path
@@ -130,19 +131,19 @@ def set_default_output(filepath: str | Literal["RESET"], debug: bool = False) ->
         logger.warning(f"Set default output location to {path_txt}, {path_md}")
 
 
-how_to_report_txt: Final[LiteralString] = \
+how_to_report_txt: Final[LiteralString] = textwrap.dedent(
     """During its execution the program encountered errors while trying to scrape recipes.
-In cases where the error seems to originate from the underlying library 'recipe-scrapers' an error-report per error
-has been generated and saved to a file.
-You find those files in the folders adjacent to this file. There is one folder per error-encountering excecution of the
-program (naming format: 'Year-Month-Day_Hour-Minute-Second' when finishing execution).
-If you want those errors fixed, go to 'https://github.com/hhursev/recipe-scrapers/issues' and search for each
-filename (without the '.md'-extension). If you cannot find a matching report for a filename, please click 'New Issue'
-and select 'Scraper Bug Report'. Paste the filename (without the '.md'-extension) into the 'Title'-Field and the
-contents of the file into the 'Write'-field. Check the 'Pre-filling  checks'-boxes ONLY if you made sure to follow
-their instructions. After that click 'Submit new issue'. The maintainers of the library will have a look at your
-problem and try to fix it. Please note that they are volunteers and under no obligation to help you. Be kind to them.
-"""
+    In cases where the error seems to originate from the underlying library 'recipe-scrapers' an error-report per error
+    has been generated and saved to a file.
+    You find those files in the folders adjacent to this file. There is one folder per error-encountering excecution of
+    the program (naming format: 'Year-Month-Day_Hour-Minute-Second' when finishing execution). If you want those errors
+    fixed, go to 'https://github.com/hhursev/recipe-scrapers/issues' and search for each filename (without the 
+    '.md'-extension). If you cannot find a matching report for a filename, please click 'New Issue' and select 'Scraper 
+    Bug Report'. Paste the filename (without the '.md'-extension) into the 'Title'-Field and the contents of the file
+    into the 'Write'-field. Check the 'Pre-filling  checks'-boxes ONLY if you made sure to follow their instructions. 
+    After that click 'Submit new issue'. The maintainers of the library will have a look at your problem and try to fix
+    it. Please note that they are volunteers and under no obligation to help you. Be kind to them.
+    """)
 
 
 def write_errors(debug: bool = False) -> int:
