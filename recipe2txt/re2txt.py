@@ -12,7 +12,9 @@
 #
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
-
+"""
+Entry point of the program.
+"""
 import sys
 import os
 from logging import DEBUG
