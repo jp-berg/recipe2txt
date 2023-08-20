@@ -50,15 +50,20 @@ class Fetcher:
     Class Variables:
         is_async(bool): Whether the class is asynchronous regarding fetching the urls from the internet.
     """
-    is_async: bool = False
+    is_async: bool
+    connections: int = 1
+    timeout: float = 10.0
+    user_agent: str = \
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0"
 
     def __init__(self, output: File,
                  database: sql.AccessibleDatabase,
                  counts: Counts = Counts(),
-                 timeout: float = 10.0,
-                 connections: int = 1,
+                 timeout: float | None = None,
+                 connections: int | None = None,
                  markdown: bool = False,
-                 cache: Cache = Cache.default) -> None:
+                 cache: Cache = Cache.default,
+                 user_agent: str | None = None) -> None:
         """
         Initializes the Fetcher-class.
 
@@ -70,14 +75,16 @@ class Fetcher:
             connections (): The maximum number of simultaneous connections the Fetcher is allowed to make
             markdown (): Whether the output-file is formatted in Markdown
             cache (): How the cache should be used
+            user_agent (): The user-agent for making http-requests
         """
         self.output: File = output
         self.counts: Counts = counts
-        self.timeout: float = timeout
-        self.connections: int = connections
+        self.timeout: float = timeout if timeout else self.timeout
+        self.connections: int = connections if connections else self.connections
         self.db: sql.Database = sql.Database(database, output)
         self.markdown = markdown
         self.cache = cache
+        self.user_agent = user_agent if user_agent else self.user_agent
 
     def get_counts(self) -> Counts:
         return self.counts

@@ -5,8 +5,9 @@ RE2TXT = -m recipe2txt.re2txt
 
 PY_DEPS = pyproject-build mypy twine  # installable via pip
 EXT_DEPS = python3 pipx rm find      # not installable via pip
+REMOVE = rm --recursive --preserve-root=all --dir --force
 
-PACKAGE_VERSION = $(shell $(PYTHON) -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+PACKAGE_VERSION = $(shell python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
 PACKAGE_WHL = dist/recipe2txt-$(PACKAGE_VERSION)-py3-none-any.whl
 PACKAGE_TAR = dist/recipe2txt-$(PACKAGE_VERSION).tar.gz
 PACKAGE = $(PACKAGE_WHL) $(PACKAGE_TAR)
@@ -21,6 +22,7 @@ TESTFILE_PERMANENT_MODULES = $(subst /,., $(TESTFILE_PERMANENT_TMP))            
 
 PYCACHE = $(shell find -type d -name '__pycache__')
 ARTIFACTS = $(TMP_TESTFILE_DIR) dist $(TESTFILES)/debug-dirs test/reports_test4recipe2txt recipe2txt.egg-info $(PYCACHE)
+
 
 install: $(PACKAGE_WHL) pipx #See EXT_DEPS
 	pipx install $^
@@ -54,9 +56,9 @@ $(PYTHON): python3 #See EXT_DEPS
 check: $(PYTHON) mypy #See PY_DEPS
 	mypy $(RE2TXT) $(TEST4RE2TXT) $(TESTFILE_PERMANENT_MODULES) -m test.test_helpers --python-executable $(PYTHON) --strict
 
-unittest: mypy rm #See PY_DEPS EXT_DEPS
+unittest: check rm #See EXT_DEPS
 	$(PYTHON) -m unittest
-	rm -rf $(TMP_TESTFILE_DIR) || True
+	- rm -rf $(TMP_TESTFILE_DIR)
 
 $(PACKAGE): unittest pyproject-build #See PY_DEPS
 	pyproject-build
@@ -64,9 +66,9 @@ $(PACKAGE): unittest pyproject-build #See PY_DEPS
 test: unittest test-all
 
 clean: rm find
-	rm -rf $(ARTIFACTS) || True
+	$(REMOVE) $(ARTIFACTS)
 
 uninstall: clean
-	rm -rf $(VENV)
+	$(REMOVE) $(VENV)
 
 .PHONY: test

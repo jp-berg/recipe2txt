@@ -25,6 +25,7 @@ logger = get_logger(__name__)
 
 class AsyncFetcher(Fetcher):
     is_async: Literal[True] = True
+    connections = 4
 
     def fetch_urls(self, urls: set[URL]) -> None:
         asyncio.run(self._fetch(urls))
@@ -38,7 +39,7 @@ class AsyncFetcher(Fetcher):
         await(asyncio.gather(*tasks))
 
     async def _fetch_task(self, url_queue: asyncio.queues.Queue[URL], timeout: aiohttp.client.ClientTimeout) -> None:
-        async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with aiohttp.ClientSession(timeout=timeout, headers={"User-Agent" : self.user_agent}) as session:
             while not url_queue.empty():
                 url = await url_queue.get()
                 with QCM(logger, logger.info, "Fetching %s", url, defer_emit=True):
@@ -50,7 +51,7 @@ class AsyncFetcher(Fetcher):
                         self.html2db(url, html)
                         continue
                     except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError) as e:
-                        logger.error("Unable to reach website:", exc_info=e)
+                        logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:
                         if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
                             raise e
