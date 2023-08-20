@@ -48,8 +48,6 @@ class AsyncFetcher(Fetcher):
                         async with session.get(url) as response:
                             html = await response.text()
                         self.counts.reached += 1
-                        self.html2db(url, html)
-                        continue
                     except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError) as e:
                         logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:
