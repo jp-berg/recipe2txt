@@ -91,7 +91,7 @@ class Fetcher:
             html (): The website of the recipe as HTML
         """
         if p := h2r.html2parsed(url, html):
-            r = h2r.parsed2recipe(url, p)
+            r = h2r.parsed2recipe(p)
             self.db.insert_recipe(r, self.cache == Cache.new)
         else:
             self.db.insert_recipe_unknown(url)

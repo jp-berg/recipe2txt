@@ -26,7 +26,7 @@ from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoun
 from recipe2txt.utils.markdown import *
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
 from recipe2txt.utils.traceback_utils import get_shared_frames, format_stacks
-from recipe2txt.utils.misc import URL, dict2str, Counts
+from recipe2txt.utils.misc import URL, dict2str, Counts, is_url
 from recipe2txt.utils.conditional_imports import LiteralString
 
 logger = get_logger(__name__)
@@ -46,6 +46,9 @@ class RecipeStatus(IntEnum):
     COMPLETE = 5
 
 
+DUMMY_URL: Final[URL] = URL("https://notinitialized.no")
+
+
 class Recipe(NamedTuple):
     ingredients: str = NA
     instructions: str = NA
@@ -55,7 +58,7 @@ class Recipe(NamedTuple):
     host: str = NA
     image: str = NA
     nutrients: str = NA
-    url: URL = URL("https://notinitialized.no")
+    url: URL = DUMMY_URL
     status: RecipeStatus = RecipeStatus.NOT_INITIALIZED
     scraper_version: str = '-1'
 
@@ -200,6 +203,15 @@ def errors2str() -> list[tuple[str, str]]:
 
 
 contains_alphanumeric = re.compile("\w")
+def get_url(parsed: Parsed) -> URL:
+    if parsed.url:
+        if is_url(parsed.url):
+            return parsed.url
+        else:
+            logger.error("Not an URL: %s", parsed.url)
+    else:
+        logger.error("No URL for parsed data")
+    return DUMMY_URL
 
 def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
@@ -252,7 +264,7 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
     try:
         info = getattr(data, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
-        handle_parsing_error(url, e, method_name, log)
+        handle_parsing_error(get_url(data), e, method_name, log)
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
     except Exception as e:
@@ -282,16 +294,16 @@ def gen_status(infos: list[str]) -> RecipeStatus:
     return RecipeStatus.COMPLETE
 
 
-def parsed2recipe(url: URL, parsed: Parsed) -> Recipe:
+def parsed2recipe(parsed: Parsed) -> Recipe:
     logger.info("Parsing HTML")
     infos = []
     for method in METHODS:
-        info = _get_info(method, parsed, url)
+        info = get_info(method, parsed)
         info_str = info2str(method, info)
         infos.append(info_str)
 
     status = gen_status(infos)
-    recipe = Recipe(url=url, status=status, scraper_version=SCRAPER_VERSION,
+    recipe = Recipe(url=get_url(parsed), status=status, scraper_version=SCRAPER_VERSION,
                     ingredients=infos[0], instructions=infos[1],
                     title=infos[2], total_time=infos[3], yields=infos[4],
                     host=infos[5], image=infos[6], nutrients=infos[7])
