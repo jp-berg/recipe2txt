@@ -202,7 +202,6 @@ def errors2str() -> list[tuple[str, str]]:
     return reports
 
 
-contains_alphanumeric = re.compile("\w")
 def get_url(parsed: Parsed) -> URL:
     if parsed.url:
         if is_url(parsed.url):
@@ -212,6 +211,10 @@ def get_url(parsed: Parsed) -> URL:
     else:
         logger.error("No URL for parsed data")
     return DUMMY_URL
+
+
+_contains_alphanumeric = re.compile("\w")
+
 
 def info2str(method: str, info: Any) -> str:
     log = logger.error if method in ON_DISPLAY else logger.warning
@@ -247,7 +250,7 @@ def info2str(method: str, info: Any) -> str:
             elif isinstance(info, list):
                 info = linesep.join(info)
                 unexpected_type = False
-    info = info if info and contains_alphanumeric.search(info) else None
+    info = info if info and _contains_alphanumeric.search(info) else None
     if not info or info.isspace() or info == "None":
         log("%s contains nothing", method_name.capitalize())
         return NA
