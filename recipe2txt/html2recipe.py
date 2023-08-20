@@ -267,9 +267,9 @@ def get_info(method: str, parsed: Parsed) -> Any:
 
     info = None
     try:
-        info = getattr(data, method)()
+        info = getattr(parsed, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
-        handle_parsing_error(get_url(data), e, method_name, log)
+        handle_parsing_error(get_url(parsed), e, method_name, log)
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
     except Exception as e:
