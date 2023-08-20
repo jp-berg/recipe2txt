@@ -261,7 +261,7 @@ def info2str(method: str, info: Any) -> str:
     return str(info)
 
 
-def _get_info(method: str, data: Parsed, url: URL) -> Any:
+def get_info(method: str, parsed: Parsed) -> Any:
     log = logger.error if method in ON_DISPLAY else logger.warning
     method_name = method.replace("_", " ")
 
