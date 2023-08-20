@@ -265,7 +265,7 @@ def get_info(method: str, parsed: Parsed) -> Any:
     log = logger.error if method in ON_DISPLAY else logger.warning
     method_name = method.replace("_", " ")
 
-    info = None
+    info = NA
     try:
         info = getattr(parsed, method)()
     except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
@@ -277,7 +277,7 @@ def get_info(method: str, parsed: Parsed) -> Any:
             raise e
         log("Extraction error for attribute %s:", method_name, exc_info=e)
 
-    return info if info else NA
+    return info
 
 
 def gen_status(infos: list[str]) -> RecipeStatus:
