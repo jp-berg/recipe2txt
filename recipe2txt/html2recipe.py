@@ -221,7 +221,9 @@ def info2str(method: str, info: Any) -> str:
     unexpected_type = True
     method_name = method.replace("_", " ")
 
-    if isinstance(info, (int, float)):
+    if info is NA:
+        return NA
+    elif isinstance(info, (int, float)):
         info = None if info == 0 else str(info)
         unexpected_type = False
     elif info:
