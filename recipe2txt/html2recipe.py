@@ -275,9 +275,6 @@ def _get_info(method: str, data: Parsed, url: URL) -> Any:
     return info if info else NA
 
 
-BETWEEN_RECIPES: Final[str] = linesep * 5
-
-
 def gen_status(infos: list[str]) -> RecipeStatus:
     if len(infos) > len(METHODS):
         raise ValueError("This function only analyzes attributes contained in html2recipe.methods." +
@@ -342,7 +339,7 @@ def _re2txt(recipe: Recipe) -> list[str]:
            recipe.instructions.replace(linesep, linesep * 2),
            linesep * 2,
            "from: " + recipe.url,
-           BETWEEN_RECIPES]
+           linesep*5]
     return txt
 
 
