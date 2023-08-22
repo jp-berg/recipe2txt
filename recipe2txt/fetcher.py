@@ -210,5 +210,8 @@ class Fetcher:
             lines (): The lines to be written
         """
         logger.info("--- Writing to output ---")
-        logger.info("Writing to %s", self.output)
-        self.output.write_text("".join(lines))
+        if lines:
+            logger.info("Writing to %s", self.output)
+            self.output.write_text("".join(lines))
+        else:
+            logger.warning("Nothing to write")
