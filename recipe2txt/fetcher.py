@@ -134,6 +134,10 @@ class Fetcher:
         """
         Fetches the missing URLs from the web and writes the results to the database.
 
+        While using one function to fetch the webpages and another to send the collected data to the database might make
+        for simpler functions, it was deemed more important to save each recipe to disk as soon as possible. This is
+        preferred, because fetching recipes is so expensive in terms of time. Writing to disk early saves time in
+        case of an early termination of the program, since the collected data can be fetched from disk on the next run.
         Args:
             urls (): The URLs from which the method retrieves the recipes
         """
