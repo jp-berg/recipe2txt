@@ -558,20 +558,20 @@ def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False
         return _re2txt(recipe)
 
 
-def html2parsed(url: URL, content: str) -> Optional[Parsed]:
+def html2parsed(url: URL, html: str) -> Optional[Parsed]:
     """
     Parses the HTML of the recipe-website.
 
     Uses :py:mod:`recipe_scrapers to handle the parsing.
     Args:
         url (): The URL the HTML was extracted from
-        content (): The HTML of the recipe-website
+        html (): The HTML of the recipe-website
 
     Returns:
         The parsed data if the recipe could be extracted or 'None' if there was a failure
     """
     try:
-        parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=content, org_url=url))
+        parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=html, org_url=url))
     except (WebsiteNotImplementedError,
             NoSchemaFoundInWildMode):
         logger.error("Unknown Website. Extraction not supported")
