@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
-Contains the Fetcher-class and an Enum to support that class
+Contains the Fetcher-class and an Enum to support that class.
 
 Attributes:
     logger (logging.Logger): The logger for the module. Receives the constructed logger from
@@ -68,14 +68,14 @@ class Fetcher:
         Initializes the Fetcher-class.
 
         Args:
-            output (): Write-destination of the obtained recipes
-            database (): The database that stores the recipes and where they have been written to (the cache)
-            counts (): For gathering statistics
-            timeout (): Maximum waiting time for a response from a server
-            connections (): The maximum number of simultaneous connections the Fetcher is allowed to make
-            markdown (): Whether the output-file is formatted in Markdown
-            cache (): How the cache should be used
-            user_agent (): The user-agent for making http-requests
+            output: Write-destination of the obtained recipes
+            database: The database that stores the recipes and where they have been written to (the cache)
+            counts: For gathering statistics
+            timeout: Maximum waiting time for a response from a server
+            connections: The maximum number of simultaneous connections the Fetcher is allowed to make
+            markdown: Whether the output-file is formatted in Markdown
+            cache: How the cache should be used
+            user_agent: The user-agent for making http-requests
         """
         self.output: File = output
         self.counts: Counts = counts
@@ -94,8 +94,8 @@ class Fetcher:
         Turns the HTML into a :py:class:`recipe2txt.html2recipe.Recipe` and stores it in the database.
 
         Args:
-            url (): The URL of the recipe
-            html (): The website of the recipe as HTML
+            url: The URL of the recipe
+            html: The website of the recipe as HTML
         """
         if p := h2r.html2parsed(url, html):
             r = h2r.parsed2recipe(p)
@@ -112,8 +112,9 @@ class Fetcher:
             incomplete.
             2.only: Do not fetch any recipes, only use the information already in the database
             3.new: Fetch recipes from all URLs, regardless of their state in the database
+
         Args:
-            urls (): The URLs, whose recipes should be written to the final file.
+            urls: The URLs, whose recipes should be written to the final file.
 
         Returns:
             The URLs that the class needs to retrieve from the web according to the cache-usage-strategy
@@ -138,8 +139,9 @@ class Fetcher:
         for simpler functions, it was deemed more important to save each recipe to disk as soon as possible. This is
         preferred, because fetching recipes is so expensive in terms of time. Writing to disk early saves time in
         case of an early termination of the program, since the collected data can be fetched from disk on the next run.
+
         Args:
-            urls (): The URLs from which the method retrieves the recipes
+            urls: The URLs from which the method retrieves the recipes
         """
         for url in urls:
             with QCM(logger, logger.info, "Fetching %s", url):
@@ -166,8 +168,9 @@ class Fetcher:
 
         The urls will be filtered according to the caching-strategy. Recipes that cannot be obtained from cache will
         be retrieved from the web. The recipes will be formatted and then written to the output-file.
+
         Args:
-            urls (): The urls corresponding to the recipes that should be written to the output-file
+            urls: The urls corresponding to the recipes that should be written to the output-file
         """
         urls = self.require_fetching(urls)
         if urls:
@@ -182,6 +185,7 @@ class Fetcher:
 
         The method obtains the recipes corresponding to :py:attr:`output` from the database, formats them according to
         :py:attr:`markdown` and then concatenates the resulting lines.
+
         Returns:
             A list, where each item represents a line of the final recipe file
         """
@@ -210,8 +214,9 @@ class Fetcher:
     def write(self, lines: list[str]) -> None:
         """
         Writes the recipe to :py:attr`output`.
+
         Args:
-            lines (): The lines to be written
+            lines: The lines to be written
         """
         logger.info("--- Writing to output ---")
         if lines:

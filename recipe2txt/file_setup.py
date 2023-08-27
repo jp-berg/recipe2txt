@@ -19,22 +19,21 @@ Attributes:
     logger (logging.Logger): The logger for the module. Receives the constructed logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
     default_dirs (Final[ProgramDirectories]): Specifies the paths the program will use during normal operation for
-    storage of data, configuration-files and state. The specified paths try to adhere to the XDG Base Directory
-    Specification
+        storage of data, configuration-files and state. The specified paths try to adhere to the XDG Base Directory
+        Specification
     DEBUG_DIRECTORY_BASE (Final[Path]): Specifies the root directory for all files used by this program when the
-    '--debug'-flag is set.
+        '--debug'-flag is set.
     debug_dirs (Final[ProgramDirectories]): Specifies the paths the program will use when the '--debug'-flag is set.
     The directories (data, config, state) mirror their :py:data:`default-dirs` counterparts in function.
     LOG_NAME (Final[LiteralString]): name of the log-file the loggers of this program will write to
     DB_NAME (Final[LiteralString]): name of the sqlite-database-file used by this program
-    RECIPES_NAME (Final[LiteralString]): name of the default output-file all the collected recipes will be written
-    to
+    RECIPES_NAME (Final[LiteralString]): name of the default output-file all the collected recipes will be written to
     DEFAULT_URLS_NAME (Final[LiteralString]): name of the default file that the urls will be read from (if no other
-    urls are specified via CLI-arguments
+        urls are specified via CLI-arguments
     DEFAULT_OUTPUT_LOCATION_NAME (Final[LiteralString]): name of the config-file used to store the default
-    output-location
+        output-location
     how_to_report_txt (Final[LiteralString]): help-text describing how to report errors arising from the external
-    :py:mod:`recipe-scrapers`
+        :py:mod:`recipe-scrapers`
 """
 import os
 import sys
@@ -110,16 +109,18 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
     Initializes all files that the program will need to read from and write to.
 
     Args:
-        debug (): Whether the default- or the debug-directories should be used
-        output (): Where the recipes should be written to (will use the location provided by
+        debug: Whether the default- or the debug-directories should be used
+        output: Where the recipes should be written to (will use the location provided by
         :py:data:`DEFAULT_OUTPUT_LOCATION_NAME' if not set or fallback to the current working directory if nothing is
         configured
-        markdown ():Whether the output-file is a plain text- or a Markdown-file
+        markdown: hether the output-file is a plain text- or a Markdown-file
+
     Returns:
         A tuple consisting of the path to (1) the database, (2) the output-file and (3) the log-file the program will
         use.
+
     Raises:
-        SystemExit (): When one of the files cannot be created/accessed by the program.
+        SystemExit: When one of the files cannot be created/accessed by the program.
     """
     directory = debug_dirs if debug else default_dirs
 
@@ -139,7 +140,8 @@ def get_files(debug: bool = False) -> list[str]:
     Lists all program files.
 
     Args:
-        debug (): Only list the files in the debug directories
+        debug: Only list the files in the debug directories
+
     Returns:
         A list of absolute paths pointing towards all the program files
     """
@@ -155,7 +157,7 @@ def erase_files(debug: bool = False) -> None:
     Deletes the data-, config- and state-directories used by this program (and thus the program files).
 
     Args:
-        debug (): Only delete the debug-version of those directories.
+        debug: Only delete the debug-version of those directories.
     """
     directories = list(debug_dirs)
     directories = directories if debug else directories + list(default_dirs)
@@ -171,13 +173,16 @@ def get_default_output(config_path: Path, markdown: bool) -> File:
     Get the file that the program should write recipes to when no file has been specified by the CLI-arguments.
 
     This is either a file preconfigured by the user or a file in the currend working directory.
+
     Args:
-        config_path (): The path to the programs configuration files
-        markdown (): Whether the file should be a txt- or a markdown-file
+        config_path: The path to the programs configuration files
+        markdown: Whether the file should be a txt- or a markdown-file
+
     Returns:
         A path to an existing file to write recipes to.
+
     Raises:
-        SystemExit (): Raised, when the :py:data:`DEFAULT_OUTPUT_LOCATION_NAME`-file is not in the correct format or
+        SystemExit: Raised, when the :py:data:`DEFAULT_OUTPUT_LOCATION_NAME`-file is not in the correct format or
         when the output-file cannot be created/accessed.
 
     """
@@ -201,10 +206,11 @@ def set_default_output(filepath: str | Literal["RESET"], debug: bool = False) ->
     Sets the path to the file that the program should write recipes to.
 
     This function is called when no file has been specified by the CLI-arguments.
+
     Args:
-        filepath (): Either a new path for the default-file or the string literal "RESET", which will erase any existing
+        filepath: Either a new path for the default-file or the string literal "RESET", which will erase any existing
          path.
-        debug (): Whether the normal or the debug configuration file should be manipulated.
+        debug: Whether the normal or the debug configuration file should be manipulated.
     """
     data_dir = debug_dirs.config if debug else default_dirs.config
     if filepath == "RESET":
@@ -250,7 +256,7 @@ def write_errors(debug: bool = False) -> int:
     Writes the error reports from :py:func:`recipe2txt.html2recipe.errors2str` to a timestamped directory.
 
     Args:
-        debug (): Whether the reports should be written into the normal- or into the debug-state-directory
+        debug: Whether the reports should be written into the normal- or into the debug-state-directory
 
     Returns:
         Number of errors written

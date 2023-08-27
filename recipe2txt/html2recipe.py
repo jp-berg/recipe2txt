@@ -27,7 +27,7 @@ Attributes:
         ESSENTIAL (list[LiteralString]): attributes that are considered essential for the recipe
         ON_DISPLAY (list[LiteralString]): attributes that are used for creating the textual representation of the recipe
         METHODS (list[LiteralString]): attributes that contain information gathered by calling the methods with the same
-        name on the :py:class:`recipe_scrapers._abstract.AbstractScraper`
+            name on the :py:class:`recipe_scrapers._abstract.AbstractScraper`
         RECIPE_ATTRIBUTES (list[LiteralString]): all attributes in a :py:class:`Recipes`
     categorized_errors (dict): Contains :py:class:`ParsingError` that occur during parsing the recipes.
     PRE_CHECK_MSG (LiteralString): String that will be prepended to every error report
@@ -73,9 +73,9 @@ class RecipeStatus(IntEnum):
         UNKNOWN (1) -> py:mod:`recipe_scrapers` does not recognize the website of this recipe
         INCOMPLETE_ESSENTIAL (2) -> does not contain all attributes named in :py:data:`ESSENTIAL`
         INCOMPLETE_ON_DISPLAY (3) -> does not contain all attributes named in :py:data:`ON_DISPLAY` but contains
-        all attributes listed in :py:data:`ESSENTIAL`
+            all attributes listed in :py:data:`ESSENTIAL`
         COMPLETE_ON_DISPLAY (4) -> does not contain all attributes in :py:data:`METHODS` but contains all attributes in
-        :py:data:`ON_DISPLAY`
+            :py:data:`ON_DISPLAY`
         COMPLETE (5) -> does contain all attributes listed in :py:data:`METHODS`
     """
     NOT_INITIALIZED = -1
@@ -117,12 +117,14 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
     Replaces all 'None'-values in a tuple with :py:data:`NA`-values.
 
     This function is intended to operate on tuples that will be converted to :py:class:`Recipe`.
+
     Args:
-        t (): tuple that has no more members than :py:class:`Recipe` has attributes (or more than
+        t: tuple that has no more members than :py:class:`Recipe` has attributes (or more than
         :py:data:`RECIPE_ATTRIBUTES`).
 
     Returns:
         tuple of the same length, but where alle 'None'-values have been replaced with :py:data:`NA`-values
+
     Raises:
         ValueError: If t has more members than the number of attributes of :py:class:`Recipe`
 
@@ -170,11 +172,14 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
     Convert the int-value of the member on the status position to an :py:class:`RecipeStatus`-value.
 
     This function is intended to operate on tuples that will be converted to :py:class:`Recipe`.
+
     Args:
-        t (): a tuple with the same number of members as :py:class:`Recipe` has attributes. The 10th member should be an
+        t: a tuple with the same number of members as :py:class:`Recipe` has attributes. The 10th member should be an
         integer that corresponds to one of the values from :py:class:`RecipeStatus`
+
     Returns:
         The same tuple but with the 10th member changed from integer to an instance of :py:class:`RecipeStatus`
+
     Raises:
         ValueError: If the length of t does not match the length of :py:data:`RECIPE_ATTRIBUTES`
         AssertionError: If :py:mod:`RECIPE_ATTRIBUTES` second last element is not equal to "status"
@@ -220,12 +225,12 @@ def handle_parsing_error(url: URL, exception: Exception, method: Optional[str] =
     Logs and categorizes exceptions occurring during parsing of recipes.
 
     Args:
-        url (): The URL corresponding to the recipe that was not parsed correctly
-        exception (): The exception that occured during parsing of the recipe
-        method (): On which of :py:data:`METHODS` did the exception occur ('None' if the error did not occur through
+        url: The URL corresponding to the recipe that was not parsed correctly
+        exception: The exception that occured during parsing of the recipe
+        method: On which of :py:data:`METHODS` did the exception occur ('None' if the error did not occur through
         calling a method on a :py:data:`Parsed`-object
-        log (): a logging method (e.g. logger.info, logger.critical...) to report the occurence of an error
-        save_error (): Whether the error should be stored in :py:data:`categorized_errors`
+        log: a logging method (e.g. logger.info, logger.critical...) to report the occurence of an error
+        save_error: Whether the error should be stored in :py:data:`categorized_errors`
 
     Returns:
         The :py:class:`ParsingError` generated from the parameters
@@ -334,8 +339,9 @@ def errors2str() -> list[tuple[str, str]]:
 def get_url(parsed: Parsed) -> URL:
     """
     Extracts the URL from parsed
+
     Args:
-        parsed (): The data that the URL should be extracted from
+        parsed: The data that the URL should be extracted from
 
     Returns:
         Either the URL extracted from parsed or in case of failure :py:data:`DUMMY_URL`
@@ -359,10 +365,11 @@ def info2str(method: str, info: Any) -> str:
 
     The function will try to get the info extracted by the method into an (for this method) uniform format. Data
     considered invalid for that method (eg. "total_time" -> 0.0) will be replaced with :py:data:`NA`.
+
     Args:
-        method (): The method that was used to extract info. Has to be one of the elements in
+        method: The method that was used to extract info. Has to be one of the elements in
         :py:data:`RECIPE_ATTRIBUTES`
-        info (): The data extracted by the method
+        info: The data extracted by the method
 
     Returns:
         A string representation of info. This representation is uniform for every method (e.g. every 'ingredients' is
@@ -417,7 +424,7 @@ def get_info(method: str, parsed: Parsed) -> Any:
     Tries to retrieve the raw information from parsed.
 
     Args:
-        method (): The :py:data:`METHOD` that should be used for extraction
+        method: The :py:data:`METHOD` that should be used for extraction
         parsed ():
 
     Returns:
@@ -446,8 +453,10 @@ def gen_status(infos: list[str]) -> RecipeStatus:
     Generates a status value for a list of extracted values.
 
     Each value in the list should correspond to a string extracted by :py:func:`get_info`.
+
     Args:
         infos ():
+
     Raises:
         ValueError: If the length of the list does not equal :py:data:`METHODS`
 
@@ -474,7 +483,7 @@ def parsed2recipe(parsed: Parsed) -> Recipe:
     Converts parsed data to a recipe
 
     Args:
-        parsed (): parsed data created by :py:mod:`recipe_scrapers`
+        parsed: parsed data created by :py:mod:`recipe_scrapers`
 
     Returns:
         A fully initialized recipe
@@ -533,10 +542,11 @@ def _re2txt(recipe: Recipe) -> list[str]:
 def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[list[str]]:
     """
     Formats a recipe for to be written to a file
+
     Args:
-        recipe (): The recipe to be formatted
-        counts (): An optional Counts-object (if statistics should be collected)
-        md (): Whether the recipe should be formatted for txt or for markdown
+        recipe: The recipe to be formatted
+        counts: An optional Counts-object (if statistics should be collected)
+        md: Whether the recipe should be formatted for txt or for markdown
 
     Returns:
         A list of line-terminated strings, where each string represents one line in the formatted recipe if the
@@ -563,9 +573,10 @@ def html2parsed(url: URL, html: str) -> Optional[Parsed]:
     Parses the HTML of the recipe-website.
 
     Uses :py:mod:`recipe_scrapers to handle the parsing.
+
     Args:
-        url (): The URL the HTML was extracted from
-        html (): The HTML of the recipe-website
+        url: The URL the HTML was extracted from
+        html: The HTML of the recipe-website
 
     Returns:
         The parsed data if the recipe could be extracted or 'None' if there was a failure

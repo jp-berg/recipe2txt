@@ -50,9 +50,10 @@ def arg2str(name: str, args: argparse.Namespace) -> str:
 
     Extracts the argument described by :py:obj:`name` from :py:obj:`args` and either returns a string representation of
     the name and the argument or name and 'NOT FOUND' if the argument is not set.
+
     Args:
-        name (): The argparse-attribute name
-        args (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        name: The argparse-attribute name
+        args: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
 
     Returns:
         A string of the format '--name: argument'
@@ -84,7 +85,7 @@ def args2strs(a: argparse.Namespace) -> list[str]:
     Converts all possible CLI-flags :py:mod:`argparse will check for and their values for this run to a list of strings.
 
     Args:
-        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
 
     Returns:
         A list of all 'stringified' flags and their values
@@ -164,8 +165,9 @@ def mutex_args_check(a: argparse.Namespace) -> None:
 
     Those flags, namely '--show-appdata', '--erase-appdata' and '--default-output-file', do not influence a normal run
     of the program, but help review and configure the default options and data.
+
     Args:
-        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
     """
     if len(sys.argv) > 2:
 
@@ -185,7 +187,7 @@ def mutex_args(a: argparse.Namespace) -> None:
     Processes the mutual exclusive flags (see :py:func:`mutex_args_check`)
 
     Args:
-        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
     """
     if not (a.erase_appdata or a.default_output_file):
         return
@@ -205,8 +207,8 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
     Responsible for quickly verifying that certain flags contain valid values.
 
     Args:
-        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
-        output (): The output file the recipes will be written to.
+        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        output: The output file the recipes will be written to.
     """
     if not (a.file or a.url):
         parser.error("Nothing to process: No file or url passed")
@@ -234,7 +236,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     Responsible for  using the CLI-flags to construct a valid :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`
 
     Args:
-        a (): The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
 
     Returns:
         A tuple of:
