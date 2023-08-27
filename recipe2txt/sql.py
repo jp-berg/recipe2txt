@@ -125,10 +125,10 @@ def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
 
 
 def fetch_again(status: RS, scraper_version: str) -> bool:
-    if status in (RS.UNREACHABLE, RS.INCOMPLETE_ESSENTIAL, RS.NOT_INITIALIZED):
+    if status in (RS.UNREACHABLE, RS.NOT_INITIALIZED):
         return True
 
-    if status in (RS.UNKNOWN, RS.INCOMPLETE_ON_DISPLAY, RS.COMPLETE_ON_DISPLAY) \
+    if status in (RS.INCOMPLETE_ESSENTIAL, RS.UNKNOWN, RS.INCOMPLETE_ON_DISPLAY, RS.COMPLETE_ON_DISPLAY) \
             and scraper_version < SCRAPER_VERSION:
         return True
 
