@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
+Provides a subclass for the :py:class:`fetcher.Fetcher` that supports asynchronous connections.
 
+The subclass resides in a separate module so that :py:class:`fetcher.Fetcher` can be imported even if none of the async-
+libraries are installed.
 """
 import asyncio
 from typing import Literal
@@ -24,10 +27,14 @@ from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 
 
 class AsyncFetcher(Fetcher):
+    """
+    Subclass that provides an asynchronous :py:meth:`fetch`.
+    """
     is_async: Literal[True] = True
     connections = 4
 
     def fetch_urls(self, urls: set[URL]) -> None:
+        """Fetches the missing URLs from the web and writes the results to the database."""
         asyncio.run(self._fetch(urls))
 
     async def _fetch(self, urls: set[URL]) -> None:
