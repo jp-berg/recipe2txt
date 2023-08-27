@@ -12,15 +12,15 @@
 #
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
+"""
 
+"""
 import asyncio
 from typing import Literal
 import aiohttp
 from recipe2txt.utils.misc import URL
-from recipe2txt.fetcher import Fetcher
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-
-logger = get_logger(__name__)
+from recipe2txt.fetcher import Fetcher, logger
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 
 
 class AsyncFetcher(Fetcher):
