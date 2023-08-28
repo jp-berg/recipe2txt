@@ -53,3 +53,20 @@ performance = ["aiohttp ~= 3.8", "aiodns ~= 3.0"]
 [project.scripts]
 re2txt = "recipe2txt.re2txt:main"
 recipe2txt = "recipe2txt.re2txt:main"
+
+[tool.mypy]
+python_version = '3.11'
+strict = true
+python_executable = ".venv/bin/python"
+pretty = true
+warn_unused_configs = true
+files = ['recipe2txt/*.py',
+          'test/testfiles/permanent/*.py',
+          'recipe2txt/utils/*.py',
+          'test/test4recipe2txt.py',
+          'test/testfiles/one_tab_link_prepper.py']
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = 'validators'
+ignore_missing_imports = true

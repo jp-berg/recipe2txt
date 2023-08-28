@@ -76,3 +76,11 @@ options:
 recipe2txt -u www.example-url.com/tastyrecipe www.other-examle-url.org/deliciousmeal -o ~/Documents/great-recipes.txt
 ```
 See the [Makefile](Makefile)-targets testrun1, testrun2 and testrun3 for more examples.
+
+# Developement
+
+## Tools
+
+### mypy
+
+This project uses [mypy](https://github.com/python/mypy) for type checking. The [configuration file](pyproject.toml) contains all relevant settings, so a simple call to `mypy` from the current directory should be sufficient to typecheck the project.
