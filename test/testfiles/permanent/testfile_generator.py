@@ -106,8 +106,6 @@ def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
         recipe = h2r.Recipe(*attributes) # type: ignore
     with filename_parsed.open('w') as file:
         for a in attributes:
-            if isinstance(a, list):
-                a = os.linesep.join(a)
             file.write(str(a))
             file.write(os.linesep + delim + os.linesep)
     return recipe
