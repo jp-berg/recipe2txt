@@ -164,7 +164,7 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
         logger.warning("Number of connections smaller than 1, setting to 1 ")
         a.connections = 1
     elif a.connections > 1 and not Fetcher.is_async:
-        logger.warning("Number of connections greater than 1, but package aiohttp not installed.")
+        logger.warning("Number of connections greater than 1, but package aiohttp not installed.")  # type: ignore [unreachable]
     if a.timeout <= 0.0:
         logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1

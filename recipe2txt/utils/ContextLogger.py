@@ -290,7 +290,7 @@ def get_file_handler(file: str = LOGFILE, level: int = logging.DEBUG) -> logging
     return file_handler
 
 
-def get_stream_handler(level: int = logging.WARNING) -> logging.StreamHandler[Any]:
+def get_stream_handler(level: int = logging.WARNING) -> logging.StreamHandler:  # type: ignore [type-arg]
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
     f = QueueContextFilter(level, stream_handler)
