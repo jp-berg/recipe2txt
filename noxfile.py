@@ -172,7 +172,7 @@ def all(session: nox.Session) -> None:
 def release(session: nox.Session) -> None:
     """Release a new version of the program."""
     whl, tar = get_packages(session)
-    run(session, "twine", str(whl), str(tar), use_root_env=True)
+    run(session, "twine", "upload", str(whl), str(tar), use_root_env=True)
 
 
 @nox.session(reuse_venv=True)
