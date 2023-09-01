@@ -20,7 +20,7 @@ from typing import Final
 from pathlib import Path
 
 import recipe2txt.html2recipe as h2r
-from recipe2txt.fetcher_abstract import AbstractFetcher, Cache
+from recipe2txt.fetcher import Fetcher, Cache
 from recipe2txt.utils.misc import URL, is_url, File, Directory, ensure_accessible_file_critical
 from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging, \
     disable_loggers
@@ -182,7 +182,7 @@ db: AccessibleDatabase = ensure_accessible_db_critical(root, "testfile_db.sqlite
 url2html: dict[str, bytes] = {url: html for url, html in zip(url_list, html_list)}
 
 
-class TestFileFetcher(AbstractFetcher):
+class TestFileFetcher(Fetcher):
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)

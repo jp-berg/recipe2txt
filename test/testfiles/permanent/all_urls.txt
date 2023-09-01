@@ -12,7 +12,7 @@ https://www.countryliving.com/food-drinks/a16570861/chicken-meatball-and-vegetab
 https://creativecanning.com/canning-boston-baked-beans/
 https://www.cucchiaio.it/ricetta/torta-in-teglia-ai-mirtilli/
 https://www.cuisineaz.com/diaporamas/10-recettes-de-gratins-divins-a-la-viande-hachee-3162/interne/1.aspx
-https://cybercook.com.br/receitas/receitas-regionais
+https://cybercook.com.br/receitas/bolos/receita-de-bolo-de-rolo-pernambucano-14075?origem=receitas-regionais
 https://www.davidlebovitz.com/category/recipes/tarts/
 https://www.delish.com/cooking/recipe-ideas/a42710894/grandma-pizza-recipe/
 https://www.ditchthecarbs.com/easy-low-carb-keto-oatmeal-recipe-5-ingredients/
@@ -25,7 +25,6 @@ https://eatsmarter.de/rezepte/kokos-tofu-auf-ananas-wirsing-gemuese-0
 https://eatwhattonight.com/2022/06/fried-egg-with-braised-minced-sauce/
 https://emmikochteinfach.de/chili-con-carne-rezept-schnell-und-einfach/
 https://www.ethanchlebowski.com/cooking-techniques-recipes/crunchy-chicken-quesadilla
-https://www.epicurious.com/recipes-menus/breakfast-ideas-without-eggs
 https://www.epicurious.com/recipes/food/views/spring-greens-and-leek-gratin
 https://recipes.farmhousedelivery.com/grain-free-vietnamese-bun-noodle-bowl/
 https://www.fifteenspatulas.com/shrimp-and-grits/
@@ -33,11 +32,9 @@ https://www.finedininglovers.com/recipes/main-course/gnocchetti-salsiccia-brocco
 https://ninjatestkitchen.eu/recipe/bbq-pulled-chicken-sliders-with-sweet-potato-wedges/
 https://www.acouplecooks.com/pasta-pomodoro/
 http://www.afghankitchenrecipes.com/recipe/qabili-murg-palau-rice-dish-with-chicken/
-https://akispetretzikis.com/
 https://www.ah.nl/allerhande/recept/R-R1196827/butter-chicken-met-rijst
 https://www.allrecipes.com/recipe/229559/best-ever-meat-loaf/
 https://alltommat.expressen.se/recept/chokladkladdkaka-med-hasselnotter-och-apelsin/
-https://altonbrown.com/cook/
 https://altonbrown.com/recipes/boston-brown-bread/
 https://amazingribs.com/tested-recipes/chicken-recipes/sous-vide-club-sandwich/#recipe
 https://www.ambitiouskitchen.com/slow-cooker-yellow-chicken-curry/
@@ -65,7 +62,7 @@ https://www.closetcooking.com/cajun-chicken-pasta/
 https://comidinhasdochef.com/almoco-de-preguicoso/
 https://cookeatshare.com/recipes/southern-cornbread-dressing-816246
 https://cookieandkate.com/basque-cheesecake-recipe/
-htps://en.wikibooks.org/wiki/Cookbook:Chewy_Ginger_Cookies
+https://en.wikibooks.org/wiki/Cookbook:Chewy_Ginger_Cookies
 https://www.750g.com/burritos-veggie-r203363.htm
 https://www.food.com/recipe/mustard-crusted-roast-new-potatoes-with-shallots-and-garlic-291504
 https://www.gesund-aktiv.com/rezepte/vegetarisch/vegetarische-quinoa-bowl
@@ -131,7 +128,6 @@ https://ohsheglows.com/2013/08/27/sun-dried-tomato-mushroom-and-spinach-tofu-qui
 https://omnivorescookbook.com/beef-pan-fried-noodles/
 https://www.101cookbooks.com/glazed-lemon-cake/
 https://www.paleorunningmomma.com/paleo-chicken-cutlets-whole30/
-https://www.panelinha.com.br/
 https://www.panelinha.com.br/busca/arroz?category=Reaproveitamento&pageType=receita
 https://paninihappy.com/antipasto-stromboli-panini-and-a-visit-to-the-kings-hawaiian-bakery/
 https://www.pickuplimes.com/recipe/vegan-okonomiyaki-1176
@@ -144,7 +140,6 @@ https://www.melskitchencafe.com/quick-and-easy-pizza-dough/
 https://minimalistbaker.com/spicy-mushroom-black-bean-fritters/
 https://www.misya.info/ricetta/spaghetti-alla-robiola-piselli-e-speck.htm
 https://www.mob.co.uk/recipes/crispy-spring-onion-potato-salad
-https://momswithcrockpots.com/
 https://momswithcrockpots.com/crockpot-lasagna-soup-recipe/
 https://fr.monsieur-cuisine.com/de/recipe/feta-rucola-omelett
 https://www.motherthyme.com/2017/01/roasted-garlic-spaghetti.html
@@ -191,7 +186,7 @@ https://www.spendwithpennies.com/juicy-baked-pork-chops/
 https://www.springlane.de/magazin/rezeptideen/
 https://steamykitchen.com/55690-masala-turkey-buddha-bowl-with-10-minute-mango-golden-raisin-chutney.html
 https://streetkitchen.hu/a-legjobb-reggelik/piritott-edesburgonyas-kolbaszos-egyserpenyos-reggeli/
-https://sunbasket.com/menu
+https://sunbasket.com/recipe/burmese-chicken-aloo-curry
 https://www.sunset.com/recipe/mapo-tofu
 https://sweetcsdesigns.com/mexican-rice/
 https://sweetpeasandsaffron.com/couscous-salad/

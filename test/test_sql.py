@@ -64,7 +64,7 @@ class TestHelpers(unittest.TestCase):
             print("Could not delete tmpdirs:", tmpdirs, file=sys.stderr)
 
     def test_fetch_again(self):
-        truth_up_to_date = [True, True, False, True, False, False, False]
+        truth_up_to_date = [True, True, False, False, False, False, False]
         truth_out_of_date = [True, True, True, True, True, True, False]
         version_up_to_date = h2r.SCRAPER_VERSION
         version_out_of_date = '-1'
@@ -139,12 +139,12 @@ class TestDatabase(unittest.TestCase):
         for recipe in test_recipes:
             with self.subTest(i=recipe.url):
                 if recipe.status in (h2r.RecipeStatus.NOT_INITIALIZED,
-                                     h2r.RecipeStatus.UNREACHABLE,
-                                     h2r.RecipeStatus.INCOMPLETE_ESSENTIAL):
+                                     h2r.RecipeStatus.UNREACHABLE):
                     self.assertTrue(recipe.url in to_fetch)
                 else:
                     self.assertFalse(recipe.url in to_fetch)
                     if recipe.status in (h2r.RecipeStatus.UNKNOWN,
+                                         h2r.RecipeStatus.INCOMPLETE_ESSENTIAL,
                                          h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
                                          h2r.RecipeStatus.COMPLETE_ON_DISPLAY):
                         self.assertTrue(sql.fetch_again(recipe.status, '0.0'))

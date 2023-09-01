@@ -12,28 +12,30 @@
 #
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
+"""
+Provides a subclass for the :py:class:`fetcher.Fetcher` that supports asynchronous connections.
 
+The subclass resides in a separate module so that :py:class:`fetcher.Fetcher` can be imported even if none of the async-
+libraries are installed.
+"""
 import asyncio
 from typing import Literal
 import aiohttp
 from recipe2txt.utils.misc import URL
-from recipe2txt.fetcher_abstract import AbstractFetcher
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-
-logger = get_logger(__name__)
+from recipe2txt.fetcher import Fetcher, logger
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 
 
-class AsyncFetcher(AbstractFetcher):
+class AsyncFetcher(Fetcher):
+    """
+    Subclass that provides an asynchronous :py:meth:`fetch`.
+    """
     is_async: Literal[True] = True
     connections = 4
 
-    def fetch(self, urls: set[URL]) -> None:
-        urls = super().require_fetching(urls)
-        if urls:
-            logger.info("--- Fetching missing recipes ---")
-            asyncio.run(self._fetch(urls))
-        lines = self.gen_lines()
-        self.write(lines)
+    def fetch_urls(self, urls: set[URL]) -> None:
+        """Fetches the missing URLs from the web and writes the results to the database."""
+        asyncio.run(self._fetch(urls))
 
     async def _fetch(self, urls: set[URL]) -> None:
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
@@ -53,10 +55,8 @@ class AsyncFetcher(AbstractFetcher):
                         async with session.get(url) as response:
                             html = await response.text()
                         self.counts.reached += 1
-                        self.html2db(url, html)
-                        continue
                     except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError) as e:
-                        logger.error("Unable to reach website:", exc_info=e)
+                        logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:
                         if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
                             raise e

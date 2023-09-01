@@ -57,7 +57,7 @@ class Test(unittest.TestCase):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.METHODS:
                 with self.subTest(i=url + " | " + method):
-                    self.assertEqual(h2r._get_info(method, p, url), getattr(recipe, method))
+                    self.assertEqual(h2r.get_info(method, p, url), getattr(recipe, method))
 
         bad_info = [("total_time", 0), ("ingredients", None),
                     ("ingredients", []), ("instructions", [None, None]),
@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
 
         for url, (method, info) in zip(file_gen.url_list, bad_info):
             with self.subTest(i=f"{method=} {info=}"):
-                self.assertEqual(h2r._get_info(method, info), h2r.NA)
+                self.assertEqual(h2r.get_info(method, info), h2r.NA)
 
     def test_html2recipe(self):
         for url, html, validation in zip(file_gen.url_list, file_gen.html_list, file_gen.recipe_list):

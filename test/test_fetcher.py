@@ -15,7 +15,7 @@
 
 import random
 import unittest
-from recipe2txt.fetcher_abstract import Cache
+from recipe2txt.fetcher import Cache
 from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file
 from recipe2txt.sql import is_accessible_db
 import test.testfiles.permanent.testfile_generator as file_gen
