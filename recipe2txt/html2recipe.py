@@ -231,6 +231,7 @@ def info2str(method: str, info: Any) -> str:
         elif method == "instructions":
             if isinstance(info, str):
                 info = info.replace(linesep*2, linesep)
+                info = info.replace("\n,", "\n")
                 unexpected_type = False
             elif isinstance(info, list):
                 info = linesep.join(info)
