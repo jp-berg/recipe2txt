@@ -21,17 +21,14 @@ from os import linesep
 import os
 from logging.handlers import RotatingFileHandler
 from types import TracebackType
-from typing import Final, Callable, Literal, Any, Generator, Optional
+from typing import Final, Callable, Literal, Any, Generator, get_args, TypeAlias
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.traceback_utils import shorten_paths
 
-string2level: Final[dict[LiteralString, int]] = {
-    "debug": logging.DEBUG,
-    "info": logging.INFO,
-    "warning": logging.WARNING,
-    "error": logging.ERROR,
-    "critical": logging.CRITICAL
-}
+LOG_LEVEL_NAMES: Final[TypeAlias] = Literal["debug", "info", "waring", "error", "critical"]
+LOG_LEVEL_VALUES: Final[list[int]] = [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]
+
+string2level: Final[dict[LiteralString, int]] = dict(zip(get_args(LOG_LEVEL_NAMES), LOG_LEVEL_VALUES))
 
 LOGFILE: Final[LiteralString] = "file.log"
 

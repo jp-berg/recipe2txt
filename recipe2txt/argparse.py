@@ -17,11 +17,11 @@ import argparse
 import logging
 import os
 import sys
-from typing import Final, Tuple
+from typing import Final, Tuple, get_args
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.fetcher_abstract import Cache
 from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
-from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level
+from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
 from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File
 
 try:
@@ -80,7 +80,7 @@ parser.add_argument("-o", "--output", default="",
                     help="Specifies an output file. If empty or not specified recipes will either be written into"
                          " the current working directory or into the default output file (if set). THIS WILL OVERWRITE"
                          " ANY EXISTING FILE WITH THE SAME NAME.")
-parser.add_argument("-v", "--verbosity", default="critical", choices=["debug", "info", "warning", "error", "critical"],
+parser.add_argument("-v", "--verbosity", default="critical", choices=get_args(LOG_LEVEL_NAMES),
                     help="Sets the 'chattiness' of the program (default 'critical')")
 parser.add_argument("-con", "--connections", type=int, default=Fetcher.connections,
                     help="Sets the number of simultaneous connections (default: {}).{}".format(

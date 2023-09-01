@@ -22,9 +22,10 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
-from typing import Final
+from typing import Final, Literal, get_args, TypeAlias
 
 from recipe2txt.file_setup import debug_dirs, LOG_NAME, DB_NAME
+from recipe2txt.utils.ContextLogger import LOG_LEVEL_NAMES
 from recipe2txt.utils.misc import create_timestamped_dir, ensure_accessible_file_critical, Directory
 from test.test_helpers import test_project_tmpdir
 
@@ -118,7 +119,7 @@ parser.add_argument("-con", "--connections", type=int, default=0,
                          " 0 or less will use one connection per url (default is 0)")
 parser.add_argument("-dd", "--delete-database", action="store_true",
                     help="Delete the test-database before the testrun.")
-parser.add_argument("-v", "--verbosity", default="info", choices=["debug", "info", "warning", "error", "critical"],
+parser.add_argument("-v", "--verbosity", default="info", choices=get_args(LOG_LEVEL_NAMES),
                     help="Set the logging verbosity.")
 parser.add_argument("-f", "--format", choices=["txt", "md", "both"], default="txt",
                     help="Which type of file should the testrun generate. (default is 'txt')")
