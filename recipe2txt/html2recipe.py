@@ -303,9 +303,7 @@ def _re2md(recipe: Recipe) -> list[str]:
     title = recipe.title if recipe.title != NA else recipe.url
     title = esc(title)
     url = esc(recipe.url)
-    host = italic(esc(recipe.host))
-    if host == NA:
-        host = None  # type: ignore
+    host = None if recipe.host == NA else italic(esc(recipe.host))
 
     escaped = [esc(item) for item in recipe.ingredients.split(linesep)]
     ingredients = unordered(*escaped)

@@ -91,7 +91,7 @@ delim = "---"
 
 def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
     html = filename.read_bytes()
-    r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore
+    r = recipe_scrapers.scrape_html(html=html, org_url=url)  # type: ignore[arg-type]
     attributes = []
     with QCM(logger, logger.info, "Scraping %s", url):
         for method in h2r.METHODS:
@@ -103,7 +103,7 @@ def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
             a = h2r.info2str(method, a)
             attributes.append(a)
         attributes += [url, str(int(h2r.gen_status(attributes))), h2r.SCRAPER_VERSION]
-        recipe = h2r.Recipe(*attributes) # type: ignore
+        recipe = h2r.Recipe(*attributes) # type: ignore[arg-type]
     with filename_parsed.open('w') as file:
         for a in attributes:
             file.write(str(a))
@@ -126,7 +126,7 @@ def parse_txt(path: File) -> h2r.Recipe:
         raise ValueError("Error while parsing serialized recipes")
     t = tuple(attributes)
     t = h2r.int2status(t)
-    recipe = h2r.Recipe(*t)  # type: ignore
+    recipe = h2r.Recipe(*t)  # type: ignore[arg-type]
     return recipe
 
 
@@ -188,7 +188,7 @@ class TestFileFetcher(AbstractFetcher):
         urls = super().require_fetching(urls)
         for url in urls:
             html = url2html[url]
-            self.html2db(url, html)  # type: ignore
+            self.html2db(url, html)  # type: ignore[arg-type]
             # TODO
         lines = self.gen_lines()
         self.write(lines)

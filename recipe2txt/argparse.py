@@ -27,7 +27,7 @@ from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
 except ImportError:
-    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore
+    from recipe2txt.fetcher_serial import SerialFetcher as Fetcher  # type: ignore[assignment]
 
 logger = get_logger(__name__)
 

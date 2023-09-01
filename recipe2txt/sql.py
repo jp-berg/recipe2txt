@@ -165,7 +165,7 @@ class Database:
         if row := self.get_recipe_row(url):
             row = none2na(row)
             row = int2status(row)
-        r = Recipe(*row)  # type: ignore
+        r = Recipe(*row)  # type: ignore[misc]
         return r
 
     def get_recipes(self) -> list[Recipe]:
@@ -219,11 +219,11 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN:  # type: ignore
-                    merged_row[-2] = gen_status(merged_row[:len(METHODS)])  # type: ignore
+                if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN:  # type: ignore[operator]
+                    merged_row[-2] = gen_status(merged_row[:len(METHODS)])  # type: ignore[arg-type]
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
-                r = Recipe(*merged_row)  # type: ignore
+                r = Recipe(*merged_row)  # type: ignore[arg-type]
                 if logger.isEnabledFor(logging.INFO):
                     replaced_list = [f"\t{attr}: {head_str(old_val)} => {head_str(new_val)}"
                                      for attr, old_val, new_val, is_replaced in
@@ -233,7 +233,7 @@ class Database:
                     logger.info("Updated %s: %s", recipe.url, replaced)
                 self.replace_recipe(r)
             else:
-                r = Recipe(*merged_row)  # type: ignore
+                r = Recipe(*merged_row)  # type: ignore[arg-type]
             return r
         else:
             self.new_recipe(recipe)

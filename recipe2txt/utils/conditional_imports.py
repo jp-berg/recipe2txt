@@ -23,7 +23,7 @@ else:
 if version_info >= (3, 11):
     from enum import StrEnum
 else:
-    from backports.strenum import StrEnum # type: ignore
+    from backports.strenum import StrEnum # type: ignore[import, no-redef]
 
 
 __all__ = ["LiteralString", "StrEnum"]
