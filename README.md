@@ -75,11 +75,14 @@ options:
 ```bash
 recipe2txt -u www.example-url.com/tastyrecipe www.other-examle-url.org/deliciousmeal -o ~/Documents/great-recipes.txt
 ```
-See the [Makefile](Makefile)-targets testrun1, testrun2 and testrun3 for more examples.
 
 # Developement
 
 ## Tools
+
+### nox
+
+This project (ab-)uses [nox](https://github.com/wntrblm/nox) as test-(and task-)runner. Install nox from PyPi.org (e.g. `pipx install nox`). Use `nox --list` to get an overview over the different routines the [noxfile](noxfile.py) provides. For example to create the developement enviroment use `nox -s dev`.
 
 ### mypy
 
