@@ -111,6 +111,9 @@ parser = argparse.ArgumentParser(
     description="End-to-end testing for recipe2txt."
 )
 
+FileFormatValues: TypeAlias = Literal["txt", "md", "both"]
+InputFormatValues: TypeAlias = Literal["url", "file"]
+
 parser.add_argument("-urls", "--number-of-urls", type=int, default=5,
                     help="Set the number of urls to test. Default is 5, using a number outside of the number "
                          "of available urls will run a test with all urls.")
@@ -121,9 +124,9 @@ parser.add_argument("-dd", "--delete-database", action="store_true",
                     help="Delete the test-database before the testrun.")
 parser.add_argument("-v", "--verbosity", default="info", choices=get_args(LOG_LEVEL_NAMES),
                     help="Set the logging verbosity.")
-parser.add_argument("-f", "--format", choices=["txt", "md", "both"], default="txt",
+parser.add_argument("-f", "--file-format", choices=get_args(FileFormatValues), default="txt",
                     help="Which type of file should the testrun generate. (default is 'txt')")
-parser.add_argument("-i", "--input-format", choices=["url", "file"], default="url",
+parser.add_argument("-i", "--input-format", choices=get_args(InputFormatValues), default="url",
                     help="Which type of input format should the program recieve (default is 'url')")
 parser.add_argument("-l", "--long-timeout", action="store_true",
                     help="If used, the timeout is set to 20 seconds (default is 10)")
