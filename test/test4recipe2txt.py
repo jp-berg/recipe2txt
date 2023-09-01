@@ -132,7 +132,10 @@ parser.add_argument("-l", "--long-timeout", action="store_true",
                     help="If used, the timeout is set to 20 seconds (default is 10)")
 
 
-def main() -> None:
+def main(number_of_urls: int = 5, connections: int = 0, delete_database: bool = False,
+         verbosity: LOG_LEVEL_NAMES = "info",
+         file_format: FileFormatValues = "txt", input_format: InputFormatValues = "url",
+         long_timeout: bool = False) -> None:
     os.chdir(WORK_DIR)
     check_existence(PYTHON_PATH)
     check_existence(URLS_ORIGIN)
@@ -140,40 +143,39 @@ def main() -> None:
     if not report_dir:
         print("Reporting directory could not be created", file=sys.stderr)
         sys.exit(os.EX_IOERR)
-    a = parser.parse_args()
 
     urls = get_urls()
-    no_urls = len(urls) if a.number_of_urls < 0 else a.number_of_urls
-    connections = no_urls if a.connections < 1 else a.connections
-    timeout = 20 if a.long_timeout else 10
+    no_urls = len(urls) if number_of_urls < 0 else number_of_urls
+    connections = no_urls if connections < 1 else connections
+    timeout = 20 if long_timeout else 10
 
     test_urls = urls[:no_urls]
-    args = ["--debug", "--connections", connections, "--timeout", timeout, "--verbosity", a.verbosity]
+    args = ["--debug", "--connections", connections, "--timeout", timeout, "--verbosity", verbosity]
 
     output_file = report_dir / "output"
-    if a.format == "md":
+    if file_format == "md":
         args += ["--markdown", "--output", path2str(output_file.with_suffix(".md"))]
     else:
         args += ["--output", path2str(output_file.with_suffix(".txt"))]
 
-    if a.input_format == "file":
+    if input_format == "file":
         url_file = ensure_accessible_file_critical(test_project_tmpdir, "urls.txt")
         url_file.write_text(os.linesep.join(test_urls))
         args += ["--file", path2str(url_file)]
     else:
         args += ["--url", *test_urls]
 
-    if a.delete_database and DB_FILE.is_file():
+    if delete_database and DB_FILE.is_file():
         os.remove(DB_FILE)
 
-    args = [str(arg) for arg in args]
-    command = " ".join(RE2TXT) + " " + " ".join(args)
+    args_str = [str(arg) for arg in args]
+    command = " ".join(RE2TXT) + " " + " ".join(args_str)
     (report_dir / "parameters.txt").write_text(command)
     (report_dir / "urls_used.txt").write_text(os.linesep.join(test_urls))
 
     print("+++ Running Test +++")
     start_time = time.time()
-    result = subprocess.run(RE2TXT + args)
+    result = subprocess.run(RE2TXT + args_str)
     print("+++ End Test +++")
 
     if result.stdout:
@@ -212,5 +214,6 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    a = parser.parse_args()
+    main(**vars(a))
     sys.exit(os.EX_OK)
