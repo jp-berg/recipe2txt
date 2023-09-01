@@ -20,7 +20,7 @@ import os
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 import recipe2txt.utils.misc as misc
-from .test_helpers import *
+from test.test_helpers import *
 from typing import Optional
 
 db_name = "db_test.sqlite3"
