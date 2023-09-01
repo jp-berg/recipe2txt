@@ -44,10 +44,10 @@ root: Final[Directory] = Directory(Path(__file__).parent)
 
 def get_urls() -> list[URL]:
     urls_file = root / "URLs"
-    with urls_file.open() as file:
-        urls = [line.rstrip(os.linesep) for line in file.readlines() if is_url(line)]
+    txt = urls_file.read_text()
+    urls = [line for line in txt.split(os.linesep) if line and is_url(line)]
     urls.sort()
-    return urls  # type: ignore
+    return urls
 
 
 url_list: Final[list[URL]] = get_urls()
