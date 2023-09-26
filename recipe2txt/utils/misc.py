@@ -17,12 +17,14 @@ import os.path
 import sys
 import urllib.parse
 from os import linesep
+from pathlib import Path
 from time import localtime, strftime
+from typing import NewType, Any, TypeGuard, Optional
 
 import validators
+
 from recipe2txt.utils.ContextLogger import get_logger, DO_NOT_LOG
-from typing import NewType, Any, TypeGuard, Optional
-from pathlib import Path
+
 __all__ = ["URL", "is_url", "File", "is_file", "Directory", "is_dir", "full_path", "ensure_existence_dir",
            "ensure_existence_dir_critical", "create_timestamped_dir", "ensure_accessible_file",
            "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str"]
@@ -217,9 +219,9 @@ class Counts:
         return s
 
 
-def dict2str(dictionary: dict[Any, Any]) -> str:
+def dict2str(dictionary: dict[Any, Any], sep: str = linesep) -> str:
     items = ["{}: {}".format(*item) for item in dictionary.items()]
-    return linesep.join(items)
+    return sep.join(items)
 
 
 def head_str(o: Any, max_length: int = 50) -> str:

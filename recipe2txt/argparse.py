@@ -28,12 +28,13 @@ import argparse
 import logging
 import os
 import sys
-from typing import Final, Tuple, get_args
-from recipe2txt.utils.conditional_imports import LiteralString
+from typing import Tuple, get_args
+
 from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
-from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File
+from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
@@ -42,56 +43,6 @@ except ImportError:
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
-
-
-def arg2str(name: str, args: argparse.Namespace) -> str:
-    """
-    Creates a string representation of a CLI-flag-argument pair.
-
-    Extracts the argument described by :py:obj:`name` from :py:obj:`args` and either returns a string representation of
-    the name and the argument or name and 'NOT FOUND' if the argument is not set.
-
-    Args:
-        name: The argparse-attribute name
-        args: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
-
-    Returns:
-        A string of the format '--name: argument'
-
-    """
-    return f"--{name.replace('_', '-')}: {getattr(args, name, 'NOT FOUND')}"
-
-
-ARGNAMES: Final[list[LiteralString]] = [
-    "url",
-    "file",
-    "output",
-    "verbosity",
-    "connections",
-    "ignore_added",
-    "cache",
-    "debug",
-    "timeout",
-    "markdown",
-    "user_agent",
-    "erase_appdata",
-    "standard_output_file"
-]
-"""The names of all CLI-flags :py:data:`parser` is configured to check."""
-
-
-def args2strs(a: argparse.Namespace) -> list[str]:
-    """
-    Converts all possible CLI-flags :py:mod:`argparse will check for and their values for this run to a list of strings.
-
-    Args:
-        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
-
-    Returns:
-        A list of all 'stringified' flags and their values
-
-    """
-    return [arg2str(name, a) for name in ARGNAMES]
 
 
 class FileListingArgParse(argparse.ArgumentParser):
@@ -248,7 +199,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     db_file, recipe_file, log_file = file_setup(a.debug, a.output, a.markdown)
     root_log_setup(string2level[a.verbosity], str(log_file))
     if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("CLI-ARGS: %s\t%s", os.linesep, (os.linesep + '\t').join(args2strs(a)))
+        logger.debug("CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + '\t'))
     logger.info("--- Preparing arguments ---")
     sancheck_args(a, recipe_file)
     if recipe_file.stat().st_size > 0:
