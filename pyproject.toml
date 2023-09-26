@@ -40,7 +40,8 @@ dependencies = [
   "validators ~= 0.20",
   "importlib-metadata ~= 6.8",
   "backports.strenum ~= 1.2; python_version < '3.11'",
-  "typing_extensions ~= 4.6.2; python_version < '3.11'"
+  "typing_extensions ~= 4.6.2; python_version < '3.11'",
+  "tomli ~= 2.0; python_version < '3.11'"
 ]
 
 [project.optional-dependencies]

@@ -28,13 +28,15 @@ import argparse
 import logging
 import os
 import sys
-from typing import Tuple, get_args
+import textwrap
+import tomllib
+from typing import Tuple, get_args, Any, Iterable, TypeVar, Generic, Final
 
 from recipe2txt.fetcher import Cache
-from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
+from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME, default_dirs
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
 from recipe2txt.utils.conditional_imports import LiteralString
-from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str
+from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str, ensure_accessible_file_critical
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
@@ -43,6 +45,155 @@ except ImportError:
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
+
+
+def short_flag(long_name: str) -> str:
+    long_name = long_name.strip()
+    segments = long_name.split("-")
+    starting_letters = [segment.strip()[0] for segment in segments if segment]
+    return "-" + "".join(starting_letters)
+
+
+def obj2toml(o: Any) -> str:
+    if isinstance(o, list):
+        return str([obj2toml_i(e) for e in o])
+    if isinstance(o, dict):
+        return str({obj2toml_i(key): obj2toml_i(value) for key, value in o.items()})
+    return obj2toml_i(o)
+
+
+def obj2toml_i(o: Any) -> str:
+    if isinstance(o, bool):
+        return "true" if o else "false"
+    if isinstance(o, str):
+        return f"'{o}'"
+    return str(o)
+
+
+class BasicOption:
+    help_wrapper = textwrap.TextWrapper(width=72,
+                                        initial_indent="# ",
+                                        subsequent_indent="# ",
+                                        break_long_words=False,
+                                        break_on_hyphens=False)
+
+    def __init__(self, name: str, help_str: str, default: Any = None, has_short: bool = True):
+        name = name.strip()
+        if name.startswith('-'):
+            raise ValueError("'name' should just be the name of the flag without any leading '-'")
+        self.name = name
+        self.names = ["--" + name]
+        if has_short:
+            self.names.append(short_flag(name))
+        self.argument_args = {"help": help_str, "default": default}
+
+    def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
+        help_tmp = self.argument_args["help"]
+        if self.argument_args["default"] is not None:
+            self.argument_args["help"] = f"{self.argument_args['help']} (default: {self.argument_args['default']})"
+        parser.add_argument(*self.names, **self.argument_args)
+        self.argument_args["help"] = help_tmp
+
+    def to_toml(self) -> str:
+        default_str = obj2toml(self.argument_args["default"])
+        return BasicOption.help_wrapper.fill(self.argument_args["help"]) + f"\n#{self.name} = {default_str}\n"
+
+    def toml_valid(self, value: Any) -> bool:
+        return bool(value)
+
+    def from_toml(self, toml: dict[str, Any]) -> bool:
+        value = toml.get(self.name)
+        if self.toml_valid(value):
+            self.argument_args["default"] = value
+            return True
+        return False
+
+
+T = TypeVar('T')
+
+
+class ChoiceOption(BasicOption, Generic[T]):
+
+    def __init__(self, name: str, help_str: str, default: T, choices: Iterable[T]):
+        if default not in choices:
+            raise ValueError(f"Parameter {default=} not in {choices=}")
+        super().__init__(name, help_str, default)
+        self.argument_args["choices"] = choices
+
+    def toml_valid(self, value: Any) -> bool:
+        if value not in self.argument_args["choices"]:
+            return False
+        return True
+
+
+class TypeOption(BasicOption):
+
+    def __init__(self, name: str, help_str: str, default: Any, t: type):
+        if not isinstance(default, t):
+            raise ValueError("Parameter {default=} does not match type {t=}")
+        super().__init__(name, help_str, default)
+        self.argument_args["type"] = t
+
+    def toml_valid(self, value: Any) -> bool:
+        if not (t := self.argument_args.get("type")):
+            raise RuntimeError("'argument_args' does not contain 'type' (but it should)")
+        return isinstance(value, t)
+
+
+class BoolOption(BasicOption):
+
+    def __init__(self, name: str, help_str: str, default: bool = False):
+        super().__init__(name, help_str, default)
+        self.argument_args["action"] = "store_true"
+
+    def toml_valid(self, value: Any) -> bool:
+        if value not in (True, False):
+            return False
+        return True
+
+
+class NArgOption(BasicOption):
+
+    def __init__(self, name: str, help_str: str, default: list[Any] | None = None):
+        d = [] if default is None else default
+        super().__init__(name, help_str, d)
+        self.argument_args["nargs"] = '+'
+
+    def toml_valid(self, value: Any) -> bool:
+        return isinstance(value, list)
+
+
+arguments: Final[list[BasicOption]] = [
+    NArgOption("url", "URLs whose recipes should be added to the recipe-file"),
+    NArgOption("file", "Text-files containing URLs whose recipes should be added to the recipe-file"),
+    BasicOption("output", "Specifies an output file. If empty or not specified recipes will either be written into"
+                          " the current working directory or into the default output file (if set). THIS WILL OVERWRITE"
+                          " ANY EXISTING FILE WITH THE SAME NAME."),
+    ChoiceOption("verbosity", "Sets the 'chattiness' of the program",
+                 choices=get_args(LOG_LEVEL_NAMES), default="critical"),
+    TypeOption("connections", t=int, default=Fetcher.connections,
+               help_str="{}Sets the number of simultaneous connections"
+               .format("" if Fetcher.is_async else
+                       "Since the package 'aiohttp' is not installed the number of simultaneous connections will"
+                       " always be 1. Thus this flag and its parameters will not be evaluated. ")),
+    ChoiceOption("cache-behavior", choices=["only", "new", "default"], default="default", help_str=
+    "Controls how the program should handle its cache: With 'only' no new data will be downloaded"
+    ", the recipes will be generated from data that has been downloaded previously. If a recipe"
+    " is not in the cache, it will not be written into the final output. 'new' will make the"
+    " program ignore any saved data and download the requested recipes even if they have already"
+    " been downloaded. Old data will be replaced by the new version, if it is available."
+    " The 'default' will fetch and merge missing data with the data already saved, only inserting"
+    " new data into the cache where there was none previously."),
+    BoolOption("debug", "Activates debug-mode: Changes the directory for application data"),
+    TypeOption("timeout", t=float, default=Fetcher.timeout, help_str=
+    "Sets the number of seconds the program waits for an individual website to respond, eg. {}.".format(
+        'sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async
+        else 'sets the timeout-argument of urllib.request.urlopen')),
+    BoolOption("markdown", "Generates markdown-output instead of '.txt'"),
+    BasicOption("user-agent", "Sets the user-agent to be used for the requests.", default=Fetcher.user_agent),
+    BasicOption("erase-appdata", "Erases all data- and cache-files used by this program (see 'Program files' below)",
+                has_short=False)
+]
 
 
 class FileListingArgParse(argparse.ArgumentParser):
@@ -62,52 +213,27 @@ parser = FileListingArgParse(
 )
 """The argument parser used by this program."""
 
-parser.add_argument("-u", "--url", nargs='+', default=[],
-                    help="URLs whose recipes should be added to the recipe-file")
-parser.add_argument("-f", "--file", nargs='+', default=[],
-                    help="Text-files containing URLs (one per line) whose recipes should be added to the recipe-file")
-parser.add_argument("-o", "--output", default="",
-                    help="Specifies an output file. If empty or not specified recipes will either be written into"
-                         " the current working directory or into the default output file (if set). THIS WILL OVERWRITE"
-                         " ANY EXISTING FILE WITH THE SAME NAME.")
-parser.add_argument("-v", "--verbosity", default="critical", choices=get_args(LOG_LEVEL_NAMES),
-                    help="Sets the 'chattiness' of the program (default 'critical')")
-parser.add_argument("-con", "--connections", type=int, default=Fetcher.connections,
-                    help="Sets the number of simultaneous connections (default: {}).{}".format(
-                        Fetcher.connections, "" if Fetcher.is_async else
-                        " Since the package 'aiohttp' is not installed the number of simultaneous connections will"
-                        " always be 1. Thus this flag and its parameters will not be evaluated."))
-parser.add_argument("-ia", "--ignore-added", action="store_true",
-                    help="[NI]Writes recipe to file regardless if it has already been added")
-parser.add_argument("-c", "--cache", choices=["only", "new", "default"], default="default",
-                    help="Controls how the program should handle its cache: With 'only' no new data will be downloaded"
-                         ", the recipes will be generated from data that has been downloaded previously. If a recipe"
-                         " is not in the cache, it will not be written into the final output. 'new' will make the"
-                         " program ignore any saved data and download the requested recipes even if they have already"
-                         " been downloaded. Old data will be replaced by the new version, if it is available."
-                         " The 'default' will fetch and merge missing data with the data already saved, only inserting"
-                         " new data into the cache where there was none previously.")
-parser.add_argument("-d", "--debug", action="store_true",
-                    help="Activates debug-mode: Changes the directory for application data")
-parser.add_argument("-t", "--timeout", type=float, default=Fetcher.timeout,
-                    help=f"""Sets the number of seconds the program waits for an individual website to respond, eg. 
-                    {'sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async else 'sets the'
-                    ' timeout-argument of urllib.request.urlopen'} (default: {Fetcher.timeout} seconds)""")
-parser.add_argument("-md", "--markdown", action="store_true",
-                    help="Generates markdown-output instead of '.txt'")
-parser.add_argument("-ua", "--user-agent", default=Fetcher.user_agent,
-                    help=f"Sets the user-agent to be used for the requests. "
-                         f" (default: '{Fetcher.user_agent}')")
+CONFIG_NAME: Final[LiteralString] = PROGRAM_NAME + ".toml"
+config_file = default_dirs.config / CONFIG_NAME
 
-settings = parser.add_mutually_exclusive_group()
-settings.add_argument("-erase", "--erase-appdata", action="store_true",
-                      help="Erases all data- and cache-files used by this program (see 'Program files' below)")
-settings.add_argument("-do", "--default-output-file", default="",
-                      help="Sets a file where recipes should be written to if no" +
-                           " output-file is explicitly passed via '-o' or '--output'." +
-                           " Pass 'RESET' to reset the default output to the current working directory." +
-                           " Does not work in debug mode (default-output-file is automatically set by"
-                           " 'tests/testfiles/default_output_location.txt').")
+if config_file.is_file():
+    with config_file.open("rb") as cfg:
+        try:
+            toml = tomllib.load(cfg)
+        except tomllib.TOMLDecodeError as e:
+            msg = f"The config-file ({config_file}) seems to be misconfigured ({e}). Fix the error or delete the file" \
+                  " and generate a new one by running the program with any argument (eg. 'recipe2txt --help')"
+            print(msg, file=sys.stderr)
+            sys.exit(os.EX_DATAERR)
+    for arg in arguments:
+        arg.from_toml(toml)
+else:
+    config_txt = "\n\n".join([arg.to_toml() for arg in arguments])
+    ensure_accessible_file_critical(config_file)
+    config_file.write_text(config_txt)
+
+for arg in arguments:
+    arg.add_to_parser(parser)
 
 
 def mutex_args_check(a: argparse.Namespace) -> None:

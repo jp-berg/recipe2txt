@@ -25,5 +25,10 @@ if version_info >= (3, 11):
 else:
     from backports.strenum import StrEnum # type: ignore[import, no-redef]
 
+if version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib # type: ignore[import, no-redef]
 
-__all__ = ["LiteralString", "StrEnum"]
+
+__all__ = ["LiteralString", "StrEnum", "tomllib"]
