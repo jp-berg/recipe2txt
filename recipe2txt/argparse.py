@@ -84,15 +84,15 @@ class FileListingArgParse(argparse.ArgumentParser):
         help_msg = super().format_help()
         files = get_files()
         files.sort()
-        files_str = os.linesep + os.linesep.join(files) if files else " none"
-        help_msg += os.linesep + "Program files:" + files_str + os.linesep
+        files_str = os.linesep + "   " + (os.linesep + "   ").join(files) if files else " none"
+        help_msg += os.linesep + "files created or used by this program:" + files_str + os.linesep
         return help_msg
 
 
 parser = FileListingArgParse(
     prog=PROGRAM_NAME,
     description="Scrapes URLs of recipes into text files",
-    epilog=f"[NI] = 'Not implemented (yet)'"
+    epilog=f"Change the default-values for these options by modifying the '{PROGRAM_NAME}.toml' file mentioned below."
 )
 """The argument parser used by this program."""
 

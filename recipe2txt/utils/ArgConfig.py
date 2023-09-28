@@ -59,7 +59,7 @@ class BasicOption:
     def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
         help_tmp = self.arguments[ArgKey.help]
         if self.arguments[ArgKey.default] is not None:
-            self.arguments[ArgKey.help] = f"{self.arguments[ArgKey.help]} (default: {self.arguments[ArgKey.default]})"
+            self.arguments[ArgKey.help] = f"{self.arguments[ArgKey.help]} (default: '{self.arguments[ArgKey.default]}')"
         parser.add_argument(*self.names, **self.arguments)  # type: ignore [misc]
         self.arguments[ArgKey.help] = help_tmp
 
