@@ -40,18 +40,18 @@ class BasicOption:
         self.names = ["--" + name]
         if has_short:
             self.names.append(short_flag(name))
-        self.argument_args = {"help": help_str, "default": default}
+        self.arguments = {"help": help_str, "default": default}
 
     def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
-        help_tmp = self.argument_args["help"]
-        if self.argument_args["default"] is not None:
-            self.argument_args["help"] = f"{self.argument_args['help']} (default: {self.argument_args['default']})"
-        parser.add_argument(*self.names, **self.argument_args)
-        self.argument_args["help"] = help_tmp
+        help_tmp = self.arguments["help"]
+        if self.arguments["default"] is not None:
+            self.arguments["help"] = f"{self.arguments['help']} (default: {self.arguments['default']})"
+        parser.add_argument(*self.names, **self.arguments)
+        self.arguments["help"] = help_tmp
 
     def to_toml(self) -> str:
-        default_str = obj2toml(self.argument_args["default"])
-        return BasicOption.help_wrapper.fill(self.argument_args["help"]) + f"\n#{self.name} = {default_str}\n"
+        default_str = obj2toml(self.arguments["default"])
+        return BasicOption.help_wrapper.fill(self.arguments["help"]) + f"\n#{self.name} = {default_str}\n"
 
     def toml_valid(self, value: Any) -> bool:
         return bool(value)
@@ -59,7 +59,7 @@ class BasicOption:
     def from_toml(self, toml: dict[str, Any]) -> bool:
         value = toml.get(self.name)
         if self.toml_valid(value):
-            self.argument_args["default"] = value
+            self.arguments["default"] = value
             return True
         return False
 
@@ -73,10 +73,10 @@ class ChoiceOption(BasicOption, Generic[T]):
         if default not in choices:
             raise ValueError(f"Parameter {default=} not in {choices=}")
         super().__init__(name, help_str, default)
-        self.argument_args["choices"] = choices
+        self.arguments["choices"] = choices
 
     def toml_valid(self, value: Any) -> bool:
-        if value not in self.argument_args["choices"]:
+        if value not in self.arguments["choices"]:
             return False
         return True
 
@@ -87,10 +87,10 @@ class TypeOption(BasicOption):
         if not isinstance(default, t):
             raise ValueError("Parameter {default=} does not match type {t=}")
         super().__init__(name, help_str, default)
-        self.argument_args["type"] = t
+        self.arguments["type"] = t
 
     def toml_valid(self, value: Any) -> bool:
-        if not (t := self.argument_args.get("type")):
+        if not (t := self.arguments.get("type")):
             raise RuntimeError("'argument_args' does not contain 'type' (but it should)")
         return isinstance(value, t)
 
@@ -99,7 +99,7 @@ class BoolOption(BasicOption):
 
     def __init__(self, name: str, help_str: str, default: bool = False):
         super().__init__(name, help_str, default)
-        self.argument_args["action"] = "store_true"
+        self.arguments["action"] = "store_true"
 
     def toml_valid(self, value: Any) -> bool:
         if value not in (True, False):
@@ -112,7 +112,7 @@ class NArgOption(BasicOption):
     def __init__(self, name: str, help_str: str, default: list[Any] | None = None):
         d = [] if default is None else default
         super().__init__(name, help_str, d)
-        self.argument_args["nargs"] = '+'
+        self.arguments["nargs"] = '+'
 
     def toml_valid(self, value: Any) -> bool:
         return isinstance(value, list)
