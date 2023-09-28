@@ -1,6 +1,9 @@
 import argparse
 import textwrap
+from enum import unique
 from typing import Any, TypeVar, Generic, Iterable
+
+from recipe2txt.utils.conditional_imports import StrEnum
 
 
 def short_flag(long_name: str) -> str:
@@ -25,6 +28,17 @@ def obj2toml_i(o: Any) -> str:
         return f"'{o}'"
     return str(o)
 
+
+@unique
+class ArgKey(StrEnum):
+    help = "help"
+    default = "default"
+    choices = "choices"
+    type = "type"
+    action = "action"
+    nargs = "nargs"
+
+
 class BasicOption:
     help_wrapper = textwrap.TextWrapper(width=72,
                                         initial_indent="# ",
@@ -40,18 +54,18 @@ class BasicOption:
         self.names = ["--" + name]
         if has_short:
             self.names.append(short_flag(name))
-        self.arguments = {"help": help_str, "default": default}
+        self.arguments = {ArgKey.help: help_str, ArgKey.default: default}
 
     def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
-        help_tmp = self.arguments["help"]
-        if self.arguments["default"] is not None:
-            self.arguments["help"] = f"{self.arguments['help']} (default: {self.arguments['default']})"
-        parser.add_argument(*self.names, **self.arguments)
-        self.arguments["help"] = help_tmp
+        help_tmp = self.arguments[ArgKey.help]
+        if self.arguments[ArgKey.default] is not None:
+            self.arguments[ArgKey.help] = f"{self.arguments[ArgKey.help]} (default: {self.arguments[ArgKey.default]})"
+        parser.add_argument(*self.names, **self.arguments)  # type: ignore [misc]
+        self.arguments[ArgKey.help] = help_tmp
 
     def to_toml(self) -> str:
-        default_str = obj2toml(self.arguments["default"])
-        return BasicOption.help_wrapper.fill(self.arguments["help"]) + f"\n#{self.name} = {default_str}\n"
+        default_str = obj2toml(self.arguments[ArgKey.default])
+        return BasicOption.help_wrapper.fill(self.arguments[ArgKey.help]) + f"\n#{self.name} = {default_str}\n"
 
     def toml_valid(self, value: Any) -> bool:
         return bool(value)
@@ -59,7 +73,7 @@ class BasicOption:
     def from_toml(self, toml: dict[str, Any]) -> bool:
         value = toml.get(self.name)
         if self.toml_valid(value):
-            self.arguments["default"] = value
+            self.arguments[ArgKey.default] = value
             return True
         return False
 
@@ -73,10 +87,10 @@ class ChoiceOption(BasicOption, Generic[T]):
         if default not in choices:
             raise ValueError(f"Parameter {default=} not in {choices=}")
         super().__init__(name, help_str, default)
-        self.arguments["choices"] = choices
+        self.arguments[ArgKey.choices] = choices
 
     def toml_valid(self, value: Any) -> bool:
-        if value not in self.arguments["choices"]:
+        if value not in self.arguments[ArgKey.choices]:
             return False
         return True
 
@@ -87,10 +101,10 @@ class TypeOption(BasicOption):
         if not isinstance(default, t):
             raise ValueError("Parameter {default=} does not match type {t=}")
         super().__init__(name, help_str, default)
-        self.arguments["type"] = t
+        self.arguments[ArgKey.type] = t
 
     def toml_valid(self, value: Any) -> bool:
-        if not (t := self.arguments.get("type")):
+        if not (t := self.arguments.get(ArgKey.type)):
             raise RuntimeError("'argument_args' does not contain 'type' (but it should)")
         return isinstance(value, t)
 
@@ -99,7 +113,7 @@ class BoolOption(BasicOption):
 
     def __init__(self, name: str, help_str: str, default: bool = False):
         super().__init__(name, help_str, default)
-        self.arguments["action"] = "store_true"
+        self.arguments[ArgKey.action] = "store_true"
 
     def toml_valid(self, value: Any) -> bool:
         if value not in (True, False):
@@ -112,7 +126,7 @@ class NArgOption(BasicOption):
     def __init__(self, name: str, help_str: str, default: list[Any] | None = None):
         d = [] if default is None else default
         super().__init__(name, help_str, d)
-        self.arguments["nargs"] = '+'
+        self.arguments[ArgKey.nargs] = '+'
 
     def toml_valid(self, value: Any) -> bool:
         return isinstance(value, list)
