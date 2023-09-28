@@ -28,12 +28,12 @@ import argparse
 import logging
 import os
 import sys
-import textwrap
 import tomllib
-from typing import Tuple, get_args, Any, Iterable, TypeVar, Generic, Final
+from typing import Tuple, get_args, Final
 
 from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME, default_dirs
+from recipe2txt.utils.ArgConfig import BasicOption, ChoiceOption, TypeOption, BoolOption, NArgOption
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str, ensure_accessible_file_critical
@@ -45,123 +45,6 @@ except ImportError:
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
-
-
-def short_flag(long_name: str) -> str:
-    long_name = long_name.strip()
-    segments = long_name.split("-")
-    starting_letters = [segment.strip()[0] for segment in segments if segment]
-    return "-" + "".join(starting_letters)
-
-
-def obj2toml(o: Any) -> str:
-    if isinstance(o, list):
-        return str([obj2toml_i(e) for e in o])
-    if isinstance(o, dict):
-        return str({obj2toml_i(key): obj2toml_i(value) for key, value in o.items()})
-    return obj2toml_i(o)
-
-
-def obj2toml_i(o: Any) -> str:
-    if isinstance(o, bool):
-        return "true" if o else "false"
-    if isinstance(o, str):
-        return f"'{o}'"
-    return str(o)
-
-
-class BasicOption:
-    help_wrapper = textwrap.TextWrapper(width=72,
-                                        initial_indent="# ",
-                                        subsequent_indent="# ",
-                                        break_long_words=False,
-                                        break_on_hyphens=False)
-
-    def __init__(self, name: str, help_str: str, default: Any = None, has_short: bool = True):
-        name = name.strip()
-        if name.startswith('-'):
-            raise ValueError("'name' should just be the name of the flag without any leading '-'")
-        self.name = name
-        self.names = ["--" + name]
-        if has_short:
-            self.names.append(short_flag(name))
-        self.argument_args = {"help": help_str, "default": default}
-
-    def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
-        help_tmp = self.argument_args["help"]
-        if self.argument_args["default"] is not None:
-            self.argument_args["help"] = f"{self.argument_args['help']} (default: {self.argument_args['default']})"
-        parser.add_argument(*self.names, **self.argument_args)
-        self.argument_args["help"] = help_tmp
-
-    def to_toml(self) -> str:
-        default_str = obj2toml(self.argument_args["default"])
-        return BasicOption.help_wrapper.fill(self.argument_args["help"]) + f"\n#{self.name} = {default_str}\n"
-
-    def toml_valid(self, value: Any) -> bool:
-        return bool(value)
-
-    def from_toml(self, toml: dict[str, Any]) -> bool:
-        value = toml.get(self.name)
-        if self.toml_valid(value):
-            self.argument_args["default"] = value
-            return True
-        return False
-
-
-T = TypeVar('T')
-
-
-class ChoiceOption(BasicOption, Generic[T]):
-
-    def __init__(self, name: str, help_str: str, default: T, choices: Iterable[T]):
-        if default not in choices:
-            raise ValueError(f"Parameter {default=} not in {choices=}")
-        super().__init__(name, help_str, default)
-        self.argument_args["choices"] = choices
-
-    def toml_valid(self, value: Any) -> bool:
-        if value not in self.argument_args["choices"]:
-            return False
-        return True
-
-
-class TypeOption(BasicOption):
-
-    def __init__(self, name: str, help_str: str, default: Any, t: type):
-        if not isinstance(default, t):
-            raise ValueError("Parameter {default=} does not match type {t=}")
-        super().__init__(name, help_str, default)
-        self.argument_args["type"] = t
-
-    def toml_valid(self, value: Any) -> bool:
-        if not (t := self.argument_args.get("type")):
-            raise RuntimeError("'argument_args' does not contain 'type' (but it should)")
-        return isinstance(value, t)
-
-
-class BoolOption(BasicOption):
-
-    def __init__(self, name: str, help_str: str, default: bool = False):
-        super().__init__(name, help_str, default)
-        self.argument_args["action"] = "store_true"
-
-    def toml_valid(self, value: Any) -> bool:
-        if value not in (True, False):
-            return False
-        return True
-
-
-class NArgOption(BasicOption):
-
-    def __init__(self, name: str, help_str: str, default: list[Any] | None = None):
-        d = [] if default is None else default
-        super().__init__(name, help_str, d)
-        self.argument_args["nargs"] = '+'
-
-    def toml_valid(self, value: Any) -> bool:
-        return isinstance(value, list)
-
 
 arguments: Final[list[BasicOption]] = [
     NArgOption("url", "URLs whose recipes should be added to the recipe-file"),
