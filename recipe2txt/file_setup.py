@@ -36,20 +36,18 @@ Attributes:
         :py:mod:`recipe-scrapers`
 """
 import os
-import sys
 import textwrap
-from shutil import rmtree
-from typing import Final, Tuple, Literal, NamedTuple
 from pathlib import Path
+from shutil import rmtree
+from typing import Final, Tuple, NamedTuple
 
 from xdg_base_dirs import xdg_data_home, xdg_config_home, xdg_state_home
 
-from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.html2recipe import errors2str
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, Directory, full_path, \
-    create_timestamped_dir
+from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file_critical, File, create_timestamped_dir
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
@@ -104,7 +102,7 @@ DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.tx
 """name of the config-file used to store the default output-location"""
 
 
-def file_setup(debug: bool = False, output: str = "", markdown: bool = False) -> Tuple[AccessibleDatabase, File, File]:
+def file_setup(output: str, debug: bool = False) -> Tuple[AccessibleDatabase, File, File]:
     """
     Initializes all files that the program will need to read from and write to.
 
@@ -113,7 +111,6 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
         output: Where the recipes should be written to (will use the location provided by
         :py:data:`DEFAULT_OUTPUT_LOCATION_NAME' if not set or fallback to the current working directory if nothing is
         configured
-        markdown: hether the output-file is a plain text- or a Markdown-file
 
     Returns:
         A tuple consisting of the path to (1) the database, (2) the output-file and (3) the log-file the program will
@@ -127,10 +124,7 @@ def file_setup(debug: bool = False, output: str = "", markdown: bool = False) ->
     db_file = ensure_accessible_db_critical(directory.data, DB_NAME)
     log_file = ensure_accessible_file_critical(directory.state, LOG_NAME)
 
-    if output:
-        output_file = ensure_accessible_file_critical(output)
-    else:
-        output_file = get_default_output(directory.config, markdown)
+    output_file = ensure_accessible_file_critical(output)
 
     return db_file, output_file, log_file
 
@@ -166,73 +160,6 @@ def erase_files(debug: bool = False) -> None:
         if directory.is_dir():
             logger.warning("Deleting %s", directory)
             rmtree(directory)
-
-
-def get_default_output(config_path: Path, markdown: bool) -> File:
-    """
-    Get the file that the program should write recipes to when no file has been specified by the CLI-arguments.
-
-    This is either a file preconfigured by the user or a file in the currend working directory.
-
-    Args:
-        config_path: The path to the programs configuration files
-        markdown: Whether the file should be a txt- or a markdown-file
-
-    Returns:
-        A path to an existing file to write recipes to.
-
-    Raises:
-        SystemExit: Raised, when the :py:data:`DEFAULT_OUTPUT_LOCATION_NAME`-file is not in the correct format or
-        when the output-file cannot be created/accessed.
-
-    """
-    output_location_file = config_path / DEFAULT_OUTPUT_LOCATION_NAME
-    if output_location_file.is_file():
-        text = output_location_file.read_text().split(os.linesep)
-        text = [line for line in text if line]
-        if len(text) != 2:
-            logger.error(f"The config file ({output_location_file}) has unexpected content.")
-            sys.exit(os.EX_DATAERR)
-        output = text[1] if markdown else text[0]
-        output_file = ensure_accessible_file_critical(output)
-    else:
-        recipes_name = RECIPES_NAME_MD if markdown else RECIPES_NAME_TXT
-        output_file = ensure_accessible_file_critical(Directory(Path.cwd()), recipes_name)
-    return output_file
-
-
-def set_default_output(filepath: str | Literal["RESET"], debug: bool = False) -> None:
-    """
-    Sets the path to the file that the program should write recipes to.
-
-    This function is called when no file has been specified by the CLI-arguments.
-
-    Args:
-        filepath: Either a new path for the default-file or the string literal "RESET", which will erase any existing
-         path.
-        debug: Whether the normal or the debug configuration file should be manipulated.
-    """
-    data_dir = debug_dirs.config if debug else default_dirs.config
-    if filepath == "RESET":
-        try:
-            os.remove(data_dir / DEFAULT_OUTPUT_LOCATION_NAME)
-            logger.warning("Removed default output location. When called without specifying the output-file recipes"
-                           " will now be written in the current working directory with the name %s", RECIPES_NAME_TXT)
-        except FileNotFoundError:
-            logger.warning("No default output set")
-        except OSError as e:
-            logger.error("Error while deleting file %s: %s", filepath, getattr(e, 'message', repr(e)))
-            sys.exit(os.EX_IOERR)
-    else:
-        config_file = ensure_accessible_file_critical(data_dir, DEFAULT_OUTPUT_LOCATION_NAME)
-
-        path = full_path(filepath)
-        path_txt = path.with_suffix(".txt")
-        path_md = path.with_suffix(".md")
-
-        new_config = f"{path_txt}{os.linesep}{path_md}{os.linesep}"
-        config_file.write_text(new_config)
-        logger.warning(f"Set default output location to {path_txt}, {path_md}")
 
 
 how_to_report_txt: Final[LiteralString] = textwrap.dedent(

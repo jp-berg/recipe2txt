@@ -6,8 +6,6 @@ from enum import unique
 from pathlib import Path
 from typing import Any, TypeVar, Generic, Iterable, Final, LiteralString
 
-from xdg_base_dirs import xdg_config_home
-
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.conditional_imports import tomllib
 from recipe2txt.utils.misc import ensure_accessible_file_critical, File
@@ -181,10 +179,9 @@ class ArgConfig:
 
     def __init__(self,
                  parser: argparse.ArgumentParser,
-                 config_dir: str | Path | None = None):
+                 config_dir: Path):
         self.parser = parser
-        config_dir = config_dir if config_dir else xdg_config_home()
-        config_path = Path(config_dir) / f"{parser.prog}.toml"
+        config_path = config_dir / f"{parser.prog}.toml"
         self.existed_before = config_path.is_file()
         self.config_file = ensure_accessible_file_critical(config_path)
         if self.existed_before:

@@ -31,7 +31,7 @@ import sys
 from typing import Tuple, get_args
 
 from recipe2txt.fetcher import Cache
-from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
+from recipe2txt.file_setup import get_files, erase_files, file_setup, PROGRAM_NAME, default_dirs
 from recipe2txt.utils.ArgConfig import ArgConfig
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
 from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str
@@ -62,7 +62,7 @@ parser = FileListingArgParse(
 )
 """The argument parser used by this program."""
 
-arg_config = ArgConfig(parser)
+arg_config = ArgConfig(parser, default_dirs.config)
 
 arg_config.add_narg("url", "URLs whose recipes should be added to the recipe-file")
 arg_config.add_narg("file", "Text-files containing URLs whose recipes should be added to the recipe-file")
@@ -96,29 +96,6 @@ arg_config.add_arg("erase-appdata", "Erases all data- and cache-files used by th
                    has_short=False)
 
 
-def mutex_args_check(a: argparse.Namespace) -> None:
-    """
-    Verifies that only one of the mutual exclusive flags is set.
-
-    Those flags, namely '--show-appdata', '--erase-appdata' and '--default-output-file', do not influence a normal run
-    of the program, but help review and configure the default options and data.
-
-    Args:
-        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
-    """
-    if len(sys.argv) > 2:
-
-        flag_name: str = ""
-        if a.erase_appdata:
-            flag_name = "--erase-appdata"
-        elif a.default_output_file:
-            if len(sys.argv) > 3:
-                flag_name = "--default-output-file"
-
-        if flag_name:
-            parser.error(flag_name + " cannot be used with any other flags")
-
-
 def mutex_args(a: argparse.Namespace) -> None:
     """
     Processes the mutual exclusive flags (see :py:func:`mutex_args_check`)
@@ -126,16 +103,11 @@ def mutex_args(a: argparse.Namespace) -> None:
     Args:
         a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
     """
-    if not (a.erase_appdata or a.default_output_file):
+    if not a.erase_appdata:
         return
-    mutex_args_check(a)
-    if a.erase_appdata:
-        erase_files()
-    elif a.default_output_file:
-        if a.default_output_file != "RESET":
-            set_default_output(a.default_output_file)
-        else:
-            set_default_output("RESET")
+    if len(sys.argv) > 2:
+        parser.error("--erase-appdata cannot be used with any other flags")
+    erase_files()
     sys.exit(os.EX_OK)
 
 
@@ -182,7 +154,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
             gathered from :py:mod:`argparse`
 
     """
-    db_file, recipe_file, log_file = file_setup(a.debug, a.output, a.markdown)
+    db_file, recipe_file, log_file = file_setup(a.output, a.debug)
     root_log_setup(string2level[a.verbosity], str(log_file))
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + '\t'))
