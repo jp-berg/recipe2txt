@@ -28,15 +28,13 @@ import argparse
 import logging
 import os
 import sys
-import tomllib
-from typing import Tuple, get_args, Final
+from typing import Tuple, get_args
 
 from recipe2txt.fetcher import Cache
-from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME, default_dirs
-from recipe2txt.utils.ArgConfig import BasicOption, ChoiceOption, TypeOption, BoolOption, NArgOption
+from recipe2txt.file_setup import get_files, erase_files, set_default_output, file_setup, PROGRAM_NAME
+from recipe2txt.utils.ArgConfig import ArgConfig
 from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
-from recipe2txt.utils.conditional_imports import LiteralString
-from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str, ensure_accessible_file_critical
+from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
@@ -45,38 +43,6 @@ except ImportError:
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
-
-arguments: Final[list[BasicOption]] = [
-    NArgOption("url", "URLs whose recipes should be added to the recipe-file"),
-    NArgOption("file", "Text-files containing URLs whose recipes should be added to the recipe-file"),
-    BasicOption("output", "Specifies an output file. If empty or not specified recipes will either be written into"
-                          " the current working directory or into the default output file (if set). THIS WILL OVERWRITE"
-                          " ANY EXISTING FILE WITH THE SAME NAME."),
-    ChoiceOption("verbosity", "Sets the 'chattiness' of the program",
-                 choices=get_args(LOG_LEVEL_NAMES), default="critical"),
-    TypeOption("connections", t=int, default=Fetcher.connections,
-               help_str="{}Sets the number of simultaneous connections"
-               .format("" if Fetcher.is_async else
-                       "Since the package 'aiohttp' is not installed the number of simultaneous connections will"
-                       " always be 1. Thus this flag and its parameters will not be evaluated. ")),
-    ChoiceOption("cache-behavior", choices=["only", "new", "default"], default="default", help_str=
-    "Controls how the program should handle its cache: With 'only' no new data will be downloaded"
-    ", the recipes will be generated from data that has been downloaded previously. If a recipe"
-    " is not in the cache, it will not be written into the final output. 'new' will make the"
-    " program ignore any saved data and download the requested recipes even if they have already"
-    " been downloaded. Old data will be replaced by the new version, if it is available."
-    " The 'default' will fetch and merge missing data with the data already saved, only inserting"
-    " new data into the cache where there was none previously."),
-    BoolOption("debug", "Activates debug-mode: Changes the directory for application data"),
-    TypeOption("timeout", t=float, default=Fetcher.timeout, help_str=
-    "Sets the number of seconds the program waits for an individual website to respond, eg. {}.".format(
-        'sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async
-        else 'sets the timeout-argument of urllib.request.urlopen')),
-    BoolOption("markdown", "Generates markdown-output instead of '.txt'"),
-    BasicOption("user-agent", "Sets the user-agent to be used for the requests.", default=Fetcher.user_agent),
-    BasicOption("erase-appdata", "Erases all data- and cache-files used by this program (see 'Program files' below)",
-                has_short=False)
-]
 
 
 class FileListingArgParse(argparse.ArgumentParser):
@@ -96,27 +62,38 @@ parser = FileListingArgParse(
 )
 """The argument parser used by this program."""
 
-CONFIG_NAME: Final[LiteralString] = PROGRAM_NAME + ".toml"
-config_file = default_dirs.config / CONFIG_NAME
+arg_config = ArgConfig(parser)
 
-if config_file.is_file():
-    with config_file.open("rb") as cfg:
-        try:
-            toml = tomllib.load(cfg)
-        except tomllib.TOMLDecodeError as e:
-            msg = f"The config-file ({config_file}) seems to be misconfigured ({e}). Fix the error or delete the file" \
-                  " and generate a new one by running the program with any argument (eg. 'recipe2txt --help')"
-            print(msg, file=sys.stderr)
-            sys.exit(os.EX_DATAERR)
-    for arg in arguments:
-        arg.from_toml(toml)
-else:
-    config_txt = "\n\n".join([arg.to_toml() for arg in arguments])
-    ensure_accessible_file_critical(config_file)
-    config_file.write_text(config_txt)
-
-for arg in arguments:
-    arg.add_to_parser(parser)
+arg_config.add_narg("url", "URLs whose recipes should be added to the recipe-file")
+arg_config.add_narg("file", "Text-files containing URLs whose recipes should be added to the recipe-file")
+arg_config.add_arg("output", "Specifies an output file. If empty or not specified recipes will either be written into"
+                             " the current working directory or into the default output file (if set)."
+                             " THIS WILL OVERWRITE ANY EXISTING FILE WITH THE SAME NAME.")
+arg_config.add_choice("verbosity", "Sets the 'chattiness' of the program",
+                      choices=get_args(LOG_LEVEL_NAMES), default="critical")
+arg_config.add_type("connections", t=int, default=Fetcher.connections,
+                    help_str="{}Sets the number of simultaneous connections"
+                    .format("" if Fetcher.is_async else
+                            "Since the package 'aiohttp' is not installed the number of simultaneous connections will"
+                            " always be 1. Thus this flag and its parameters will not be evaluated. "))
+arg_config.add_choice("cache-behavior", choices=["only", "new", "default"], default="default",
+                      help_str="Controls how the program should handle its cache: With 'only' no new data will be"
+                               " downloaded, the recipes will be generated from data that has been downloaded"
+                               " previously. If a recipe is not in the cache, it will not be written into the final"
+                               " output. 'new' will make the program ignore any saved data and download the requested"
+                               " recipes even if they have already been downloaded. Old data will be replaced by the"
+                               " new version, if it is available. The 'default' will fetch and merge missing data with"
+                               " the data already saved, only inserting new data into the cache where there was none"
+                               " previously.")
+arg_config.add_bool("debug", "Activates debug-mode: Changes the directory for application data")
+arg_config.add_type("timeout", t=float, default=Fetcher.timeout,
+                    help_str="Sets the number of seconds the program waits for an individual website to respond,"
+                             "eg. {}.".format('sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async
+                                              else 'sets the timeout-argument of urllib.request.urlopen'))
+arg_config.add_bool("markdown", "Generates markdown-output instead of '.txt'")
+arg_config.add_arg("user-agent", "Sets the user-agent to be used for the requests.", default=Fetcher.user_agent)
+arg_config.add_arg("erase-appdata", "Erases all data- and cache-files used by this program (see 'Program files' below)",
+                   has_short=False)
 
 
 def mutex_args_check(a: argparse.Namespace) -> None:
