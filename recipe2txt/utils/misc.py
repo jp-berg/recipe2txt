@@ -91,6 +91,8 @@ def full_path(*pathelements: str | Path) -> Path:
 
 def _ensure_existence_dir(path: Path) -> tuple[Optional[Directory], tuple[str, Any, Any]]:
     try:
+        if path.is_file():
+            return None, ("%s is already a file, thus a directory with the same name cannot exist", path)
         exists = is_dir(path)
     except OSError as e:
         return None, ("Directory cannot be accessed: %s (%s)", path, getattr(e, 'message', repr(e)))
@@ -139,6 +141,8 @@ def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Optional[D
 
 def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any, Any]]:
     try:
+        if path.is_dir():
+            return None, ("%s is already a directory, thus a file with the same name cannot exist", path)
         exists = path.is_file()
     except OSError as e:
         return None, ("File cannot be accessed: %s (%s)", path, getattr(e, 'message', repr(e)))

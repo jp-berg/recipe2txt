@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import unittest
-import recipe2txt.utils.misc as misc
 import os
+import unittest
+
+import recipe2txt.utils.misc as misc
 from test.test_helpers import *
 
 testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
@@ -132,6 +133,18 @@ class FileTests(unittest.TestCase):
 
         os.remove(file1_path)
         os.remove(file2_path)
+
+    def test_dir_file_name_conflict(self):
+        directory = misc.full_path(normal_dirs[0])
+        os.makedirs(directory, exist_ok=True)
+
+        self.assertIsNone(misc.ensure_accessible_file(directory))
+        os.rmdir(directory)
+        assertAccessibleFile(self, misc.ensure_accessible_file(directory))
+
+        self.assertIsNone(misc.ensure_existence_dir(directory))
+        os.remove(directory)
+        self.assertTrue(misc.ensure_existence_dir(directory).is_dir())
 
 
 class StrTests(unittest.TestCase):
