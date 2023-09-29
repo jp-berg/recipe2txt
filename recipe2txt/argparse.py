@@ -28,6 +28,7 @@ import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import Tuple, get_args
 
 from recipe2txt.fetcher import Cache
@@ -66,9 +67,8 @@ arg_config = ArgConfig(parser, default_dirs.config)
 
 arg_config.add_narg("url", "URLs whose recipes should be added to the recipe-file")
 arg_config.add_narg("file", "Text-files containing URLs whose recipes should be added to the recipe-file")
-arg_config.add_arg("output", "Specifies an output file. If empty or not specified recipes will either be written into"
-                             " the current working directory or into the default output file (if set)."
-                             " THIS WILL OVERWRITE ANY EXISTING FILE WITH THE SAME NAME.")
+arg_config.add_arg("output", "Specifies an output file. THIS WILL OVERWRITE ANY EXISTING FILE WITH THE SAME NAME.",
+                   default=Path.cwd())
 arg_config.add_choice("verbosity", "Sets the 'chattiness' of the program",
                       choices=get_args(LOG_LEVEL_NAMES), default="critical")
 arg_config.add_type("connections", t=int, default=Fetcher.connections, short="con",
