@@ -89,7 +89,7 @@ def full_path(*pathelements: str | Path) -> Path:
     return path
 
 
-def _ensure_existence_dir(path: Path) -> tuple[Optional[Directory], tuple[str, Any, Any]]:
+def _ensure_existence_dir(path: Path) -> tuple[Optional[Directory], tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_file():
             return None, ("%s is already a file, thus a directory with the same name cannot exist", path)
@@ -139,7 +139,7 @@ def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Optional[D
     return directory
 
 
-def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any, Any]]:
+def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_dir():
             return None, ("%s is already a directory, thus a file with the same name cannot exist", path)
@@ -158,10 +158,10 @@ def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any,
             return None, msg
     with path.open("r") as f:
         if not f.readable():
-            return None, ("File cannot be read: %s%s", path, "")
+            return None, ("File cannot be read: %s", path)
     with path.open("a") as f:
         if not f.writable():
-            return None, ("File is not writable: %s%s", path, "")
+            return None, ("File is not writable: %s", path)
     return File(path), (DO_NOT_LOG, "", "")
 
 
