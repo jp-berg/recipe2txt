@@ -50,7 +50,7 @@ class FileListingArgParse(argparse.ArgumentParser):
         help_msg = super().format_help()
         files = get_files()
         files.sort()
-        files_str = os.linesep + "   " + (os.linesep + "   ").join(files) if files else " none"
+        files_str = os.linesep + "  " + (os.linesep + "  ").join(files) if files else " none"
         help_msg += os.linesep + "files created or used by this program:" + files_str + os.linesep
         return help_msg
 
@@ -92,7 +92,7 @@ arg_config.add_type("timeout", t=float, default=Fetcher.timeout,
                                               else 'sets the timeout-argument of urllib.request.urlopen'))
 arg_config.add_bool("markdown", "Generates markdown-output instead of '.txt'")
 arg_config.add_arg("user-agent", "Sets the user-agent to be used for the requests.", default=Fetcher.user_agent)
-arg_config.add_arg("erase-appdata", "Erases all data- and cache-files used by this program (see 'Program files' below)",
+arg_config.add_arg("erase-appdata", "Erases all data- and cache-files (e.g. the files listed below)",
                    short=None)
 
 
