@@ -71,12 +71,12 @@ arg_config.add_arg("output", "Specifies an output file. If empty or not specifie
                              " THIS WILL OVERWRITE ANY EXISTING FILE WITH THE SAME NAME.")
 arg_config.add_choice("verbosity", "Sets the 'chattiness' of the program",
                       choices=get_args(LOG_LEVEL_NAMES), default="critical")
-arg_config.add_type("connections", t=int, default=Fetcher.connections,
+arg_config.add_type("connections", t=int, default=Fetcher.connections, short="con",
                     help_str="{}Sets the number of simultaneous connections"
                     .format("" if Fetcher.is_async else
                             "Since the package 'aiohttp' is not installed the number of simultaneous connections will"
                             " always be 1. Thus this flag and its parameters will not be evaluated. "))
-arg_config.add_choice("cache-behavior", choices=["only", "new", "default"], default="default",
+arg_config.add_choice("cache", choices=["only", "new", "default"], default="default",
                       help_str="Controls how the program should handle its cache: With 'only' no new data will be"
                                " downloaded, the recipes will be generated from data that has been downloaded"
                                " previously. If a recipe is not in the cache, it will not be written into the final"
@@ -93,7 +93,7 @@ arg_config.add_type("timeout", t=float, default=Fetcher.timeout,
 arg_config.add_bool("markdown", "Generates markdown-output instead of '.txt'")
 arg_config.add_arg("user-agent", "Sets the user-agent to be used for the requests.", default=Fetcher.user_agent)
 arg_config.add_arg("erase-appdata", "Erases all data- and cache-files used by this program (see 'Program files' below)",
-                   has_short=False)
+                   short=None)
 
 
 def mutex_args(a: argparse.Namespace) -> None:
