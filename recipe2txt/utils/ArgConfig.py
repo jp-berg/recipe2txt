@@ -210,7 +210,10 @@ class ArgConfig:
             option.from_toml(self.toml)
         else:
             option.to_toml(self.config_file)
-        option.add_to_parser(self.parser)
+        try:
+            option.add_to_parser(self.parser)
+        except argparse.ArgumentError as e:
+            raise ValueError(e) from None
 
     def add_arg(self, name: str, help_str: str, default: Any = None, short: str | None = "") -> None:
         self.add_option(BasicOption(name, help_str, default, short))
