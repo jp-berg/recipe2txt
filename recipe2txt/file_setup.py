@@ -111,8 +111,8 @@ def file_setup(output: str, debug: bool = False) -> Tuple[AccessibleDatabase, Fi
     Args:
         debug: Whether the default- or the debug-directories should be used
         output: Where the recipes should be written to (will use the location provided by
-        :py:data:`DEFAULT_OUTPUT_LOCATION_NAME' if not set or fallback to the current working directory if nothing is
-        configured
+            :py:data:`DEFAULT_OUTPUT_LOCATION_NAME' if not set or fallback to the current working directory if nothing
+            is configured)
 
     Returns:
         A tuple consisting of the path to (1) the database, (2) the output-file and (3) the log-file the program will
