@@ -13,14 +13,16 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import getpass
 import os
 import unittest
-
-from xdg_base_dirs import xdg_data_home
 from pathlib import Path
+from shutil import rmtree
 from tempfile import gettempdir
 from typing import Final
-from shutil import rmtree
+
+from xdg_base_dirs import xdg_data_home
+
 import recipe2txt.html2recipe as h2r
 import recipe2txt.utils.misc as misc
 from recipe2txt.utils.ContextLogger import disable_loggers
@@ -29,7 +31,7 @@ disable_loggers()
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
            "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes",
-           "assertAccessibleFile", "assertFilesEqual"]
+           "assertAccessibleFile", "assertFilesEqual", "testfile", "normal_dirs", "none_dirs"]
 
 tmpdir_name: Final[str] = "tmp_testfiles_re2txt"
 filedir_name: Final[str] = "testfiles"
@@ -41,6 +43,15 @@ xdg_tmpdir: Final[Path] = Path(xdg_data_home(), tmpdir_name)
 tmpdir: Final[Path] = Path(gettempdir(), tmpdir_name)
 
 tmpdirs:Final[list[Path]] = [test_project_tmpdir, xdg_tmpdir, tmpdir]
+
+testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
+testfile = "TESTFILE.txt"
+
+if getpass.getuser() == 'root':
+    raise EnvironmentError("DO NOT RUN THESE TESTS AS ROOT-USER")
+none_dirs = [[os.devnull] + testdirs,
+             ["/root"] + testdirs]
+normal_dirs = [[folder] + testdirs for folder in tmpdirs]
 
 for directory in tmpdirs:
     directory.mkdir(parents=True, exist_ok=True)
@@ -118,7 +129,6 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
                         validation_line = prefix_validation + ": " + path_validation
 
                     testcase.assertEqual(test_line, validation_line)
-
 
 
 

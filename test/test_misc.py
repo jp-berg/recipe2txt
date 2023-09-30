@@ -18,12 +18,7 @@ import unittest
 
 import recipe2txt.utils.misc as misc
 from test.test_helpers import *
-
-testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
-testfile = "TESTFILE.txt"
-none_dirs = [[os.devnull] + testdirs,
-             ["/root"] + testdirs]
-normal_dirs = [[folder] + testdirs for folder in tmpdirs]
+from test.test_helpers import testfile, none_dirs, normal_dirs
 
 
 class FileTests(unittest.TestCase):

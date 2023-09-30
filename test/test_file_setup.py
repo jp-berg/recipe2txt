@@ -13,22 +13,19 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import os
 import unittest
 from pathlib import Path
 from shutil import rmtree
 
+import recipe2txt.file_setup as fs
 from recipe2txt.sql import is_accessible_db
 from recipe2txt.utils.ContextLogger import disable_loggers
-from test.test_helpers import test_project_tmpdir, assertAccessibleFile
-from test.test_misc import testfile
-import recipe2txt.file_setup as fs
-from recipe2txt.utils.misc import ensure_existence_dir, full_path
+from recipe2txt.utils.misc import ensure_existence_dir
+from test.test_helpers import test_project_tmpdir, assertAccessibleFile, testfile, normal_dirs, none_dirs
 
 copy_debug_dirs = fs.debug_dirs
 tmp_data_dir = test_project_tmpdir / "test-xdg-dirs"
 
-COPY_DEFAULT_OUTPUT_LOCATION_NAME = fs.DEFAULT_OUTPUT_LOCATION_NAME
 COPY_RECIPES_NAME_TXT = fs.RECIPES_NAME_TXT
 
 disable_loggers()
@@ -38,9 +35,11 @@ test_debug_dirs = fs.ProgramDirectories(tmp_data_dir / "data",
                                         tmp_data_dir / "config",
                                         tmp_data_dir / "state")
 
+db_path = test_debug_dirs.data / fs.DB_NAME
+log_path = test_debug_dirs.state / fs.LOG_NAME
+
 def name_back():
     fs.debug_dirs = copy_debug_dirs
-    fs.DEFAULT_OUTPUT_LOCATION_NAME = COPY_DEFAULT_OUTPUT_LOCATION_NAME
     fs.RECIPES_NAME_TXT = COPY_RECIPES_NAME_TXT
 
 
@@ -68,25 +67,37 @@ class Test(unittest.TestCase):
         remove_dir()
 
     def test_file_setup(self):
-        db_path = test_debug_dirs.data / fs.DB_NAME
-        log_path = test_debug_dirs.state / fs.LOG_NAME
-        testfile_txt = test_project_tmpdir / testfile
-        params = [((True,),
-                   (db_path, Path.cwd() / fs.RECIPES_NAME_TXT, log_path)),
-                  ((True, str(testfile_txt), False),
-                   (db_path, testfile_txt, log_path)),
-                  ((True, str(testfile_txt.with_suffix(".md")), True),
-                   (db_path, testfile_txt.with_suffix(".md"), log_path))
-                  ]
+        testfiles = [Path(*testdir) / testfile for testdir in normal_dirs]
+        test_params = [((str(file), True), (db_path, file, log_path)) for file in testfiles]
 
-        for idx, (test, validation) in enumerate(params):
+        for idx, (test, validation) in enumerate(test_params):
             fs.file_setup(*test)
             with self.subTest(i=idx):
-                is_accessible_db(validation[0])
+                self.assertTrue(is_accessible_db(validation[0]))
                 assertAccessibleFile(self, validation[1])
                 assertAccessibleFile(self, validation[2])
 
-        os.remove(Path.cwd() / fs.RECIPES_NAME_TXT)
+    def test_no_overwrite(self):
+        outfile = test_project_tmpdir / testfile
+        fs.file_setup(outfile, True)
+
+        assertAccessibleFile(self, outfile)
+        self.assertTrue(is_accessible_db(db_path))
+
+        outfile.write_text("TEST")
+
+        fs.file_setup(outfile, True)
+        self.assertEqual(outfile.read_text(), "TEST")
+
+
+    def test_file_setup_failure(self):
+        failfiles = [Path(*faildir) / testfile for faildir in none_dirs]
+        fail_params = [((str(file), True), (db_path, file, log_path)) for file in failfiles]
+
+        for idx, (test, validation) in enumerate(fail_params):
+            with self.subTest(i=idx):
+                with self.assertRaises(SystemExit):
+                    fs.file_setup(*test)
 
     def test_get_files(self):
         file1 = fs.debug_dirs.config / "file1"
@@ -125,36 +136,3 @@ class Test(unittest.TestCase):
             self.assertFalse(file.is_file())
         for directory in fs.debug_dirs:
             self.assertFalse(directory.is_dir())
-
-    def test_default_output(self):
-        testpath = str(full_path(test_project_tmpdir / "out"))
-        default_output = fs.debug_dirs.config / fs.DEFAULT_OUTPUT_LOCATION_NAME
-
-        self.assertFalse(default_output.is_file())
-        fs.set_default_output(testpath, True)
-        self.assertTrue(default_output.is_file())
-
-        content = default_output.read_text().split(os.linesep)
-        self.assertEqual(content[0], testpath + ".txt")
-        self.assertEqual(content[1], testpath + ".md")
-
-        output = fs.get_default_output(fs.debug_dirs.config, markdown=False)
-
-        self.assertEqual(str(output), testpath + ".txt")
-        assertAccessibleFile(self, output)
-
-        with self.assertRaises(SystemExit) as ex:
-            fs.set_default_output("/root/recipe", True)
-            fs.get_default_output(fs.debug_dirs.config, markdown=False)
-            self.assertEqual(ex.exception.code, os.EX_IOERR)
-
-        fs.set_default_output("RESET", True)
-        self.assertFalse(default_output.is_file())
-
-        output = fs.get_default_output(fs.debug_dirs.config, markdown=False)
-
-        default_recipe_file = Path.cwd() / fs.RECIPES_NAME_TXT
-        assertAccessibleFile(self, default_recipe_file)
-        self.assertEqual(output, default_recipe_file)
-
-        os.remove(default_recipe_file)
