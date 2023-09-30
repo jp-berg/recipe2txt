@@ -33,9 +33,15 @@ def short_flag(long_name: str) -> str:
 
 def obj2toml(o: Any) -> str:
     if isinstance(o, list):
-        return str([obj2toml_i(e) for e in o])
+        s = "["
+        for e in o:
+            s += f"{obj2toml_i(e)}, "
+        return s[:-2] + "]"
     if isinstance(o, dict):
-        return str({obj2toml_i(key): obj2toml_i(value) for key, value in o.items()})
+        s = "{"
+        for key, value in o.items():
+            s += f"{obj2toml_i(key)}: {obj2toml_i(value)}, "
+        return s[:-2] + "}"
     return obj2toml_i(o)
 
 
