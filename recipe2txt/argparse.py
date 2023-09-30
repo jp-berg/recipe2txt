@@ -138,6 +138,9 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
             logger.warning("The application is instructed to output a text file, but the filename extension"
                            " indicates otherwise:'%s'", ext)
 
+    if arg_config.file.stat().st_size == 0:
+        logger.warning("The config-file %s is empty", arg_config.file)
+
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     """
