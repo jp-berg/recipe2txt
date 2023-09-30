@@ -123,10 +123,10 @@ def file_setup(output: str, debug: bool = False) -> Tuple[AccessibleDatabase, Fi
     """
     directory = debug_dirs if debug else default_dirs
 
+    output_file = ensure_accessible_file_critical(output)
+
     db_file = ensure_accessible_db_critical(directory.data, DB_NAME)
     log_file = ensure_accessible_file_critical(directory.state, LOG_NAME)
-
-    output_file = ensure_accessible_file_critical(output)
 
     return db_file, output_file, log_file
 
