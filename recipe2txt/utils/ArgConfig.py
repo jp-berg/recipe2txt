@@ -175,7 +175,7 @@ class NArgOption(BasicOption):
         return isinstance(value, list)
 
 
-CFG_PREAMBLE: Final[LiteralString] = """
+CFG_PREAMBLE: Final[LiteralString] = """#%s
 # Configuration file for the program %s
 #
 # Every option listed here has a CLI-pendant that it mirrors in function.
@@ -192,6 +192,7 @@ CFG_PREAMBLE: Final[LiteralString] = """
 # (e.g. 'recipe2txt --help')
 #
 # For information about this file-format, please visit: https://toml.io
+#%s
 
 
 """
@@ -217,7 +218,7 @@ class ArgConfig:
                     print(msg, file=sys.stderr)
                     sys.exit(os.EX_DATAERR)
         else:
-            self.config_file.write_text(CFG_PREAMBLE % parser.prog)
+            self.file.write_text(CFG_PREAMBLE % (80 * '*', parser.prog, 80 * '*'))
 
     def add_option(self, option: BasicOption) -> None:
         if self.existed_before:
