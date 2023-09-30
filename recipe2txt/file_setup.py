@@ -98,8 +98,10 @@ RECIPES_NAME_TXT: Final[LiteralString] = RECIPES_NAME + ".txt"
 RECIPES_NAME_MD: Final[LiteralString] = RECIPES_NAME + ".md"
 DEFAULT_URLS_NAME: Final[LiteralString] = "urls.txt"
 """name of the default file that the urls will be read from (if no other urls are specified via CLI-arguments"""
-DEFAULT_OUTPUT_LOCATION_NAME: Final[LiteralString] = "default_output_location.txt"
-"""name of the config-file used to store the default output-location"""
+
+
+def get_default_output() -> str:
+    return os.path.join(os.getcwd(), RECIPES_NAME)
 
 
 def file_setup(output: str, debug: bool = False) -> Tuple[AccessibleDatabase, File, File]:
