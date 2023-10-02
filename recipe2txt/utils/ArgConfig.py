@@ -100,7 +100,7 @@ class BasicOption:
         help_tmp = self.arguments[ArgKey.help]
         if self.arguments[ArgKey.default] is not None:
             self.arguments[ArgKey.help] = f"{self.arguments[ArgKey.help]} (default: '{self.arguments[ArgKey.default]}')"
-        parser.add_argument(*self.names, **self.arguments)  # type: ignore [misc]
+        parser.add_argument(*self.names, **self.arguments)
         self.arguments[ArgKey.help] = help_tmp
 
     def to_toml_str(self) -> str:
