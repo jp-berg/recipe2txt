@@ -13,6 +13,13 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
+Since most parameters provided by the command line rarely change between program uses it makes sense to provide a
+config-file to the user, so that tedious retyping of favored options can be avoided. And since most parameters a
+program needs to derive either a CLI-option or a config option are the same, there should be a central place to
+configure both.
+The config-file-format used is TOML (https://toml.io)
+"""
+import argparse
 import os
 import sys
 import textwrap
