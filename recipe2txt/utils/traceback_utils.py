@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import traceback
 import os
+import traceback
 from copy import deepcopy
 from os import linesep
 from typing import Optional
@@ -35,7 +35,7 @@ def shorten_paths(stack: traceback.StackSummary, first_visible_dir: Optional[str
             frame.filename = os.path.join("...", remaining_path)
         else:
             remaining_path = tmp[1]
-            if remaining_path.startswith("/"):
+            if remaining_path.startswith(os.sep):
                 remaining_path = remaining_path[1:]
             frame.filename = os.path.join("...", first_visible_dir, remaining_path)
     return stack
