@@ -15,6 +15,7 @@
 
 import os
 import unittest
+from pathlib import Path
 
 import recipe2txt.utils.misc as misc
 from test.test_helpers import *
@@ -56,7 +57,8 @@ class FileTests(unittest.TestCase):
             (["~", "Documents", "File1"], os.path.expanduser(os.path.join("~", "Documents", "File1"))),
             (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt")),
             ([".", "file"], os.path.join(os.getcwd(), "file")),
-            (["$HOME", "Documents", "File1"], os.path.expandvars(os.path.join("$HOME", "Documents", "File1")))
+            (["$HOME", "Documents", "File1"], os.path.expandvars(os.path.join("$HOME", "Documents", "File1"))),
+            ([Path.cwd(), "NewDir", "File1.txt"], os.path.join(os.getcwd(), "NewDir", "File1.txt"))
         ]
 
         for test, validation in params:
@@ -130,7 +132,7 @@ class FileTests(unittest.TestCase):
         os.remove(file2_path)
 
     def test_dir_file_name_conflict(self):
-        directory = misc.full_path(normal_dirs[0])
+        directory = misc.full_path(*normal_dirs[0])
         os.makedirs(directory, exist_ok=True)
 
         self.assertIsNone(misc.ensure_accessible_file(directory))
