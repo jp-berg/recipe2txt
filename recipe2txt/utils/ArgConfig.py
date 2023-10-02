@@ -233,27 +233,39 @@ class ArgConfig:
         else:
             self.file.write_text(CFG_PREAMBLE % (80 * '*', parser.prog, 80 * '*'))
 
-    def add_option(self, option: BasicOption) -> None:
-        if self.existed_before:
-            option.from_toml(self.toml)
-        else:
-            option.to_toml(self.file)
+    def error_exit(self):
+        if not self.existed_before:
+            try:
+                os.remove(self.file)
+            except FileNotFoundError:
+               pass
+
+    def _add_option(self, option: type, args: tuple[Any, ...]) -> None:
         try:
-            option.add_to_parser(self.parser)
+            o = option(*args)
+            if self.existed_before:
+                o.from_toml(self.toml)
+            else:
+                o.to_toml(self.file)
+            o.add_to_parser(self.parser)
         except argparse.ArgumentError as e:
+            self.error_exit()
             raise ValueError(e) from None
+        except Exception as e:
+            self.error_exit()
+            raise e
 
     def add_arg(self, name: str, help_str: str, default: Any = None, short: str | None = "") -> None:
-        self.add_option(BasicOption(name, help_str, default, short))
+        self._add_option(BasicOption, (name, help_str, default, short))
 
     def add_choice(self, name: str, help_str: str, default: T, choices: Iterable[T], short: str | None = "") -> None:
-        self.add_option(ChoiceOption(name, help_str, default, choices, short))
+        self._add_option(ChoiceOption, (name, help_str, default, choices, short))
 
     def add_type(self, name: str, help_str: str, default: Any, t: type, short: str | None = "") -> None:
-        self.add_option(TypeOption(name, help_str, default, t, short))
+        self._add_option(TypeOption, (name, help_str, default, t, short))
 
     def add_bool(self, name: str, help_str: str, default: bool = False, short: str | None = "") -> None:
-        self.add_option(BoolOption(name, help_str, default, short))
+        self._add_option(BoolOption, (name, help_str, default, short))
 
     def add_narg(self, name: str, help_str: str, default: list[Any] | None = None, short: str | None = "") -> None:
-        self.add_option(NArgOption(name, help_str, default, short))
+        self._add_option(NArgOption, (name, help_str, default, short))
