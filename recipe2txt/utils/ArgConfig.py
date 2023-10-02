@@ -136,7 +136,7 @@ class BasicOption:
         help_tmp = self.arguments[ArgKey.help]
         if self.arguments[ArgKey.default] is not None:
             self.arguments[ArgKey.help] = f"{self.arguments[ArgKey.help]} (default: '{self.arguments[ArgKey.default]}')"
-        parser.add_argument(*self.names, **self.arguments)
+        parser.add_argument(*self.names, **self.arguments)  # type: ignore[misc]
         self.arguments[ArgKey.help] = help_tmp
 
     def to_toml_str(self) -> str:
@@ -321,7 +321,7 @@ class ArgConfig:
         else:
             self.file.write_text(CFG_PREAMBLE % (80 * '*', parser.prog, 80 * '*'))
 
-    def error_exit(self):
+    def error_exit(self) -> None:
         if not self.existed_before:
             try:
                 os.remove(self.file)
