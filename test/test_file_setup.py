@@ -89,7 +89,6 @@ class Test(unittest.TestCase):
         fs.file_setup(outfile, True)
         self.assertEqual(outfile.read_text(), "TEST")
 
-
     def test_file_setup_failure(self):
         failfiles = [Path(*faildir) / testfile for faildir in none_dirs]
         fail_params = [((str(file), True), (db_path, file, log_path)) for file in failfiles]
@@ -106,10 +105,7 @@ class Test(unittest.TestCase):
 
         file1.write_text("TESTFILE")
         file2.write_text("TESTFILE")
-
-        db_path = fs.debug_dirs.data / fs.DB_NAME
-        log_path = fs.debug_dirs.state / fs.LOG_NAME
-        fs.file_setup(True, file3)
+        fs.file_setup(file3, True)
 
         test_files = set(fs.get_files(True))
         tmp = [file1, file2, file3, db_path, log_path]
