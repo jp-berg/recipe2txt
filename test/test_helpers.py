@@ -19,7 +19,7 @@ import unittest
 from pathlib import Path
 from shutil import rmtree
 from tempfile import gettempdir
-from typing import Final
+from typing import Final, Callable, Any
 
 from xdg_base_dirs import xdg_data_home
 
@@ -31,7 +31,8 @@ disable_loggers()
 
 __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
            "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes",
-           "assertAccessibleFile", "assertFilesEqual", "testfile", "normal_dirs", "none_dirs"]
+           "assertAccessibleFile", "assertFilesEqual", "testfile", "normal_dirs", "none_dirs",
+           "assertEval"]
 
 tmpdir_name: Final[str] = "tmp_testfiles_re2txt"
 filedir_name: Final[str] = "testfiles"
@@ -112,6 +113,7 @@ def assertAccessibleFile(testcase: unittest.TestCase, file: Path, not_empty: boo
     if not_empty and file.stat().st_size == 0:
         testcase.fail(f"{file} is empty")
 
+
 def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) -> None:
     with test.open('r') as test_file:
         with validation.open('r') as validation_file:
@@ -129,6 +131,14 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
                         validation_line = prefix_validation + ": " + path_validation
 
                     testcase.assertEqual(test_line, validation_line)
+
+
+def assertEval(testcase: unittest.TestCase, func: Callable[..., Any],
+               data: list[tuple[tuple[Any, ...] | Any, tuple[Any, ...] | Any]]) -> None:
+    for idx, (test, validation) in enumerate(data):
+        with testcase.subTest(iteration=idx, test_data=test, validation_data=validation):
+            testcase.assertEqual(func(test), validation)
+
 
 
 
