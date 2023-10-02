@@ -14,6 +14,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import shutil
 import unittest
 from pathlib import Path
 
@@ -136,7 +137,7 @@ class FileTests(unittest.TestCase):
         os.makedirs(directory, exist_ok=True)
 
         self.assertIsNone(misc.ensure_accessible_file(directory))
-        os.rmdir(directory)
+        shutil.rmtree(directory)
         assertAccessibleFile(self, misc.ensure_accessible_file(directory))
 
         self.assertIsNone(misc.ensure_existence_dir(directory))
