@@ -70,7 +70,7 @@ arg_config.add_arg("output", "Specifies an output file. THIS WILL OVERWRITE ANY 
                    default=get_default_output())
 arg_config.add_choice("verbosity", "Sets the 'chattiness' of the program",
                       choices=get_args(LOG_LEVEL_NAMES), default="critical")
-arg_config.add_type("connections", t=int, default=Fetcher.connections, short="con",
+arg_config.add_type("connections", default=Fetcher.connections, short="con",
                     help_str="{}Sets the number of simultaneous connections"
                     .format("" if Fetcher.is_async else
                             "Since the package 'aiohttp' is not installed the number of simultaneous connections will"
@@ -85,7 +85,7 @@ arg_config.add_choice("cache", choices=["only", "new", "default"], default="defa
                                " the data already saved, only inserting new data into the cache where there was none"
                                " previously.")
 arg_config.add_bool("debug", "Activates debug-mode: Changes the directory for application data")
-arg_config.add_type("timeout", t=float, default=Fetcher.timeout,
+arg_config.add_type("timeout", default=Fetcher.timeout,
                     help_str="Sets the number of seconds the program waits for an individual website to respond,"
                              "eg. {}.".format('sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async
                                               else 'sets the timeout-argument of urllib.request.urlopen'))

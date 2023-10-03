@@ -213,8 +213,12 @@ class TypeOption(BasicOption):
     Since the value is being parsed from TOML it should be representable as such (i.e. probably only 'int' and 'float'
     make sense as types).
     """
-    def __init__(self, name: str, help_str: str, default: Any, t: type, short: str | None = ""):
-        if not isinstance(default, t):
+    def __init__(self, name: str, help_str: str, default: Any, t: type | None = None, short: str | None = ""):
+        if t is None:
+            if default is None:
+                raise ValueError("t could not be inferred (since 't' and 'default' are None")
+            t = type(default)
+        elif not isinstance(default, t):
             raise ValueError("Parameter {default=} does not match type {t=}")
         super().__init__(name, help_str, default, short)
         self.arguments[ArgKey.type] = t
@@ -375,7 +379,7 @@ class ArgConfig:
         """
         self._add_option(ChoiceOption, (name, help_str, default, choices, short))
 
-    def add_type(self, name: str, help_str: str, default: Any, t: type, short: str | None = "") -> None:
+    def add_type(self, name: str, help_str: str, default: Any, t: type | None = None, short: str | None = "") -> None:
         """
         Register an argument with a certain type.
 
