@@ -90,7 +90,8 @@ def obj2toml_i(o: Any) -> str:
 
 @unique
 class ArgKey(StrEnum):
-    """Enum describing the ke"""
+    """Enum describing all :py:meth:`argparse.ArgumentParser.add_to_parser`-parameters addressed by
+     :py:class:`BasicOption` and its subclasses."""
     help = "help"
     default = "default"
     choices = "choices"
