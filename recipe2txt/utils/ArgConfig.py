@@ -199,9 +199,7 @@ class ChoiceOption(BasicOption, Generic[T]):
         return super().to_toml_str_intern(f" # Possible values: {choice_str}\n")
 
     def toml_valid(self, value: Any) -> bool:
-        if value not in self.arguments[ArgKey.choices]:
-            return False
-        return True
+        return value in self.arguments[ArgKey.choices]
 
 
 class TypeOption(BasicOption):
