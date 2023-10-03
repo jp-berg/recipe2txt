@@ -63,25 +63,25 @@ class FileTests(unittest.TestCase):
         ]
 
         for test, validation in params:
-            with self.subTest(i=test):
+            with self.subTest(testdata=test):
                 self.assertEqual(str(misc.full_path(*test)), validation)
 
     def test_ensure_existence_dir(self):
         params_path = [(test, os.path.join(*test)) for test in normal_dirs]
 
         for test, validation in params_path:
-            with self.subTest(i=test):
+            with self.subTest(testpath=test):
                 self.assertTrue(os.path.samefile(misc.ensure_existence_dir(*test), validation))
                 os.removedirs(validation)
 
         for test in none_dirs:
-            with self.subTest(i=test):
+            with self.subTest(directory=test):
                 self.assertIsNone(misc.ensure_existence_dir(*test))
 
     def test_ensure_accessible_file(self):
         params_path = [(test, os.path.join(*test, testfile)) for test in normal_dirs]
         for test, validation in params_path:
-            with self.subTest(i=test):
+            with self.subTest(directory=test):
                 self.assertTrue(os.path.samefile(misc.ensure_accessible_file(*test, testfile), validation))
                 if not os.path.isfile(validation):
                     self.fail("File", validation, "was not created")
@@ -126,7 +126,7 @@ class FileTests(unittest.TestCase):
         str_list = misc.read_files(file1_path, file_notafile_path, file2_path)
 
         for test, validation in zip(str_list, (file1_content + file2_content)):
-            with self.subTest(i=validation):
+            with self.subTest(validation_line=validation):
                 self.assertEqual(test.rstrip(), validation)
 
         os.remove(file1_path)
@@ -153,7 +153,7 @@ class StrTests(unittest.TestCase):
                   os.linesep.join(["one: Eins", "two: Zwei", "three: Drei"]))]
 
         for d, validation in dicts:
-            with self.subTest(i=d):
+            with self.subTest(testdict=d):
                 self.assertEqual(misc.dict2str(d), validation)
 
     def test_head_str(self):
@@ -163,5 +163,5 @@ class StrTests(unittest.TestCase):
                    ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "[1, 2,...")]
 
         for obj, validation in objects:
-            with self.subTest(i=obj):
+            with self.subTest(testobj=obj):
                 self.assertEqual(misc.head_str(obj, 10), validation)

@@ -13,15 +13,16 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import sqlite3
 import sys
 import unittest
-import os
+from typing import Optional
+
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 import recipe2txt.utils.misc as misc
 from test.test_helpers import *
-from typing import Optional
 
 db_name = "db_test.sqlite3"
 out_name = "out"
@@ -73,13 +74,13 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(len(truth_out_of_date), len(h2r.RecipeStatus))
 
         for status, up_to_date, out_of_date in zip(h2r.RecipeStatus, truth_up_to_date, truth_out_of_date):
-            with self.subTest(i=status):
+            with self.subTest(status=status):
                 self.assertEqual(sql.fetch_again(status, version_up_to_date), up_to_date)
                 self.assertEqual(sql.fetch_again(status, version_out_of_date), out_of_date)
 
     def test_is_accessible_db(self):
         for path in db_paths:
-            with self.subTest(i=path):
+            with self.subTest(path=path):
                 self.assertTrue(sql.is_accessible_db(path))
 
         db_path_inaccessible = os.path.join("/root", db_name)
@@ -107,7 +108,7 @@ class TestDatabase(unittest.TestCase):
             global db
             db = sql.Database(db_path, misc.File(out_path_txt))
             for recipe in test_recipes:
-                with self.subTest(i=recipe.url):
+                with self.subTest(recipe=recipe.url):
                     try:
                         db.new_recipe(recipe)
                     except sqlite3.OperationalError:
@@ -121,7 +122,7 @@ class TestDatabase(unittest.TestCase):
 
     def test_basic_IO(self):
         for recipe in test_recipes:
-            with self.subTest(i=recipe.status):
+            with self.subTest(status=recipe.status):
                 from_db = db.get_recipe(recipe.url)
                 self.assertEqual(recipe, from_db)
 
@@ -129,7 +130,7 @@ class TestDatabase(unittest.TestCase):
         titles, hosts = zip(*db.get_titles())
         self.assertEqual(len(titles), len(test_recipes[3:]))
         for recipe, title, host in zip(test_recipes[3:], titles, hosts):
-            with self.subTest(i=recipe.url):
+            with self.subTest(recipe=recipe.url):
                 self.assertEqual(recipe.title, title)
                 self.assertEqual(recipe.host, host)
 
@@ -137,7 +138,7 @@ class TestDatabase(unittest.TestCase):
         urls = set([recipe.url for recipe in test_recipes])
         to_fetch = db.urls_to_fetch(urls)
         for recipe in test_recipes:
-            with self.subTest(i=recipe.url):
+            with self.subTest(recipe=recipe.url):
                 if recipe.status in (h2r.RecipeStatus.NOT_INITIALIZED,
                                      h2r.RecipeStatus.UNREACHABLE):
                     self.assertTrue(recipe.url in to_fetch)
@@ -192,7 +193,7 @@ class TestDatabase(unittest.TestCase):
         contents = db.get_contents()
         self.assertEqual(len(contents), len(test_recipes))
         for recipe in test_recipes:
-            with self.subTest(i=recipe.url):
+            with self.subTest(recipe=recipe.url):
                 self.assertTrue(recipe.url in contents)
         db.close()
 
@@ -205,7 +206,7 @@ class TestDatabase(unittest.TestCase):
         recipes = db.get_recipes()
 
         for recipe, validation in zip(recipes, test_recipes[3:]):
-            with self.subTest(i=recipe.url):
+            with self.subTest(recipe=recipe.url):
                 self.assertEqual(recipe, validation)
 
         db.empty_db()

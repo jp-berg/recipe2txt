@@ -119,11 +119,10 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
         with validation.open('r') as validation_file:
             for idx, (test_line, validation_line) in \
                     enumerate(zip(test_file.readlines(), validation_file.readlines())):
-                with testcase.subTest(i=f"Files '{test}' and '{validation}': Line {idx} is not equal"):
+                with testcase.subTest(test_file=test, validation_file=validation, line=idx):
                     if test_line.startswith("Creating") and validation_line.startswith("Creating"):
                         prefix_test, path_test = test_line.split(": ", 1)
                         prefix_validation, path_validation = validation_line.split(": ", 1)
-
                         _, path_test = path_test.split("recipe2txt", 1)
                         _, path_validation = path_validation.split("recipe2txt", 1)
 

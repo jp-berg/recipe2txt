@@ -13,12 +13,14 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import unittest
+
 import recipe_scrapers
+
 import recipe2txt.html2recipe as h2r
 import test.testfiles.permanent.testfile_generator as file_gen
 from test.test_helpers import *
-import os
 
 
 class Test(unittest.TestCase):
@@ -32,31 +34,31 @@ class Test(unittest.TestCase):
                       ((None, 2, None, 4, None, 6, 7), (h2r.NA, 2, h2r.NA, 4, h2r.NA, 6, 7))]
 
         for t, v in test_tuple:
-            with self.subTest(i=t):
+            with self.subTest(testdata=t):
                 self.assertEqual(h2r.none2na(t), v)
 
     def test_Recipe_attributes(self):
         r = h2r.Recipe()
         for a in h2r.RECIPE_ATTRIBUTES:
-            with self.subTest(i=a):
+            with self.subTest(attribute=a):
                 self.assertTrue(hasattr(r, a))
 
         r = h2r.Recipe(*h2r.RECIPE_ATTRIBUTES)
         for a in h2r.RECIPE_ATTRIBUTES:
-            with self.subTest(i=a):
+            with self.subTest(attribute=a):
                 self.assertEqual(getattr(r, a), a)
 
     def test_int2status(self):
         recipes = [recipe[:-2] + (int(recipe[-2]), recipe[-1]) for recipe in test_recipes]
         for recipe, validation in zip(recipes, test_recipes):
-            with self.subTest(i=recipe[-3]):
+            with self.subTest(statuscode=recipe[-3]):
                 self.assertEqual(h2r.int2status(recipe), validation)
 
     def test__get_info(self):
         for html, url, recipe in zip(file_gen.html_list, file_gen.url_list, file_gen.recipe_list):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.METHODS:
-                with self.subTest(i=url + " | " + method):
+                with self.subTest(url=url, method=method):
                     self.assertEqual(h2r.get_info(method, p, url), getattr(recipe, method))
 
         bad_info = [("total_time", 0), ("ingredients", None),
@@ -65,18 +67,18 @@ class Test(unittest.TestCase):
                     ("instructions", ["[", " ", "}"])]
 
         for url, (method, info) in zip(file_gen.url_list, bad_info):
-            with self.subTest(i=f"{method=} {info=}"):
+            with self.subTest(method=method, info=info):
                 self.assertEqual(h2r.get_info(method, info), h2r.NA)
 
     def test_html2recipe(self):
         for url, html, validation in zip(file_gen.url_list, file_gen.html_list, file_gen.recipe_list):
-            with self.subTest(i=url):
+            with self.subTest(url=url):
                 if not (p := h2r.html2parsed(url, html)):
                     self.fail("Failed to parse")
                 if not (recipe := h2r.parsed2recipe(url, p)):
                     self.fail("Failed to convert to recipe")
                 for a in h2r.RECIPE_ATTRIBUTES[:-1]: # scraper version will probably differ
-                    with self.subTest(i=a):
+                    with self.subTest(attribute=a):
                         r = getattr(recipe, a)
                         v = getattr(validation, a)
                         self.assertEqual(v, r)
@@ -85,7 +87,7 @@ class Test(unittest.TestCase):
 
     def test_gen_status(self):
         for recipe in test_recipes[2:]:
-            with self.subTest(i=recipe.url):
+            with self.subTest(recipe=recipe.url):
                 status = recipe.status
                 self.assertEqual(h2r.gen_status(list(recipe[:len(h2r.METHODS)])), status)
 
@@ -95,11 +97,11 @@ class Test(unittest.TestCase):
     def test_recipe2out(self):
         for recipe, md_valid, txt_valid in zip(file_gen.recipe_list, file_gen.md_list, file_gen.txt_list):
             self.maxDiff = None
-            with self.subTest(i=recipe.url +"| txt"):
+            with self.subTest(recipe=recipe.url, mode="txt"):
                 out_txt = h2r.recipe2out(recipe, counts=None, md=False)
                 txt_test = "".join(out_txt)
                 self.assertEqual(txt_test, txt_valid)
-            with self.subTest(i=recipe.url + "| md"):
+            with self.subTest(recipe=recipe.url, mode="md"):
                 out_md = h2r.recipe2out(recipe, counts=None, md=True)
                 md_test = "".join(out_md)
                 self.assertEqual(md_test, md_valid)

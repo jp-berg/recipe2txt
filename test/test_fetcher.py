@@ -15,10 +15,11 @@
 
 import random
 import unittest
-from recipe2txt.fetcher import Cache
-from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file
-from recipe2txt.sql import is_accessible_db
+
 import test.testfiles.permanent.testfile_generator as file_gen
+from recipe2txt.fetcher import Cache
+from recipe2txt.sql import is_accessible_db
+from recipe2txt.utils.misc import ensure_accessible_file
 from test.test_helpers import *
 from test.test_sql import db_path, out_path_txt, out_path_md, out_name_txt, out_name_md
 
@@ -73,7 +74,7 @@ class Test(unittest.TestCase):
         tf.fetch(urls)
         with open(out_path_txt, "r") as file:
             for line, validation in zip(file, file_gen.full_txt):
-                with self.subTest(i=(line, validation)):
+                with self.subTest(line=line, validation=validation):
                     self.assertEqual(line, validation)
 
     def test_write_md(self):
@@ -84,5 +85,5 @@ class Test(unittest.TestCase):
         tf.fetch(urls)
         with open(out_path_md, "r") as file:
             for line, validation in zip(file, file_gen.full_md):
-                with self.subTest(i=(line, validation)):
+                with self.subTest(line=line, validation=validation):
                     self.assertEqual(line, validation)

@@ -13,14 +13,14 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import logging
 import os
 import shutil
 import unittest
-import logging
 from typing import Any, Final, Optional, TypeVar
 
-from recipe2txt.utils.conditional_imports import LiteralString
 import recipe2txt.utils.ContextLogger as CTXL
+from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.misc import File
 from test.test_helpers import test_project_tmpdir, assertFilesEqual
 from test.testfiles.permanent.gen_log import log_paths, gen_logs
@@ -183,7 +183,7 @@ class LoggerTester(unittest.TestCase):
             raise ValueError("context2 is not of the class Context")
         for attribute in self.context_attr:
             if attribute == "deferred_records":
-                with self.subTest(i="Mismatch on deferred_records."):
+                with self.subTest(msg="Mismatch on deferred_records."):
                     self.assertRecordListsEqual(context1.deferred_records, context2.deferred_records)
                     continue
             self.assertAttributeEqual(context1, context2, attribute)
@@ -322,7 +322,7 @@ class TestQueueContextFormatter(LoggerTester):
 
     def test_format_context(self):
         for test, validation in self.ctx_unformatted_formatted:
-            with self.subTest(i=f"Failure while creating '{repr(validation)}'"):
+            with self.subTest(msg=f"Failure while creating '{repr(validation)}'"):
                 self.assertEqual(CTXL.format_context(*test), validation)
 
     def test_add_context(self):
@@ -338,7 +338,7 @@ class TestQueueContextFormatter(LoggerTester):
         records_strs = [(record_factory(True, context=unformatted), formatted)
                         for unformatted, formatted in self.ctx_unformatted_formatted]
         for record, string in records_strs:
-            with self.subTest(i=f"Failure while creating '{repr(string)}'"):
+            with self.subTest(msg=f"Failure while creating '{repr(string)}'"):
                 record = CTXL.add_context(record)
                 self.assertEqual(record.ctx, string)
 
@@ -350,6 +350,6 @@ class TestAll(unittest.TestCase):
             shutil.rmtree(test_path)
         test_paths: list[File] = gen_logs(test_path)
         for test, validation in zip(test_paths, log_paths):
-            with self.subTest(i=f"While testing {test.name}"):
+            with self.subTest(msg=f"While testing {test.name}"):
                 assertFilesEqual(self, test, validation)
 
