@@ -146,7 +146,7 @@ class BasicOption:
     def to_toml_str_intern(self, value_comment: str) -> str:
         default_str = obj2toml(self.arguments[ArgKey.default])
         help_str = BasicOption.help_wrapper.fill(self.arguments[ArgKey.help])
-        return f"\n\n\n{help_str}\n\n#{self.name} = {default_str}{value_comment}\n"
+        return f"\n\n\n{help_str + os.linesep*2 if help_str else ''}#{self.name} = {default_str}{value_comment}\n"
 
     def to_toml(self, file: File | None = None) -> None:
         """Appends this Option and its default-value to a TOML-file"""
