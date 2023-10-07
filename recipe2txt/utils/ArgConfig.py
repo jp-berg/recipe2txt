@@ -68,15 +68,17 @@ def obj2toml(o: Any) -> str:
         A string that can be used as a value to a TOML-key
     """
     if isinstance(o, list):
-        s = "["
+        s = ""
         for e in o:
             s += f"{obj2toml_i(e)}, "
-        return s[:-2] + "]"
+        s = s[:-2]
+        return f"[{s}]"
     if isinstance(o, dict):
-        s = "{"
+        s = ""
         for key, value in o.items():
             s += f"{obj2toml_i(key)}: {obj2toml_i(value)}, "
-        return s[:-2] + "}"
+        s = s[:-2]
+        return "{" + s + "}"
     return obj2toml_i(o)
 
 
