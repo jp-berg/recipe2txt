@@ -28,10 +28,6 @@ Attributes:
     LOG_NAME (Final[LiteralString]): name of the log-file the loggers of this program will write to
     DB_NAME (Final[LiteralString]): name of the sqlite-database-file used by this program
     RECIPES_NAME (Final[LiteralString]): name of the default output-file all the collected recipes will be written to
-    DEFAULT_URLS_NAME (Final[LiteralString]): name of the default file that the urls will be read from (if no other
-        urls are specified via CLI-arguments
-    DEFAULT_OUTPUT_LOCATION_NAME (Final[LiteralString]): name of the config-file used to store the default
-        output-location
     how_to_report_txt (Final[LiteralString]): help-text describing how to report errors arising from the external
         :py:mod:`recipe-scrapers`
 """
@@ -99,6 +95,13 @@ RECIPES_NAME_MD: Final[LiteralString] = RECIPES_NAME + ".md"
 
 
 def get_default_output() -> str:
+    """
+    Get the default output file.
+
+    Returns:
+        A path to a text-file in the current working directory.
+
+    """
     return os.path.join(os.getcwd(), RECIPES_NAME)
 
 
