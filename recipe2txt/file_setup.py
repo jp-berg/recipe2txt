@@ -96,8 +96,6 @@ RECIPES_NAME: Final[LiteralString] = "recipes"
 """name of the default output-file all the collected recipes will be written to"""
 RECIPES_NAME_TXT: Final[LiteralString] = RECIPES_NAME + ".txt"
 RECIPES_NAME_MD: Final[LiteralString] = RECIPES_NAME + ".md"
-DEFAULT_URLS_NAME: Final[LiteralString] = "urls.txt"
-"""name of the default file that the urls will be read from (if no other urls are specified via CLI-arguments"""
 
 
 def get_default_output() -> str:
