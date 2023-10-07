@@ -244,9 +244,7 @@ class BoolOption(BasicOption):
         return super().to_toml_str_intern(" # Possible values: true | false")
 
     def toml_valid(self, value: Any) -> bool:
-        if value not in (True, False):
-            return False
-        return True
+        return value in (True, False)
 
 
 class NArgOption(BasicOption):
