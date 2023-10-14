@@ -23,12 +23,12 @@ else:
 if version_info >= (3, 11):
     from enum import StrEnum
 else:
-    from backports.strenum import StrEnum # type: ignore[import, no-redef]
+    from backports.strenum import StrEnum # type: ignore[import-not-found, no-redef]
 
 if version_info >= (3, 11):
     import tomllib
 else:
-    import tomli as tomllib # type: ignore[import, no-redef]
+    import tomli as tomllib # type: ignore[import-not-found, no-redef]
 
 
 __all__ = ["LiteralString", "StrEnum", "tomllib"]
