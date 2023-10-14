@@ -163,7 +163,7 @@ def main(number_of_urls: int = 5, connections: int = 0, delete_database: bool = 
         url_file.write_text(os.linesep.join(test_urls))
         args += ["--file", path2str(url_file)]
     else:
-        args += ["--url", *test_urls]
+        args += [*test_urls]
 
     if delete_database and DB_FILE.is_file():
         os.remove(DB_FILE)

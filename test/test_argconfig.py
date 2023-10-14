@@ -27,12 +27,14 @@ from test.test_helpers import assertEval, test_project_tmpdir, delete_tmpdirs
 class TestFunctions(unittest.TestCase):
 
     def test_short_flag(self):
-        params = [("verbose", "-v"),
-                  ("file", "-f"),
-                  ("set-location", "-sl"),
-                  ("no-overwrite-files", "-nof")]
+        params = [("--verbose", "-v"),
+                  ("--file", "-f"),
+                  ("--set-location", "-sl"),
+                  ("--no-overwrite-files", "-nof")]
 
         assertEval(self, argconfig.short_flag, params)
+        with self.assertRaises(ValueError):
+            argconfig.short_flag("file-types")
 
     def test_obj2toml(self):
         params = [(True, "true"),
@@ -55,7 +57,7 @@ valid_string_1 = textwrap.dedent(
 
     #test = 'yes'
      """)
-params_1 = {"name": "test", "help_str": "This is a helptext", "default": "yes"}
+params_1 = {"option_name": "--test", "help_str": "This is a helptext", "default": "yes"}
 
 valid_string_2 = textwrap.dedent(
     """
@@ -64,7 +66,7 @@ valid_string_2 = textwrap.dedent(
     #flag = 3
     """
 )
-params_2 = {"name": "flag", "help_str": "", "default": 3}
+params_2 = {"option_name": "--flag", "help_str": "", "default": 3}
 
 valid_string_3 = textwrap.dedent(
     """
@@ -79,7 +81,7 @@ valid_string_3 = textwrap.dedent(
 )
 help_txt_3 = "This is a multiline help-text, providing far more information. But in contrast to the other examples," \
              " this has to be wrapped. This makes the information more easily digestible."
-params_3 = {"name": "option", "help_str": help_txt_3, "default": True}
+params_3 = {"option_name": "--option", "help_str": help_txt_3, "default": True}
 
 params = [(params_1, valid_string_1),
           (params_2, valid_string_2),
@@ -89,9 +91,12 @@ params = [(params_1, valid_string_1),
 class TestInit(unittest.TestCase):
 
     def assertValidInit(self, option: argconfig.BasicOption, validation: dict[str, Any]):
-        v_name = validation["name"]
-        self.assertEqual(option.name, v_name)
-        self.assertEqual(option.names, [f"--{v_name}", f"-{v_name[0]}"])
+        v_name = validation["option_name"]
+        self.assertEqual(option.name, v_name[2:] if v_name.startswith("--") else v_name)
+        if validation["option_name"].startswith("--"):
+            self.assertEqual(option.option_names, [v_name, f"{v_name[1:3]}"])
+        else:
+            self.assertEqual(option.option_names, [v_name])
 
         self.assertEqual(option.arguments[argconfig.ArgKey.help], validation["help_str"])
         self.assertEqual(option.arguments[argconfig.ArgKey.default], validation["default"])
@@ -100,17 +105,17 @@ class TestInit(unittest.TestCase):
 class TestBasicOption(TestInit):
 
     def test_init(self):
-        p = {"name": "test", "help_str": "text", "default": "yes"}
+        p = {"option_name": "--test", "help_str": "text", "default": "yes"}
         b = argconfig.BasicOption(**p)
         self.assertValidInit(b, p)
 
-        p_short = p | {"short": "tst"}
+        p_short = p | {"short": "-tst"}
         b = argconfig.BasicOption(**p_short)
-        self.assertEqual(b.names, ["--test", "-tst"])
+        self.assertEqual(b.option_names, ["--test", "-tst"])
 
-        invalid_params = [{"name": "--test"},
-                          {"short": "-t"},
-                          {"short": "testoption"}]
+        invalid_params = [{"option_name": "test", "short": "-t"},
+                          {"short": "t"},
+                          {"short": "-testoption"}]
 
         for idx, invalid in enumerate(invalid_params):
             with self.subTest(i=idx, parameter=invalid):
@@ -122,7 +127,6 @@ class TestBasicOption(TestInit):
             with self.subTest(i=idx, parameter=init_params):
                 b = argconfig.BasicOption(**init_params)
                 self.assertValidInit(b, init_params)
-
 
     def test_to_toml(self):
         self.assertIsNotNone(ensure_existence_dir(test_project_tmpdir))
@@ -141,14 +145,13 @@ class TestBasicOption(TestInit):
 
     def test_from_toml(self):
 
-        tomldict = {init_param["name"]: f"NEW DEFAULT VALUE {idx}"
+        tomldict = {init_param["option_name"][2:]: f"NEW DEFAULT VALUE {idx}"
                     for idx, (init_param, _) in enumerate(params)}
 
         for idx, (init_params, _) in enumerate(params):
             with self.subTest(i=idx, parameter=init_params):
                 b = argconfig.BasicOption(**init_params)
                 self.assertEqual(b.arguments["default"], init_params["default"])
-
                 b.from_toml(tomldict)
                 self.assertEqual(b.arguments["default"], f"NEW DEFAULT VALUE {idx}")
 
@@ -174,7 +177,7 @@ co_valid_string_1 = textwrap.dedent(
     
     """
 )
-co_params_1 = {"name": "speed", "help_str": "Adjust the speed", "default": "slow",
+co_params_1 = {"option_name": "--speed", "help_str": "Adjust the speed", "default": "slow",
                "choices": ["slow", "normal", "fast"]}
 
 co_valid_string_2 = textwrap.dedent(
@@ -187,7 +190,7 @@ co_valid_string_2 = textwrap.dedent(
     
     """
 )
-co_params_2 = {"name": "cents", "help_str": "Set the coin-denomination", "default": 50,
+co_params_2 = {"option_name": "--cents", "help_str": "Set the coin-denomination", "default": 50,
                "choices": [1, 2, 5, 10, 20, 50]}
 
 co_params = [(co_params_1, co_valid_string_1),
@@ -231,7 +234,7 @@ t_valid_string_1 = textwrap.dedent(
     #delay = 0.5
     """
 )
-t_params_1 = {"name": "delay", "help_str": "Sets the delay between application call and execution (in seconds)",
+t_params_1 = {"option_name": "delay", "help_str": "Sets the delay between application call and execution (in seconds)",
               "default": 0.5, "t": float}
 
 
@@ -245,7 +248,7 @@ t_valid_string_2 = textwrap.dedent(
     #retries = 3
     """
 )
-t_params_2 = {"name": "retries", "help_str": "How many times should the program retry to fetch the resource on failure",
+t_params_2 = {"option_name": "--retries", "help_str": "How many times should the program retry to fetch the resource on failure",
               "default": 3, "t": int}
 
 t_params = [(t_params_1, t_valid_string_1),
@@ -283,8 +286,8 @@ b_valid_string_1 = textwrap.dedent(
     
     #validate-input = true # Possible values: true | false
     """)
-b_params_1 = {"name": "validate-input", "help_str": "Whether the inputs should be validated before processing",
-              "default": True, "short": "v"}
+b_params_1 = {"option_name": "--validate-input", "help_str": "Whether the inputs should be validated before processing",
+              "default": True, "short": "-v"}
 
 b_valid_string_2 = textwrap.dedent(
     """
@@ -296,7 +299,7 @@ b_valid_string_2 = textwrap.dedent(
     """
 )
 
-b_params_2 = {"name": "debug", "help_str": "Toggles debug-mode", "default": False}
+b_params_2 = {"option_name": "debug", "help_str": "Toggles debug-mode", "default": False}
 
 b_params = [(b_params_1, b_valid_string_1),
             (b_params_2, b_valid_string_2)]
@@ -327,7 +330,7 @@ n_valid_string_1 = textwrap.dedent(
     #ignored-directories = []
     """
 )
-n_params_1 = {"name": "ignored-directories", "help_str": "List of the ignored directories", "short": "i"}
+n_params_1 = {"option_name": "--ignored-directories", "help_str": "List of the ignored directories", "short": "-i"}
 
 n_valid_string_2 = textwrap.dedent(
     """
@@ -338,7 +341,7 @@ n_valid_string_2 = textwrap.dedent(
     #testvalues = [37, 29, 54, 66, 19, 59, 32]
     """
 )
-n_params_2 = {"name": "testvalues", "help_str": "Values used as test-inputs",
+n_params_2 = {"option_name": "testvalues", "help_str": "Values used as test-inputs",
               "default": [37, 29, 54, 66, 19, 59, 32]}
 
 n_valid_string_3 = textwrap.dedent(
@@ -350,7 +353,7 @@ n_valid_string_3 = textwrap.dedent(
     #banned = ['duck you', 'heck', 'darn']
     """
 )
-n_params_3 = {"name": "banned", "help_str": "Phrases that will be blocked",
+n_params_3 = {"option_name": "--banned", "help_str": "Phrases that will be blocked",
               "default": ["duck you", "heck", "darn"]}
 
 n_params = [(n_params_1, n_valid_string_1),
@@ -362,7 +365,7 @@ class TestInitNArg(TestInit):
 
     def assertValidInit(self, option: argconfig.BasicOption, validation: dict[str, Any]):
         super().assertValidInit(option, validation)
-        self.assertEqual(option.arguments[argconfig.ArgKey.nargs], "+")
+        self.assertEqual(option.arguments[argconfig.ArgKey.nargs], validation.get("narg", "*"))
 
 
 class NArgOption(TestInitNArg):
