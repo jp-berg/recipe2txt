@@ -15,17 +15,18 @@
 """
 Entry point of the program.
 """
-import sys
 import os
+import sys
 from logging import DEBUG
-from recipe2txt.argparse import parser, mutex_args, process_params
+
+from recipe2txt.argparse import mutex_args, process_params, get_parser
 from recipe2txt.file_setup import write_errors
 from recipe2txt.utils.ContextLogger import get_logger
 
 logger = get_logger(__name__)
 
 def main() -> None:
-    a = parser.parse_args()
+    a = get_parser().parse_args()
     mutex_args(a)
     urls, fetcher = process_params(a)
     fetcher.fetch(urls)

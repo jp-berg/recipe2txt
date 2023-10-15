@@ -319,17 +319,16 @@ class ArgConfig:
 
     def __init__(self,
                  parser: argparse.ArgumentParser,
-                 config_dir: Path):
+                 config_file: Path):
         self.parser = parser
-        path = config_dir / f"{parser.prog}.toml"
-        self.existed_before = path.is_file()
-        self.file = ensure_accessible_file_critical(path)
+        self.existed_before = config_file.is_file()
+        self.file = ensure_accessible_file_critical(config_file)
         if self.existed_before:
             with self.file.open("rb") as cfg:
                 try:
                     self.toml = tomllib.load(cfg)
                 except tomllib.TOMLDecodeError as e:
-                    msg = f"The config-file ({path}) seems to be misconfigured ({e})." \
+                    msg = f"The config-file ({config_file}) seems to be misconfigured ({e})." \
                           " Fix the error or delete the file and generate a new one by running" \
                           " the program with any argument (eg. 'recipe2txt --help')"
                     print(msg, file=sys.stderr)

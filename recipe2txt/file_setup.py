@@ -88,10 +88,14 @@ LOG_NAME: Final[LiteralString] = "debug.log"
 """name of the log-file the loggers of this program will write to"""
 DB_NAME: Final[LiteralString] = PROGRAM_NAME + ".sqlite3"
 """name of the sqlite-database-file used by this program"""
+CONFIG_NAME: Final[LiteralString] = PROGRAM_NAME + ".toml"
+"""name of the config-file that provides the default values for options"""
 RECIPES_NAME: Final[LiteralString] = "recipes"
 """name of the default output-file all the collected recipes will be written to"""
 RECIPES_NAME_TXT: Final[LiteralString] = RECIPES_NAME + ".txt"
 RECIPES_NAME_MD: Final[LiteralString] = RECIPES_NAME + ".md"
+CONFIG_FILE: Final[Path] = default_dirs.config / CONFIG_NAME
+"""path to the config-file"""
 
 
 def get_default_output() -> str:
