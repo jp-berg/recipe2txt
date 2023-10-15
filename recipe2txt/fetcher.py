@@ -50,7 +50,7 @@ class Fetcher:
     Class Variables:
         is_async(bool): Whether the class is asynchronous regarding fetching the urls from the internet.
     """
-    is_async: bool
+    is_async: bool = False
     connections: int = 1
     timeout: float = 10.0
     user_agent: str = \
