@@ -1,10 +1,11 @@
-import nox
 import os
 import tomllib
-import functools
-from typing import Callable, Generic, TypeVar, Any
-from shutil import which, rmtree
+from functools import cache
 from pathlib import Path
+from shutil import which, rmtree
+from typing import Any
+
+import nox
 
 root = Path(__file__).parent
 root_env = {"PYTHONPATH": str(root)}
@@ -17,21 +18,8 @@ python = str(VENV_DIR / "bin" / "python")
 
 PYTHON_VERSIONS = ['3.8', '3.9', '3.10', '3.11']
 
-T = TypeVar('T')
 
-
-class CacheOne(Generic[T]):
-    def __init__(self, func: Callable[[], T | None]) -> None:
-        functools.update_wrapper(self, func)
-        self.func = func
-        self.res: T | None = None
-
-    def __call__(self) -> T | None:
-        if not self.res:
-            self.res = self.func()
-        return self.res
-
-@CacheOne
+@cache
 def get_pyproject() -> dict[str, Any] | None:
     if not os.path.isfile(pyproject_toml):
         return None
@@ -40,7 +28,7 @@ def get_pyproject() -> dict[str, Any] | None:
     return pyproject_dict
 
 
-@CacheOne
+@cache
 def get_deps() -> list[tuple[str, str]] | None:
     if not (pyproject := get_pyproject()):
         return None
@@ -49,7 +37,8 @@ def get_deps() -> list[tuple[str, str]] | None:
     dependencies = [dep.split(" ", 1) for dep in dependencies]
     return dependencies  # type: ignore [no-any-return]
 
-@CacheOne
+
+@cache
 def get_version() -> str | None:
     if not (pyproject := get_pyproject()):
         return None
