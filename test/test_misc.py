@@ -59,7 +59,9 @@ class FileTests(unittest.TestCase):
             (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt")),
             ([".", "file"], os.path.join(os.getcwd(), "file")),
             (["$HOME", "Documents", "File1"], os.path.expandvars(os.path.join("$HOME", "Documents", "File1"))),
-            ([Path.cwd(), "NewDir", "File1.txt"], os.path.join(os.getcwd(), "NewDir", "File1.txt"))
+            ([Path.cwd(), "NewDir", "File1.txt"], os.path.join(os.getcwd(), "NewDir", "File1.txt")),
+            (["/home", "user", Path("Documents", "important"), "file1.txt"],
+             os.path.join("/home", "user", "Documents", "important", "file1.txt"))
         ]
 
         for test, validation in params:
