@@ -100,14 +100,6 @@ def is_applicable(session: nox.Session, constraints: str) -> bool:
 
 
 @nox.session(reuse_venv=True)
-def t(session: nox.Session) -> None:
-    if not (deps := get_deps()):
-        session.error(f"{pyproject_toml} not found")
-    for name, constraint in deps:
-        print(f"{name}: {is_applicable(session, constraint)}")
-
-
-@nox.session(reuse_venv=True)
 def dev(session: nox.Session) -> None:
     """Creates the development environment."""
     if not VENV_DIR.is_dir():
