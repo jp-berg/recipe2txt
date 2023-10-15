@@ -25,8 +25,8 @@ import validators
 
 from recipe2txt.utils.ContextLogger import get_logger, DO_NOT_LOG
 
-__all__ = ["URL", "is_url", "File", "is_file", "Directory", "is_dir", "full_path", "ensure_existence_dir",
-           "ensure_existence_dir_critical", "create_timestamped_dir", "ensure_accessible_file",
+__all__ = ["URL", "is_url", "extract_urls", "File", "is_file", "Directory", "is_dir", "full_path",
+           "ensure_existence_dir", "ensure_existence_dir_critical", "create_timestamped_dir", "ensure_accessible_file",
            "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str"]
 
 logger = get_logger(__name__)
