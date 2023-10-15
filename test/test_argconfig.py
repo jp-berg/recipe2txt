@@ -460,7 +460,7 @@ class TestArgConfig(unittest.TestCase):
                         self.assertEqual(d_parsed.get(key), d_valid.get(key))
 
     def test_app_argconfig_failure(self):
-        for idx, malformed_string in enumerate(app_fail_strings):
+        for idx, malformed_string in enumerate(app_wrong_values):
             with self.subTest(malformed_string=malformed_string):
                 f = ensure_accessible_file(debug_dirs.config, CONFIG_NAME)
                 f.write_text(malformed_string + os.linesep)
