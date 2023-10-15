@@ -23,9 +23,10 @@ from typing import Any
 import recipe2txt.utils.ArgConfig as argconfig
 from recipe2txt.argparse import config_args
 from recipe2txt.fetcher import Fetcher
-from recipe2txt.file_setup import CONFIG_NAME, debug_dirs, DEBUG_DIRECTORY_BASE, get_default_output
-from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file
-from test.test_helpers import assertEval, test_project_tmpdir, delete_tmpdirs
+from recipe2txt.file_setup import (CONFIG_NAME, DEBUG_DIRECTORY_BASE,
+                                   debug_dirs, get_default_output)
+from recipe2txt.utils.misc import ensure_accessible_file, ensure_existence_dir
+from test.test_helpers import assertEval, delete_tmpdirs, test_project_tmpdir
 
 
 class TestFunctions(unittest.TestCase):

@@ -20,10 +20,12 @@ libraries are installed.
 """
 import asyncio
 from typing import Literal
+
 import aiohttp
-from recipe2txt.utils.misc import URL
+
 from recipe2txt.fetcher import Fetcher, logger
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
+from recipe2txt.utils.misc import URL
 
 
 class AsyncFetcher(Fetcher):

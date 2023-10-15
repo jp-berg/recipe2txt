@@ -22,11 +22,12 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
-from typing import Final, Literal, get_args, TypeAlias
+from typing import Final, Literal, TypeAlias, get_args
 
-from recipe2txt.file_setup import debug_dirs, LOG_NAME, DB_NAME
+from recipe2txt.file_setup import DB_NAME, LOG_NAME, debug_dirs
 from recipe2txt.utils.ContextLogger import LOG_LEVEL_NAMES
-from recipe2txt.utils.misc import create_timestamped_dir, ensure_accessible_file_critical, Directory
+from recipe2txt.utils.misc import (Directory, create_timestamped_dir,
+                                   ensure_accessible_file_critical)
 from test.test_helpers import test_project_tmpdir
 
 

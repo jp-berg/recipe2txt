@@ -30,14 +30,15 @@ import os
 import sqlite3
 import sys
 from pathlib import Path
-from os import linesep
-from typing import Final, Tuple, Optional, TypeGuard, NewType, Any
-from recipe2txt.utils.conditional_imports import LiteralString
+from typing import Any, Final, NewType, Optional, Tuple, TypeGuard
+
 from recipe2txt.utils.ContextLogger import get_logger
+from recipe2txt.utils.conditional_imports import LiteralString
+from .html2recipe import (METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION,
+                          Recipe)
+from .html2recipe import RecipeStatus as RS
+from .html2recipe import gen_status, int2status, none2na
 from .utils.misc import *
-from .html2recipe import Recipe, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, gen_status, RecipeStatus as RS, none2na, \
-    int2status, METHODS, RecipeStatus
-from .utils.misc import Directory
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""

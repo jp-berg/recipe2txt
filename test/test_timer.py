@@ -14,8 +14,8 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
-from time import sleep
 from math import trunc
+from time import sleep
 
 from recipe2txt.utils.timer import Timer
 

@@ -19,7 +19,7 @@ import unittest
 from pathlib import Path
 from shutil import rmtree
 from tempfile import gettempdir
-from typing import Final, Callable, Any
+from typing import Any, Callable, Final
 
 from xdg_base_dirs import xdg_data_home
 

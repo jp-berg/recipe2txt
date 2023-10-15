@@ -21,7 +21,8 @@ import traceback
 from logging.handlers import RotatingFileHandler
 from os import linesep
 from types import TracebackType
-from typing import Final, Callable, Literal, Any, Generator, get_args, TypeAlias
+from typing import (Any, Callable, Final, Generator, Literal, TypeAlias,
+                    get_args)
 
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.traceback_utils import shorten_paths

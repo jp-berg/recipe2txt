@@ -19,11 +19,15 @@ import shutil
 from pathlib import Path
 from typing import Final, Generator
 
-from recipe2txt.utils.ContextLogger import QueueContextManager as QCM, string2level, QueueContextFilter, \
-    QueueContextFormatter, _LOG_FORMAT_STREAM, get_logger
-from recipe2txt.utils.misc import ensure_accessible_file, Directory, ensure_existence_dir_critical, File
 import recipe2txt.utils.misc as misc
 import test.testfiles.permanent.gen_stack as gen_stack
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
+from recipe2txt.utils.ContextLogger import (_LOG_FORMAT_STREAM,
+                                            QueueContextFilter,
+                                            QueueContextFormatter)
+from recipe2txt.utils.ContextLogger import get_logger, string2level
+from recipe2txt.utils.misc import (Directory, File, ensure_accessible_file,
+                                   ensure_existence_dir_critical)
 
 logger = get_logger(__name__)
 if __name__ == '__main__':

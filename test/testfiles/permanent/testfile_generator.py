@@ -14,19 +14,22 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import logging
-import urllib.request
 import os
-from typing import Final
+import urllib.request
 from pathlib import Path
+from typing import Final
+
+import recipe_scrapers
 
 import recipe2txt.html2recipe as h2r
-from recipe2txt.fetcher import Fetcher, Cache
-from recipe2txt.utils.misc import URL, is_url, File, Directory, ensure_accessible_file_critical
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM, root_log_setup, suppress_logging, \
-    disable_loggers
+from recipe2txt.fetcher import Cache, Fetcher
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
-import recipe_scrapers
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
+from recipe2txt.utils.ContextLogger import (disable_loggers, get_logger,
+                                            root_log_setup, suppress_logging)
 from recipe2txt.utils.conditional_imports import StrEnum
+from recipe2txt.utils.misc import (URL, Directory, File,
+                                   ensure_accessible_file_critical, is_url)
 
 __all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
 

@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import re
-from typing import Pattern, Final, Optional
-from os import linesep
-from recipe2txt.utils.conditional_imports import LiteralString
 import hashlib
+import re
+from os import linesep
+from typing import Final, Optional, Pattern
+
+from recipe2txt.utils.conditional_imports import LiteralString
 
 __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "superscript", "code", "codeblock",
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]

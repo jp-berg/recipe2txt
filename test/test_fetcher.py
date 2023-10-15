@@ -21,7 +21,8 @@ from recipe2txt.fetcher import Cache
 from recipe2txt.sql import is_accessible_db
 from recipe2txt.utils.misc import ensure_accessible_file
 from test.test_helpers import *
-from test.test_sql import db_path, out_path_txt, out_path_md, out_name_txt, out_name_md
+from test.test_sql import (db_path, out_name_md, out_name_txt, out_path_md,
+                           out_path_txt)
 
 
 class Test(unittest.TestCase):

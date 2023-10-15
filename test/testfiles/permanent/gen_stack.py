@@ -14,12 +14,12 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+import traceback
 from math import sqrt
 from pathlib import Path
-import traceback
 
-from recipe2txt.utils.traceback_utils import get_shared_frames, format_stacks
 from recipe2txt.utils.misc import ensure_accessible_file
+from recipe2txt.utils.traceback_utils import format_stacks, get_shared_frames
 
 logger = logging.getLogger(__name__)
 

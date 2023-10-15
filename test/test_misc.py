@@ -20,7 +20,7 @@ from pathlib import Path
 
 import recipe2txt.utils.misc as misc
 from test.test_helpers import *
-from test.test_helpers import testfile, none_dirs, normal_dirs
+from test.test_helpers import none_dirs, normal_dirs, testfile
 
 
 class FileTests(unittest.TestCase):

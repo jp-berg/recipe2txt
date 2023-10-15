@@ -1,5 +1,6 @@
-from os import linesep, remove, path
-from sys import stderr, argv
+from os import linesep, path
+from sys import argv, stderr
+
 
 def convert(file: str) -> None:
     if not path.isfile(file):

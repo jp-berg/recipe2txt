@@ -34,21 +34,25 @@ Attributes:
 
 
 """
+import re
+import traceback
 import urllib
 from enum import IntEnum
-from typing import NewType, Final, Optional, NamedTuple, Any, Callable
-import re
 from os import linesep
-import traceback
-from importlib_metadata import version
+from typing import Any, Callable, Final, NamedTuple, NewType, Optional
+
 import recipe_scrapers
-from recipe_scrapers._exceptions import WebsiteNotImplementedError, NoSchemaFoundInWildMode, SchemaOrgException, \
-    ElementNotFoundInHtml
-from recipe2txt.utils.markdown import *
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-from recipe2txt.utils.traceback_utils import get_shared_frames, format_stacks
-from recipe2txt.utils.misc import URL, dict2str, Counts, is_url
+from importlib_metadata import version
+from recipe_scrapers._exceptions import (ElementNotFoundInHtml,
+                                         NoSchemaFoundInWildMode,
+                                         SchemaOrgException,
+                                         WebsiteNotImplementedError)
+
+from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.markdown import *
+from recipe2txt.utils.misc import URL, Counts, dict2str, is_url
+from recipe2txt.utils.traceback_utils import format_stacks, get_shared_frames
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""

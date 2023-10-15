@@ -19,16 +19,17 @@ Attributes:
     logger (logging.Logger): The logger for the module. Receives the constructed logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
 """
-import urllib.request
 import urllib.error
+import urllib.request
 from os import linesep
 
-from recipe2txt.utils.ContextLogger import get_logger, QueueContextManager as QCM
-from recipe2txt.utils.misc import URL, File, Counts
-import recipe2txt.sql as sql
 import recipe2txt.html2recipe as h2r
-from recipe2txt.utils.markdown import *
+import recipe2txt.sql as sql
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
+from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import StrEnum
+from recipe2txt.utils.markdown import *
+from recipe2txt.utils.misc import URL, Counts, File
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""

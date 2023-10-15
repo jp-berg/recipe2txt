@@ -113,6 +113,7 @@ def dev(session: nox.Session) -> None:
 def check(session: nox.Session) -> None:
     """Uses static code analysis and runs unittests."""
     run(session, "mypy")
+    run(session, "isort", "recipe2txt", "test")
     session.run(python, "-m", "unittest", external=True)
 
 

@@ -30,19 +30,21 @@ import os
 import sys
 from functools import cache
 from pathlib import Path
-from typing import Tuple, get_args, Final
+from typing import Final, Tuple, get_args
 
 from recipe2txt.fetcher import Cache
-from recipe2txt.file_setup import get_files, erase_files, file_setup, PROGRAM_NAME, get_default_output, \
-    CONFIG_FILE
+from recipe2txt.file_setup import (CONFIG_FILE, PROGRAM_NAME, erase_files,
+                                   file_setup, get_default_output, get_files)
 from recipe2txt.utils.ArgConfig import ArgConfig
-from recipe2txt.utils.ContextLogger import get_logger, root_log_setup, string2level, LOG_LEVEL_NAMES
-from recipe2txt.utils.misc import URL, read_files, extract_urls, Counts, File, dict2str
+from recipe2txt.utils.ContextLogger import (LOG_LEVEL_NAMES, get_logger,
+                                            root_log_setup, string2level)
+from recipe2txt.utils.misc import (URL, Counts, File, dict2str, extract_urls,
+                                   read_files)
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
 except ImportError:
-    from recipe2txt.fetcher import Fetcher as Fetcher  # type: ignore[assignment]
+    from recipe2txt.fetcher import Fetcher as Fetcher  # type: ignore[assignment] # isort: skip
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""

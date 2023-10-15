@@ -19,11 +19,11 @@ import urllib.parse
 from os import linesep
 from pathlib import Path
 from time import localtime, strftime
-from typing import NewType, Any, TypeGuard, Optional
+from typing import Any, NewType, Optional, TypeGuard
 
 import validators
 
-from recipe2txt.utils.ContextLogger import get_logger, DO_NOT_LOG
+from recipe2txt.utils.ContextLogger import DO_NOT_LOG, get_logger
 
 __all__ = ["URL", "is_url", "extract_urls", "File", "is_file", "Directory", "is_dir", "full_path",
            "ensure_existence_dir", "ensure_existence_dir_critical", "create_timestamped_dir", "ensure_accessible_file",

@@ -12,7 +12,9 @@
 #
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
-
+"""
+isort:skip_file
+"""
 from sys import version_info
 
 if version_info >= (3, 11):
