@@ -15,12 +15,16 @@
 import itertools
 import os
 import random
+import shutil
 import textwrap
 import unittest
 from typing import Any
 
 import recipe2txt.utils.ArgConfig as argconfig
-from recipe2txt.utils.misc import ensure_existence_dir
+from recipe2txt.argparse import config_args
+from recipe2txt.fetcher import Fetcher
+from recipe2txt.file_setup import CONFIG_NAME, debug_dirs, DEBUG_DIRECTORY_BASE, get_default_output
+from recipe2txt.utils.misc import ensure_existence_dir, ensure_accessible_file
 from test.test_helpers import assertEval, test_project_tmpdir, delete_tmpdirs
 
 
@@ -237,7 +241,6 @@ t_valid_string_1 = textwrap.dedent(
 t_params_1 = {"option_name": "delay", "help_str": "Sets the delay between application call and execution (in seconds)",
               "default": 0.5, "t": float}
 
-
 t_valid_string_2 = textwrap.dedent(
     """
     
@@ -248,7 +251,8 @@ t_valid_string_2 = textwrap.dedent(
     #retries = 3
     """
 )
-t_params_2 = {"option_name": "--retries", "help_str": "How many times should the program retry to fetch the resource on failure",
+t_params_2 = {"option_name": "--retries",
+              "help_str": "How many times should the program retry to fetch the resource on failure",
               "default": 3, "t": int}
 
 t_params = [(t_params_1, t_valid_string_1),
@@ -262,7 +266,7 @@ class TestInitType(TestInit):
 
 
 class TestTypeOption(TestInitType):
-    
+
     def test_init(self):
         for idx, (init_params, _) in enumerate(t_params):
             with self.subTest(i=idx, parameter=init_params):
@@ -385,6 +389,44 @@ all_options += [(argconfig.TypeOption(**params), valid_string) for params, valid
 all_options += [(argconfig.BoolOption(**params), valid_string) for params, valid_string in b_params]
 all_options += [(argconfig.NArgOption(**params), valid_string) for params, valid_string in n_params]
 
+standard_params = {'url': [], 'file': [], 'output': get_default_output(),
+                   'verbosity': 'critical', 'connections': 4, 'cache': 'default', 'debug': False,
+                   'timeout': Fetcher.timeout, 'markdown': False, 'user_agent': Fetcher.user_agent,
+                   'erase_appdata': None}
+
+app_valid_string_1 = textwrap.dedent(
+    """
+    #file = ['/home/user/files/file.txt']
+    output = '/home/pc/recipes.txt'
+    connections = 3
+    cache = 'new'
+    debug = true
+    markdown = true
+    
+    """
+)
+app_params_1 = {'url': ['www.test.com'], 'output': '/home/pc/recipes.txt',
+                'connections': 3, 'cache': 'new', 'debug': True,  'markdown': True}
+
+app_valid_string_2 = textwrap.dedent(
+    """
+    timeout = 9.3
+    
+    #This comment should not matter
+    user-agent = "popular-browser on popular-platform"
+    markdown = false
+    """
+)
+
+app_params_2 = {'url': ['www.test.com'], 'timeout': 9.3, "user_agent": "popular-browser on popular-platform"}
+
+app_params = [(app_params_1, app_valid_string_1),
+              (app_params_2, app_valid_string_2)]
+
+app_wrong_values = ["url = 'www.url.com'", "file = '/path/to/file'",
+                    "connections = 1.7", "cache = true", "debug = 'yes, please!'", "timeout = true",
+                    "verbosity = 'crutical'"]
+
 
 class TestArgConfig(unittest.TestCase):
 
@@ -393,23 +435,42 @@ class TestArgConfig(unittest.TestCase):
             with self.subTest(i=idx):
                 self.assertEqual(option.to_toml_str(), valid_string)
 
+    def tearDown(self) -> None:
+        shutil.rmtree(DEBUG_DIRECTORY_BASE, ignore_errors=True)
 
+    def test_app_argconfig(self):
+        for idx, (changed_params, valid_string) in enumerate(app_params):
+            with self.subTest(i=idx, parameter=params):
+                f = ensure_accessible_file(debug_dirs.config, CONFIG_NAME)
+                f.write_text(valid_string)
+                p = config_args(f)
+                d_parsed = vars(p.parse_args(["www.test.com"]))
+                d_valid = standard_params | changed_params
 
+                if diff1 := d_parsed.keys() - d_valid.keys():
+                    diff_vals = {key: d_parsed.get(key) for key in diff1}
+                    self.fail(f"There are more values in the parsed data than in the validation data: {diff_vals}")
 
+                if diff2 := d_valid.keys() - d_parsed.keys():
+                    diff_vals = {key: d_valid.get(key) for key in diff2}
+                    self.fail(f"There are more values in the validation data than in the parsed data: {diff_vals}")
 
+                for key in d_valid.keys():
+                    with self.subTest(key=key):
+                        self.assertEqual(d_parsed.get(key), d_valid.get(key))
 
+    def test_app_argconfig_failure(self):
+        for idx, malformed_string in enumerate(app_fail_strings):
+            with self.subTest(malformed_string=malformed_string):
+                f = ensure_accessible_file(debug_dirs.config, CONFIG_NAME)
+                f.write_text(malformed_string + os.linesep)
+                p = config_args(f)
+                d_parsed = vars(p.parse_args(["www.test.com"]))
+                d_valid = standard_params | {"url": ["www.test.com"]}
 
-
-
-
-
-
-
-
-
-
-
-
+                for key in d_valid.keys():
+                    with self.subTest(key=key):
+                        self.assertEqual(d_parsed.get(key), d_valid.get(key))
 
 
 
