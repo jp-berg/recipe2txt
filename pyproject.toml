@@ -74,3 +74,16 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 module = 'validators'
 ignore_missing_imports = true
+
+[tool.pylint]
+jobs = 0
+reports = true
+enable = ['useless-suppression']
+source-roots = ['recipe2txt', 'test']
+output-format = 'text'
+recursive = true
+max-line-length = 120
+single-line-if-stmt = true
+ext-import-graph = true
+logging-modules = ["logging", "ContextLogger"]
+disable = ["C0115", "C0116", "useless-import-alias"]
