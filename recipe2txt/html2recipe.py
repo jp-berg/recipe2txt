@@ -48,8 +48,8 @@ from recipe_scrapers._exceptions import (ElementNotFoundInHtml,
                                          SchemaOrgException,
                                          WebsiteNotImplementedError)
 
-from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.markdown import *
 from recipe2txt.utils.misc import URL, Counts, dict2str, is_url
 from recipe2txt.utils.traceback_utils import format_stacks, get_shared_frames

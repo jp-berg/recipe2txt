@@ -22,13 +22,13 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
+from test.test_helpers import test_project_tmpdir
 from typing import Final, Literal, TypeAlias, get_args
 
 from recipe2txt.file_setup import DB_NAME, LOG_NAME, debug_dirs
 from recipe2txt.utils.ContextLogger import LOG_LEVEL_NAMES
 from recipe2txt.utils.misc import (Directory, create_timestamped_dir,
                                    ensure_accessible_file_critical)
-from test.test_helpers import test_project_tmpdir
 
 
 def escape_whitespace(element: str) -> str:

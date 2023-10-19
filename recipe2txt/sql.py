@@ -32,8 +32,9 @@ import sys
 from pathlib import Path
 from typing import Any, Final, NewType, Optional, Tuple, TypeGuard
 
-from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.ContextLogger import get_logger
+
 from .html2recipe import (METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION,
                           Recipe)
 from .html2recipe import RecipeStatus as RS

@@ -14,13 +14,13 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import test.testfiles.permanent.testfile_generator as file_gen
 import unittest
+from test.test_helpers import *
 
 import recipe_scrapers
 
 import recipe2txt.html2recipe as h2r
-import test.testfiles.permanent.testfile_generator as file_gen
-from test.test_helpers import *
 
 
 class Test(unittest.TestCase):

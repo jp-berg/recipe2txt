@@ -15,9 +15,9 @@
 
 import os
 import unittest
+from test.testfiles.permanent.gen_stack import GenTraces
 
 import recipe2txt.utils.traceback_utils as tb_u
-from test.testfiles.permanent.gen_stack import GenTraces
 
 
 class TracebackTests(unittest.TestCase):

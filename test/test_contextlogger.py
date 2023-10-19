@@ -17,13 +17,13 @@ import logging
 import os
 import shutil
 import unittest
+from test.test_helpers import assertFilesEqual, test_project_tmpdir
+from test.testfiles.permanent.gen_log import gen_logs, log_paths
 from typing import Any, Final, Optional, TypeVar
 
 import recipe2txt.utils.ContextLogger as CTXL
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.misc import File
-from test.test_helpers import assertFilesEqual, test_project_tmpdir
-from test.testfiles.permanent.gen_log import gen_logs, log_paths
 
 level = logging.WARNING
 test_msg = "THIS IS A TESTMESSAGE"

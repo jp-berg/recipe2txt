@@ -18,15 +18,15 @@ import random
 import shutil
 import textwrap
 import unittest
+from test.test_helpers import assertEval, delete_tmpdirs, test_project_tmpdir
 from typing import Any
 
 import recipe2txt.utils.ArgConfig as argconfig
-from recipe2txt.argparse import config_args
 from recipe2txt.fetcher import Fetcher
 from recipe2txt.file_setup import (CONFIG_NAME, DEBUG_DIRECTORY_BASE,
                                    debug_dirs, get_default_output)
+from recipe2txt.user_interface import config_args
 from recipe2txt.utils.misc import ensure_accessible_file, ensure_existence_dir
-from test.test_helpers import assertEval, delete_tmpdirs, test_project_tmpdir
 
 
 class TestFunctions(unittest.TestCase):

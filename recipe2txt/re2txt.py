@@ -19,8 +19,8 @@ import os
 import sys
 from logging import DEBUG
 
-from recipe2txt.argparse import get_parser, mutex_args, process_params
 from recipe2txt.file_setup import write_errors
+from recipe2txt.user_interface import get_parser, mutex_args, process_params
 from recipe2txt.utils.ContextLogger import get_logger
 
 logger = get_logger(__name__)

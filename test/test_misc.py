@@ -17,10 +17,10 @@ import os
 import shutil
 import unittest
 from pathlib import Path
-
-import recipe2txt.utils.misc as misc
 from test.test_helpers import *
 from test.test_helpers import none_dirs, normal_dirs, testfile
+
+import recipe2txt.utils.misc as misc
 
 
 class FileTests(unittest.TestCase):

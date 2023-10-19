@@ -41,8 +41,8 @@ from xdg_base_dirs import xdg_config_home, xdg_data_home, xdg_state_home
 
 from recipe2txt.html2recipe import errors2str
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
-from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import (File, create_timestamped_dir,
                                    ensure_accessible_file_critical,
                                    ensure_existence_dir)

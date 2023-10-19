@@ -24,10 +24,10 @@ import recipe_scrapers
 import recipe2txt.html2recipe as h2r
 from recipe2txt.fetcher import Cache, Fetcher
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
+from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import (disable_loggers, get_logger,
                                             root_log_setup, suppress_logging)
-from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.misc import (URL, Directory, File,
                                    ensure_accessible_file_critical, is_url)
 

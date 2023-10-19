@@ -16,15 +16,15 @@
 import contextlib
 import logging
 import shutil
+import test.testfiles.permanent.gen_stack as gen_stack
 from pathlib import Path
 from typing import Final, Generator
 
 import recipe2txt.utils.misc as misc
-import test.testfiles.permanent.gen_stack as gen_stack
-from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import (_LOG_FORMAT_STREAM,
                                             QueueContextFilter,
                                             QueueContextFormatter)
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger, string2level
 from recipe2txt.utils.misc import (Directory, File, ensure_accessible_file,
                                    ensure_existence_dir_critical)
