@@ -87,3 +87,14 @@ single-line-if-stmt = true
 ext-import-graph = true
 logging-modules = ["logging", "ContextLogger"]
 disable = ["C0115", "C0116", "useless-import-alias"]
+
+[tool.coverage.run]
+branch = true
+omit= ["*__init__.py", "*test4recipe2txt.py"]
+command_line = "-m unittest"
+
+[tool.coverage.report]
+skip_covered = true
+skip_empty = true
+show_missing = true
+sort = "Cover"
