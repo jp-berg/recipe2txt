@@ -184,12 +184,12 @@ db: AccessibleDatabase = ensure_accessible_db_critical(ROOT, "testfile_db.sqlite
 
 
 class TestFileFetcher(Fetcher):
-    url2html: dict[str, bytes] = {url: html for url, html in zip(URL_LIST, HTML_LIST)}
+    URL2HTML: Final[dict[str, bytes]] = {url: html for url, html in zip(URL_LIST, HTML_LIST)}
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)
         for url in urls:
-            html = TestFileFetcher.url2html[url]
+            html = TestFileFetcher.URL2HTML[url]
             self.html2db(url, html)  # type: ignore[arg-type]
             # TODO
         lines = self.gen_lines()
