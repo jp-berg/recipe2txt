@@ -245,7 +245,7 @@ class Database:
         self.con.commit()
         return recipe
 
-    def get_recipe_row(self, url: URL) -> Tuple[object, ...] | None:
+    def get_recipe_row(self, url: URL) -> Tuple[Any, ...] | None:
         """Retrieves the entry that matches url from the recipe-table and returns the tuple if there was a match."""
         self.cur.execute(_GET_RECIPE, (url,))
         r = self.cur.fetchone()
