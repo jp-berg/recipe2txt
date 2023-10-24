@@ -34,14 +34,14 @@ __all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedi
            "assertAccessibleFile", "assertFilesEqual", "testfile", "normal_dirs", "none_dirs",
            "assertEval"]
 
-tmpdir_name: Final[str] = "tmp_testfiles_re2txt"
-filedir_name: Final[str] = "testfiles"
+tmpdir_name: Final = "tmp_testfiles_re2txt"
+filedir_name: Final = "testfiles"
 
-test_filedir: Final[Path] = Path(__file__).parent / "testfiles"
+test_filedir: Final = Path(__file__).parent / "testfiles"
 
-test_project_tmpdir: Final[Path] = Path(test_filedir, tmpdir_name)
-xdg_tmpdir: Final[Path] = Path(xdg_data_home(), tmpdir_name)
-tmpdir: Final[Path] = Path(gettempdir(), tmpdir_name)
+test_project_tmpdir: Final = Path(test_filedir, tmpdir_name)
+xdg_tmpdir: Final = Path(xdg_data_home(), tmpdir_name)
+tmpdir: Final = Path(gettempdir(), tmpdir_name)
 
 tmpdirs:Final[list[Path]] = [test_project_tmpdir, xdg_tmpdir, tmpdir]
 

@@ -47,17 +47,17 @@ def path2str(path: Path) -> str:
     return p
 
 
-TEST_DIR: Final[Path] = Path(__file__).parent
-WORK_DIR: Final[Path] = TEST_DIR.parent
-TEST_FILES: Final[Path] = TEST_DIR / "testfiles"
-PROGRAM_NAME: Final[str] = "test4recipe2txt"
-URLS_ORIGIN: Final[Path] = TEST_FILES / "permanent" / "all_urls.txt"
-PYTHON_PATH: Final[Path] = WORK_DIR / ".venv" / "bin" / "python"
-REPORTS: Final[Path] = TEST_DIR / "reports_test4recipe2txt"
-URLS_SHUFFLED: Final[Path] = REPORTS / "urls_shuffled.txt"
-LOGFILE: Final[Path] = debug_dirs.state / LOG_NAME
-ERROR_DIR: Final[Path] = debug_dirs.state / "error_reports"
-DB_FILE: Final[Path] = debug_dirs.data / DB_NAME
+TEST_DIR: Final = Path(__file__).parent
+WORK_DIR: Final = TEST_DIR.parent
+TEST_FILES: Final = TEST_DIR / "testfiles"
+PROGRAM_NAME: Final = "test4recipe2txt"
+URLS_ORIGIN: Final = TEST_FILES / "permanent" / "all_urls.txt"
+PYTHON_PATH: Final = WORK_DIR / ".venv" / "bin" / "python"
+REPORTS: Final = TEST_DIR / "reports_test4recipe2txt"
+URLS_SHUFFLED: Final = REPORTS / "urls_shuffled.txt"
+LOGFILE: Final = debug_dirs.state / LOG_NAME
+ERROR_DIR: Final = debug_dirs.state / "error_reports"
+DB_FILE: Final = debug_dirs.data / DB_NAME
 RE2TXT: Final[list[str]] = [path2str(PYTHON_PATH), "-m", "recipe2txt.re2txt"]
 
 

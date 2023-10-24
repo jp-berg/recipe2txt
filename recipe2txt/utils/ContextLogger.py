@@ -32,27 +32,27 @@ LOG_LEVEL_VALUES: Final[list[int]] = [logging.DEBUG, logging.INFO, logging.WARNI
 
 string2level: Final[dict[LiteralString, int]] = dict(zip(get_args(LOG_LEVEL_NAMES), LOG_LEVEL_VALUES))
 
-LOGFILE: Final[LiteralString] = "file.log"
+LOGFILE: Final = "file.log"
 
-_LOG_FORMAT_STREAM: Final[LiteralString] = "%(ctx)s%(message)s"
-_LOG_FORMAT_FILE: Final[LiteralString] = str(
+_LOG_FORMAT_STREAM: Final = "%(ctx)s%(message)s"
+_LOG_FORMAT_FILE: Final = str(
     "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
 )
 
-DATEFMT: Final[LiteralString] = "%Y-%m-%d %H:%m:%S"
+DATEFMT: Final = "%Y-%m-%d %H:%m:%S"
 
-CTX_ATTR: Final[LiteralString] = "is_context"
-DEFER_EMIT: Final[LiteralString] = "defer_emit"
-CTX_MSG_ATTR: Final[LiteralString] = "context_msg"
-CTX_ARGS_ATTR: Final[LiteralString] = "context_args"
-WITH_CTX_ATTR: Final[LiteralString] = "with_context"
-FULL_TRACE_ATTR: Final[LiteralString] = "full_trace"
+CTX_ATTR: Final = "is_context"
+DEFER_EMIT: Final = "defer_emit"
+CTX_MSG_ATTR: Final = "context_msg"
+CTX_ARGS_ATTR: Final = "context_args"
+WITH_CTX_ATTR: Final = "with_context"
+FULL_TRACE_ATTR: Final = "full_trace"
 
 END_CONTEXT: Final[dict[str, bool]] = {CTX_ATTR: False}
 
-WHILE: Final[str] = f"While %s:{linesep}\t"
-DO_NOT_LOG: Final[LiteralString] = "THIS MESSAGE SHOULD NOT BE LOGGED"
-DEFAULT_CONTEXT: Final[LiteralString] = "default_context"
+WHILE: Final = f"While %s:{linesep}\t"
+DO_NOT_LOG: Final = "THIS MESSAGE SHOULD NOT BE LOGGED"
+DEFAULT_CONTEXT: Final = "default_context"
 
 logger_list: list[logging.Logger] = []
 

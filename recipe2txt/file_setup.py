@@ -50,7 +50,7 @@ from recipe2txt.utils.misc import (File, create_timestamped_dir,
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
 
-PROGRAM_NAME: Final[LiteralString] = "recipes2txt"
+PROGRAM_NAME: Final = "recipes2txt"
 
 
 class ProgramDirectories(NamedTuple):
@@ -65,7 +65,7 @@ class ProgramDirectories(NamedTuple):
     state: Path
 
 
-default_dirs: Final[ProgramDirectories] = ProgramDirectories(xdg_data_home() / PROGRAM_NAME,
+default_dirs: Final = ProgramDirectories(xdg_data_home() / PROGRAM_NAME,
                                                              xdg_config_home() / PROGRAM_NAME,
                                                              xdg_state_home() / PROGRAM_NAME)
 """
@@ -74,10 +74,10 @@ Specifies the paths the program will use during normal operation for storage of 
 The specified paths try to adhere to the XDG Base Directory Specification.
 """
 
-DEBUG_DIRECTORY_BASE: Final[Path] = Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
+DEBUG_DIRECTORY_BASE: Final = Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
 """Specifies the root directory for all files used by this program when the '--debug'-flag is set."""
 
-debug_dirs: Final[ProgramDirectories] = ProgramDirectories(DEBUG_DIRECTORY_BASE / "data",
+debug_dirs: Final = ProgramDirectories(DEBUG_DIRECTORY_BASE / "data",
                                                            DEBUG_DIRECTORY_BASE / "config",
                                                            DEBUG_DIRECTORY_BASE / "state")
 """
@@ -86,17 +86,17 @@ Specifies the paths the program will use when the '--debug'-flag is set.
 The directories (data, config, state) mirror their :py:data:`default-dirs` counterparts in function.
 """
 
-LOG_NAME: Final[LiteralString] = "debug.log"
+LOG_NAME: Final = "debug.log"
 """name of the log-file the loggers of this program will write to"""
-DB_NAME: Final[LiteralString] = PROGRAM_NAME + ".sqlite3"
+DB_NAME: Final = PROGRAM_NAME + ".sqlite3"
 """name of the sqlite-database-file used by this program"""
-CONFIG_NAME: Final[LiteralString] = PROGRAM_NAME + ".toml"
+CONFIG_NAME: Final = PROGRAM_NAME + ".toml"
 """name of the config-file that provides the default values for options"""
-RECIPES_NAME: Final[LiteralString] = "recipes"
+RECIPES_NAME: Final = "recipes"
 """name of the default output-file all the collected recipes will be written to"""
-RECIPES_NAME_TXT: Final[LiteralString] = RECIPES_NAME + ".txt"
-RECIPES_NAME_MD: Final[LiteralString] = RECIPES_NAME + ".md"
-CONFIG_FILE: Final[Path] = default_dirs.config / CONFIG_NAME
+RECIPES_NAME_TXT: Final = RECIPES_NAME + ".txt"
+RECIPES_NAME_MD: Final = RECIPES_NAME + ".md"
+CONFIG_FILE: Final = default_dirs.config / CONFIG_NAME
 """path to the config-file"""
 
 
@@ -171,7 +171,7 @@ def erase_files(debug: bool = False) -> None:
             rmtree(directory)
 
 
-how_to_report_txt: Final[LiteralString] = textwrap.dedent(
+how_to_report_txt: Final = textwrap.dedent(
     """During its execution the program encountered errors while trying to scrape recipes.
     In cases where the error seems to originate from the underlying library 'recipe-scrapers' an error-report per error
     has been generated and saved to a file.

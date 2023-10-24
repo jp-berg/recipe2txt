@@ -24,12 +24,12 @@ __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", 
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
 
 
-indent: Final[LiteralString] = " " * 4
+indent: Final = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
 NOT_ESCAPED: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
 # Helpful to terminate lists in case two different lists follow each other
-EMPTY_COMMENT: Final[LiteralString] = "\n<!-- -->\n"
+EMPTY_COMMENT: Final = "\n<!-- -->\n"
 
 
 def fragmentify(string: str) -> str:

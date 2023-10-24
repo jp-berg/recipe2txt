@@ -35,7 +35,7 @@ if __name__ == '__main__':
 else:
     logger.setLevel(logging.CRITICAL)
 
-root: Final[Directory] = Directory(Path(__file__).parent)
+root: Final = Directory(Path(__file__).parent)
 log_files = ensure_existence_dir_critical(root, "logfiles")
 write_logger = logging.getLogger("writelogger")
 write_logger.propagate = False

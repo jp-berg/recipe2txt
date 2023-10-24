@@ -276,7 +276,7 @@ class NArgOption(BasicOption):
         return isinstance(value, list)
 
 
-CFG_PREAMBLE: Final[LiteralString] = textwrap.dedent(
+CFG_PREAMBLE: Final = textwrap.dedent(
     """
     #*****************************************************************************
     # Configuration file for the program %s

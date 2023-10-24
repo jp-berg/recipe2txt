@@ -42,7 +42,7 @@ else:
     disable_loggers()
 
 
-root: Final[Directory] = Directory(Path(__file__).parent)
+root: Final = Directory(Path(__file__).parent)
 
 
 def get_urls() -> list[URL]:
@@ -172,7 +172,7 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
 
 
 html_list: Final[list[bytes]] = gen_html(filenames)
-_bad_url: Final[str] = "https://en.wikipedia.org/wiki/Recipe"
+_bad_url: Final = "https://en.wikipedia.org/wiki/Recipe"
 html_bad: Final[tuple[str, bytes]] = (_bad_url, fetch_url(URL(_bad_url),
                                                           gen_full_path("FAIL_RECIPE", FileExtension.html)))
 recipe_list: Final[list[h2r.Recipe]] = gen_parsed(filenames)

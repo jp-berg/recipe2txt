@@ -45,7 +45,7 @@ from .utils.misc import *
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
 
-_CREATE_TABLES: Final[LiteralString] = textwrap.dedent(
+_CREATE_TABLES: Final = textwrap.dedent(
     """
         CREATE TABLE IF NOT EXISTS recipes(
             recipeID        INTEGER NOT NULL,
@@ -84,32 +84,32 @@ RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
 ]
 """Contains the names of all rows in the table 'recipes'."""
 
-_INSERT_RECIPE: Final[str] = "INSERT OR IGNORE INTO recipes" + \
+_INSERT_RECIPE: Final = "INSERT OR IGNORE INTO recipes" + \
                              " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
                              " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
 
-_INSERT_OR_REPLACE_RECIPE: Final[str] = "INSERT OR REPLACE INTO recipes" + \
+_INSERT_OR_REPLACE_RECIPE: Final = "INSERT OR REPLACE INTO recipes" + \
                                         " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
                                         " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
 
-_INSERT_FILE: Final[LiteralString] = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
+_INSERT_FILE: Final = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
 
-_ASSOCIATE_FILE_RECIPE: Final[LiteralString] = "INSERT OR IGNORE INTO contents (fileID, recipeID) VALUES (" \
+_ASSOCIATE_FILE_RECIPE: Final = "INSERT OR IGNORE INTO contents (fileID, recipeID) VALUES (" \
                                      " (SELECT fileID FROM files WHERE filepath = ?)," \
                                      " (SELECT recipeID FROM recipes WHERE url = ?))"
 
-_FILEPATHS_JOIN_RECIPES: Final[LiteralString] = " ((SELECT * FROM files WHERE filepath = ?) " \
+_FILEPATHS_JOIN_RECIPES: Final = " ((SELECT * FROM files WHERE filepath = ?) " \
                                       " NATURAL JOIN contents NATURAL JOIN recipes) "
-_GET_RECIPE: Final[LiteralString] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
-_GET_RECIPES: Final[str] = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
+_GET_RECIPE: Final = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+_GET_RECIPES: Final = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
                            "WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
-_GET_URLS_STATUS_VERSION: Final[LiteralString] = "SELECT url, status, scraper_version FROM recipes"
-_GET_CONTENT: Final[LiteralString] = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
+_GET_URLS_STATUS_VERSION: Final = "SELECT url, status, scraper_version FROM recipes"
+_GET_CONTENT: Final = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
-_GET_TITLES_HOSTS: Final[str] = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
+_GET_TITLES_HOSTS: Final = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
                                 " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
 
-_DROP_ALL: Final[LiteralString] = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; " \
+_DROP_ALL: Final = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; " \
                                   "DROP TABLE IF EXISTS contents"
 
 AccessibleDatabase = NewType("AccessibleDatabase", Path)
