@@ -37,7 +37,7 @@ out_path_md = test_project_tmpdir / out_name_md
 db: sql.Database
 
 
-def compare_for(recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equality: bool = True) -> Optional[str]:
+def compare_for(recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equality: bool = True) -> str | None:
     for attr in attributes:
         if attr not in h2r.RECIPE_ATTRIBUTES:
             raise ValueError("Not a valid attribute for Recipe: " + attr)

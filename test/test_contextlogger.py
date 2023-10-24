@@ -49,7 +49,7 @@ class TestStreamHandler(logging.StreamHandler):
         return self.formattedRecords
 
 
-def get_exc_info(exception: Optional[BaseException] = None):
+def get_exc_info(exception: BaseException | None = None):
     if not exception:
         try:
             raise ValueError("DUMMY ERROR")
@@ -64,7 +64,7 @@ T = TypeVar('T')
 
 def record_factory(should_trigger: bool, exc_info=None,
                    context: tuple[str, tuple[Any, ...]] | None = None,
-                   ctx: str = None, defer: bool = False, is_context: Optional[bool] = None,
+                   ctx: str = None, defer: bool = False, is_context: bool | None = None,
                    full_trace: bool = False, msg=None, *args: Any) -> logging.LogRecord:
     global level
     if should_trigger:
@@ -119,7 +119,7 @@ class LoggerTester(unittest.TestCase):
         self.logger.addHandler(self.stream_handler)
 
     def get_context(self, is_context: bool = False, is_emittable: bool = False,
-                    deferred: Optional[int] = None) -> CTXL.Context:
+                    deferred: int | None = None) -> CTXL.Context:
         c = CTXL.Context(self.stream_handler)
         if not is_context:
             if deferred is not None:

@@ -89,7 +89,7 @@ def full_path(*pathelements: str | Path) -> Path:
     return path
 
 
-def _ensure_existence_dir(path: Path) -> tuple[Optional[Directory], tuple[str, Any] | tuple[str, Any, Any]]:
+def _ensure_existence_dir(path: Path) -> tuple[Directory | None, tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_file():
             return None, ("%s is already a file, thus a directory with the same name cannot exist", path)
@@ -105,7 +105,7 @@ def _ensure_existence_dir(path: Path) -> tuple[Optional[Directory], tuple[str, A
     return Directory(path), (DO_NOT_LOG, "", "")
 
 
-def ensure_existence_dir(*path_elem: str | Path) -> Optional[Directory]:
+def ensure_existence_dir(*path_elem: str | Path) -> Directory | None:
     path = full_path(*path_elem)
     directory, msg = _ensure_existence_dir(path)
     if not directory:
@@ -123,7 +123,7 @@ def ensure_existence_dir_critical(*path_elem: str | Path) -> Directory:
     return directory
 
 
-def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Optional[Directory]:
+def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Directory | None:
     current_time = strftime("%Y-%m-%d_%H-%M-%S", localtime())
     parent = ensure_existence_dir(*path_elem)
     if not parent:
@@ -139,7 +139,7 @@ def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Optional[D
     return directory
 
 
-def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any] | tuple[str, Any, Any]]:
+def _ensure_accessible_file(path: Path) -> tuple[File | None, tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_dir():
             return None, ("%s is already a directory, thus a file with the same name cannot exist", path)
@@ -165,7 +165,7 @@ def _ensure_accessible_file(path: Path) -> tuple[Optional[File], tuple[str, Any]
     return File(path), (DO_NOT_LOG, "", "")
 
 
-def ensure_accessible_file(*path_elem: str | Path) -> Optional[File]:
+def ensure_accessible_file(*path_elem: str | Path) -> File | None:
     path = full_path(*path_elem)
     file, msg = _ensure_accessible_file(path)
     if not file:

@@ -20,7 +20,7 @@ from os import linesep
 from typing import Optional
 
 
-def shorten_paths(stack: traceback.StackSummary, first_visible_dir: Optional[str] = None,
+def shorten_paths(stack: traceback.StackSummary, first_visible_dir: str | None = None,
                   skip_first: bool = False) -> traceback.StackSummary:
     if first_visible_dir is None:
         paths = [frame.filename for frame in stack]
@@ -64,7 +64,7 @@ def get_shared_frames(tb_exes: list[traceback.TracebackException]) -> traceback.
 
 def format_stacks(tb_exes: list[traceback.TracebackException],
                   shared_stack: traceback.StackSummary,
-                  first_visible_dir:Optional[str] = None) -> list[list[str]]:
+                  first_visible_dir: str | None = None) -> list[list[str]]:
     shared_stack_len = len(shared_stack)
     tb_exes_copy = deepcopy(tb_exes)
     for tb_ex in tb_exes_copy:

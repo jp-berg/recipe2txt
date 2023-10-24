@@ -224,8 +224,8 @@ issue.
 """
 
 
-def handle_parsing_error(url: URL, exception: Exception, method: Optional[str] = None,
-                         log: Optional[Callable[..., None]] = None, save_error: bool = True) -> Optional[ParsingError]:
+def handle_parsing_error(url: URL, exception: Exception, method: str | None = None,
+                         log: Callable[..., None] | None = None, save_error: bool = True) -> ParsingError | None:
     """
     Logs and categorizes exceptions occurring during parsing of recipes.
 
@@ -545,7 +545,7 @@ def _re2txt(recipe: Recipe) -> list[str]:
     return txt
 
 
-def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False) -> Optional[list[str]]:
+def recipe2out(recipe: Recipe, counts: Counts | None = None, md: bool = False) -> list[str] | None:
     """
     Formats a recipe for to be written to a file
 
@@ -574,7 +574,7 @@ def recipe2out(recipe: Recipe, counts: Optional[Counts] = None, md: bool = False
         return _re2txt(recipe)
 
 
-def html2parsed(url: URL, html: str) -> Optional[Parsed]:
+def html2parsed(url: URL, html: str) -> Parsed | None:
     """
     Parses the HTML of the recipe-website.
 

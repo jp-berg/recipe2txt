@@ -35,7 +35,10 @@ string2level: Final[dict[LiteralString, int]] = dict(zip(get_args(LOG_LEVEL_NAME
 LOGFILE: Final[LiteralString] = "file.log"
 
 _LOG_FORMAT_STREAM: Final[LiteralString] = "%(ctx)s%(message)s"
-_LOG_FORMAT_FILE: Final[LiteralString] = "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
+_LOG_FORMAT_FILE: Final[LiteralString] = str(
+    "%(asctime)s - %(levelname)s %(module)s:%(funcName)s:%(lineno)d %(message)s"
+)
+
 DATEFMT: Final[LiteralString] = "%Y-%m-%d %H:%m:%S"
 
 CTX_ATTR: Final[LiteralString] = "is_context"

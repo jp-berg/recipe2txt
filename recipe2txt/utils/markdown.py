@@ -89,13 +89,13 @@ def page_sep() -> str:
     return linesep + "---" + linesep
 
 
-def link(url: str, description: Optional[str] = None) -> str:
+def link(url: str, description: str | None = None) -> str:
     if not description:
         description = url
     return f"[{description}]({url})"
 
 
-def section_link(header: str, description: Optional[str] = None, fragmentified: bool = False) -> str:
+def section_link(header: str, description: str | None = None, fragmentified: bool = False) -> str:
     if fragmentified:
         ref = "#" + fragmentify(header)
     else:
