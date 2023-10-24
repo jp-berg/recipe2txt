@@ -36,13 +36,15 @@ def fun1_2(x: float | int) -> float:
     return fun0_2(x) * 10
 
 
-def fun1_1(x: float | int)  -> float:
+def fun1_1(x: float | int) -> float:
     return fun0_1(x) * 3
 
 
 def fun2(x: float | int) -> float:
     if x > 12:
-        logger.debug("Calling fun1_2") # Check logging indentation from different function
+        logger.debug(
+            "Calling fun1_2"
+        )  # Check logging indentation from different function
         return fun1_2(x * 0)
     else:
         logger.debug("Calling fun1_1")

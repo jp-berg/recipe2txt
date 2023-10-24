@@ -26,17 +26,35 @@ from recipe2txt.fetcher import Cache, Fetcher
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
-from recipe2txt.utils.ContextLogger import (disable_loggers, get_logger,
-                                            root_log_setup, suppress_logging)
-from recipe2txt.utils.misc import (URL, Directory, File,
-                                   ensure_accessible_file_critical, is_url)
+from recipe2txt.utils.ContextLogger import (
+    disable_loggers,
+    get_logger,
+    root_log_setup,
+    suppress_logging,
+)
+from recipe2txt.utils.misc import (
+    URL,
+    Directory,
+    File,
+    ensure_accessible_file_critical,
+    is_url,
+)
 
-__all__ = ["html", "HTML_BAD", "RECIPE_LIST", "MD_LIST", "TXT_LIST", "URL_LIST", "FULL_TXT", "FULL_MD"]
+__all__ = [
+    "html",
+    "HTML_BAD",
+    "RECIPE_LIST",
+    "MD_LIST",
+    "TXT_LIST",
+    "URL_LIST",
+    "FULL_TXT",
+    "FULL_MD",
+]
 
 logger = get_logger(__name__)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     root_log_setup(logging.INFO)
 else:
     disable_loggers()
@@ -107,8 +125,8 @@ def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
             a = h2r.info2str(method, a)
             attributes.append(a)
         attributes += [url, str(int(h2r.gen_status(attributes))), h2r.SCRAPER_VERSION]
-        recipe = h2r.Recipe(*attributes) # type: ignore[arg-type]
-    with filename_parsed.open('w') as file:
+        recipe = h2r.Recipe(*attributes)  # type: ignore[arg-type]
+    with filename_parsed.open("w") as file:
         for a in attributes:
             file.write(str(a))
             file.write(os.linesep + delim + os.linesep)
@@ -167,15 +185,17 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
             formatted_file.write_text(formatted)
             formatted_recipes.append(formatted)
         else:
-            logger.info("Already available: %s",  formatted_file)
+            logger.info("Already available: %s", formatted_file)
             formatted_recipes.append(formatted_file.read_text())
     return formatted_recipes
 
 
 HTML_LIST: Final[list[bytes]] = gen_html(FILENAMES)
 _BAD_URL: Final = "https://en.wikipedia.org/wiki/Recipe"
-HTML_BAD: Final[tuple[str, bytes]] = (_BAD_URL, fetch_url(URL(_BAD_URL),
-                                                          gen_full_path("FAIL_RECIPE", FileExtension.html)))
+HTML_BAD: Final[tuple[str, bytes]] = (
+    _BAD_URL,
+    fetch_url(URL(_BAD_URL), gen_full_path("FAIL_RECIPE", FileExtension.html)),
+)
 RECIPE_LIST: Final[list[h2r.Recipe]] = gen_parsed(FILENAMES)
 MD_LIST: Final[list[str]] = gen_formatted(FILENAMES, FileExtension.md)
 TXT_LIST: Final[list[str]] = gen_formatted(FILENAMES, FileExtension.txt)
@@ -184,7 +204,9 @@ db: AccessibleDatabase = ensure_accessible_db_critical(ROOT, "testfile_db.sqlite
 
 
 class TestFileFetcher(Fetcher):
-    URL2HTML: Final[dict[str, bytes]] = {url: html for url, html in zip(URL_LIST, HTML_LIST)}
+    URL2HTML: Final[dict[str, bytes]] = {
+        url: html for url, html in zip(URL_LIST, HTML_LIST)
+    }
 
     def fetch(self, urls: set[URL]) -> None:
         urls = super().require_fetching(urls)

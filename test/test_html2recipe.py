@@ -24,14 +24,15 @@ import recipe2txt.html2recipe as h2r
 
 
 class Test(unittest.TestCase):
-
     def test_none2na(self):
         wrong_length = (1,) * (len(h2r.RECIPE_ATTRIBUTES) + 1)
         with self.assertRaises(ValueError):
             h2r.none2na(wrong_length)
 
-        test_tuple = [((1, 2, 3, None, 5, 6), (1, 2, 3, h2r.NA, 5, 6)),
-                      ((None, 2, None, 4, None, 6, 7), (h2r.NA, 2, h2r.NA, 4, h2r.NA, 6, 7))]
+        test_tuple = [
+            ((1, 2, 3, None, 5, 6), (1, 2, 3, h2r.NA, 5, 6)),
+            ((None, 2, None, 4, None, 6, 7), (h2r.NA, 2, h2r.NA, 4, h2r.NA, 6, 7)),
+        ]
 
         for t, v in test_tuple:
             with self.subTest(testdata=t):
@@ -49,35 +50,50 @@ class Test(unittest.TestCase):
                 self.assertEqual(getattr(r, a), a)
 
     def test_int2status(self):
-        recipes = [recipe[:-2] + (int(recipe[-2]), recipe[-1]) for recipe in test_recipes]
+        recipes = [
+            recipe[:-2] + (int(recipe[-2]), recipe[-1]) for recipe in test_recipes
+        ]
         for recipe, validation in zip(recipes, test_recipes):
             with self.subTest(statuscode=recipe[-3]):
                 self.assertEqual(h2r.int2status(recipe), validation)
 
     def test__get_info(self):
-        for html, url, recipe in zip(file_gen.HTML_LIST, file_gen.URL_LIST, file_gen.RECIPE_LIST):
+        for html, url, recipe in zip(
+            file_gen.HTML_LIST, file_gen.URL_LIST, file_gen.RECIPE_LIST
+        ):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.METHODS:
                 with self.subTest(url=url, method=method):
-                    self.assertEqual(h2r.get_info(method, p, url), getattr(recipe, method))
+                    self.assertEqual(
+                        h2r.get_info(method, p, url), getattr(recipe, method)
+                    )
 
-        bad_info = [("total_time", 0), ("ingredients", None),
-                    ("ingredients", []), ("instructions", [None, None]),
-                    ("instructions", ["", "\t", "\n"]), ("ingredients", "{["),
-                    ("instructions", ["[", " ", "}"])]
+        bad_info = [
+            ("total_time", 0),
+            ("ingredients", None),
+            ("ingredients", []),
+            ("instructions", [None, None]),
+            ("instructions", ["", "\t", "\n"]),
+            ("ingredients", "{["),
+            ("instructions", ["[", " ", "}"]),
+        ]
 
         for url, (method, info) in zip(file_gen.URL_LIST, bad_info):
             with self.subTest(method=method, info=info):
                 self.assertEqual(h2r.get_info(method, info), h2r.NA)
 
     def test_html2recipe(self):
-        for url, html, validation in zip(file_gen.URL_LIST, file_gen.HTML_LIST, file_gen.RECIPE_LIST):
+        for url, html, validation in zip(
+            file_gen.URL_LIST, file_gen.HTML_LIST, file_gen.RECIPE_LIST
+        ):
             with self.subTest(url=url):
                 if not (p := h2r.html2parsed(url, html)):
                     self.fail("Failed to parse")
                 if not (recipe := h2r.parsed2recipe(url, p)):
                     self.fail("Failed to convert to recipe")
-                for a in h2r.RECIPE_ATTRIBUTES[:-1]: # scraper version will probably differ
+                for a in h2r.RECIPE_ATTRIBUTES[
+                    :-1
+                ]:  # scraper version will probably differ
                     with self.subTest(attribute=a):
                         r = getattr(recipe, a)
                         v = getattr(validation, a)
@@ -89,13 +105,17 @@ class Test(unittest.TestCase):
         for recipe in test_recipes[2:]:
             with self.subTest(recipe=recipe.url):
                 status = recipe.status
-                self.assertEqual(h2r.gen_status(list(recipe[:len(h2r.METHODS)])), status)
+                self.assertEqual(
+                    h2r.gen_status(list(recipe[: len(h2r.METHODS)])), status
+                )
 
         with self.assertRaises(ValueError):
             h2r.gen_status(list(h2r.Recipe()))
 
     def test_recipe2out(self):
-        for recipe, md_valid, txt_valid in zip(file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST):
+        for recipe, md_valid, txt_valid in zip(
+            file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST
+        ):
             self.maxDiff = None
             with self.subTest(recipe=recipe.url, mode="txt"):
                 out_txt = h2r.recipe2out(recipe, counts=None, md=False)
@@ -110,4 +130,7 @@ class Test(unittest.TestCase):
     def test_html2parsed(self):
         for html, url in zip(file_gen.HTML_LIST, file_gen.URL_LIST):
             with self.subTest(i=os.path.basename(url)):
-                self.assertEqual(h2r.html2parsed(url, html), recipe_scrapers.scrape_html(html=html, org_url=url))
+                self.assertEqual(
+                    h2r.html2parsed(url, html),
+                    recipe_scrapers.scrape_html(html=html, org_url=url),
+                )

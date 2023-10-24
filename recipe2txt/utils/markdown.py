@@ -20,14 +20,33 @@ from typing import Final, Optional, Pattern
 
 from recipe2txt.utils.conditional_imports import LiteralString
 
-__all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", "superscript", "code", "codeblock",
-           "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
+__all__ = [
+    "EMPTY_COMMENT",
+    "esc",
+    "header",
+    "quote",
+    "italic",
+    "bold",
+    "s_th",
+    "superscript",
+    "code",
+    "codeblock",
+    "page_sep",
+    "link",
+    "section_link",
+    "unordered",
+    "ordered",
+    "table",
+    "paragraph",
+]
 
 
 INDENT: Final = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
-NOT_ESCAPED: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
+NOT_ESCAPED: Final[Pattern[str]] = re.compile(
+    r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)"
+)
 # Helpful to terminate lists in case two different lists follow each other
 EMPTY_COMMENT: Final = "\n<!-- -->\n"
 
@@ -44,14 +63,16 @@ def esc(string: str) -> str:
     return NOT_ESCAPED.sub(r"\\\1", string)
 
 
-def header(string: str, level: int = 1, fragmentified_section_link: bool = False) -> str:
+def header(
+    string: str, level: int = 1, fragmentified_section_link: bool = False
+) -> str:
     if level < 1:
         level = 1
     elif level > 6:
         level = 6
     if fragmentified_section_link:
         f = fragmentify(string)
-        pre = f"<div id=\"{f}\"></div>{linesep*2}"
+        pre = f'<div id="{f}"></div>{linesep*2}'
     else:
         pre = ""
     return pre + "#" * level + " " + string
@@ -82,7 +103,7 @@ def code(string: str) -> str:
 
 
 def codeblock(*strings: str, language: str = "") -> list[str]:
-    return ["```" + language + linesep*2, *strings , linesep*2 + "```"]
+    return ["```" + language + linesep * 2, *strings, linesep * 2 + "```"]
 
 
 def page_sep() -> str:
@@ -95,7 +116,9 @@ def link(url: str, description: str | None = None) -> str:
     return f"[{description}]({url})"
 
 
-def section_link(header: str, description: str | None = None, fragmentified: bool = False) -> str:
+def section_link(
+    header: str, description: str | None = None, fragmentified: bool = False
+) -> str:
     if fragmentified:
         ref = "#" + fragmentify(header)
     else:
@@ -120,7 +143,9 @@ def unordered(*items: str, level: int = 0) -> list[str]:
 
 def ordered(*items: str, level: int = 0, start: int = 1) -> list[str]:
     pre = _indent(level)
-    return [f"{pre}{number}. {item}{linesep}" for number, item in enumerate(items, start)]
+    return [
+        f"{pre}{number}. {item}{linesep}" for number, item in enumerate(items, start)
+    ]
 
 
 def _construct_row(l: list[str]) -> str:
@@ -133,9 +158,14 @@ def table(lists: list[list[str]]) -> list[str]:
     maxlen = len(lists[0])
     for sublist in lists[1:]:
         if len(sublist) > maxlen:
-            raise ValueError("Length of one sublist is longer than the header list (first sublist)")
+            raise ValueError(
+                "Length of one sublist is longer than the header list (first sublist)"
+            )
 
-    head = [_construct_row(lists[0]), "|" + "---|" * maxlen + linesep]  # header, divider
+    head = [
+        _construct_row(lists[0]),
+        "|" + "---|" * maxlen + linesep,
+    ]  # header, divider
     body = [_construct_row(sublist) for sublist in lists[1:]]
     return head + body
 

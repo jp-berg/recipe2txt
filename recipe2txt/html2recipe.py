@@ -44,10 +44,12 @@ from typing import Any, Callable, Final, NamedTuple, NewType, Optional
 
 import recipe_scrapers
 from importlib_metadata import version
-from recipe_scrapers._exceptions import (ElementNotFoundInHtml,
-                                         NoSchemaFoundInWildMode,
-                                         SchemaOrgException,
-                                         WebsiteNotImplementedError)
+from recipe_scrapers._exceptions import (
+    ElementNotFoundInHtml,
+    NoSchemaFoundInWildMode,
+    SchemaOrgException,
+    WebsiteNotImplementedError,
+)
 
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
@@ -59,11 +61,11 @@ logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
 
 
-Parsed = NewType('Parsed', recipe_scrapers._abstract.AbstractScraper)
+Parsed = NewType("Parsed", recipe_scrapers._abstract.AbstractScraper)
 """Data :py:mod:`recipe_scrapers` extracted from the HTML-file"""
 NA: Final = "N/A"
 """Sentinel indicating that the data for this attribute is not available"""
-SCRAPER_VERSION: Final = version('recipe_scrapers')
+SCRAPER_VERSION: Final = version("recipe_scrapers")
 """Contains the version of :py:mod:`recipe_scrapers` currently loaded"""
 
 
@@ -83,6 +85,7 @@ class RecipeStatus(IntEnum):
             :py:data:`ON_DISPLAY`
         COMPLETE (5) -> does contain all attributes listed in :py:data:`METHODS`
     """
+
     NOT_INITIALIZED = -1
     UNREACHABLE = 0
     UNKNOWN = 1
@@ -100,6 +103,7 @@ class Recipe(NamedTuple):
     """
     Representation of a recipe.
     """
+
     ingredients: str = NA
     instructions: str = NA
     title: str = NA
@@ -110,7 +114,7 @@ class Recipe(NamedTuple):
     nutrients: str = NA
     url: URL = DUMMY_URL
     status: RecipeStatus = RecipeStatus.NOT_INITIALIZED
-    scraper_version: str = '-1'
+    scraper_version: str = "-1"
 
 
 UNINIT_RECIPE: Final = Recipe()
@@ -135,18 +139,22 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
 
     """
     if len(t) > len(RECIPE_ATTRIBUTES):
-        raise ValueError(f"Expected a Recipe-based tuple (length {len(t)},"
-                         f" but got something longer (length {len(RECIPE_ATTRIBUTES)})")
+        raise ValueError(
+            f"Expected a Recipe-based tuple (length {len(t)},"
+            f" but got something longer (length {len(RECIPE_ATTRIBUTES)})"
+        )
     if None in t:
         tmp = list(t)
-        t = tuple([tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i]) for i in range(len(tmp))])
+        t = tuple(
+            [
+                tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i])
+                for i in range(len(tmp))
+            ]
+        )
     return t
 
 
-ESSENTIAL: Final[list[LiteralString]] = [
-    "ingredients",
-    "instructions"
-]
+ESSENTIAL: Final[list[LiteralString]] = ["ingredients", "instructions"]
 """names of attributes that are considered essential for the recipe"""
 
 ON_DISPLAY: Final[list[LiteralString]] = ESSENTIAL + [
@@ -156,18 +164,14 @@ ON_DISPLAY: Final[list[LiteralString]] = ESSENTIAL + [
 ]
 """names of attributes that are used for creating the textual representation of the recipe"""
 
-METHODS: Final[list[LiteralString]] = ON_DISPLAY + [
-    "host",
-    "image",
-    "nutrients"
-]
+METHODS: Final[list[LiteralString]] = ON_DISPLAY + ["host", "image", "nutrients"]
 """names of attributes that contain information gathered by calling the methods with the same name on the 
 :py:class:`recipe_scrapers._abstract.AbstractScraper`"""
 
 RECIPE_ATTRIBUTES: Final[list[LiteralString]] = METHODS + [
     "url",
     "status",
-    "scraper_version"
+    "scraper_version",
 ]
 """names of all attributes in a :py:class:`Recipes`"""
 
@@ -201,6 +205,7 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
 
 class ParsingError(NamedTuple):
     """Consists of a TracebackException and the URL of the recipe where the parsing failed."""
+
     url: URL
     traceback: traceback.TracebackException
 
@@ -224,8 +229,13 @@ issue.
 """
 
 
-def handle_parsing_error(url: URL, exception: Exception, method: str | None = None,
-                         log: Callable[..., None] | None = None, save_error: bool = True) -> ParsingError | None:
+def handle_parsing_error(
+    url: URL,
+    exception: Exception,
+    method: str | None = None,
+    log: Callable[..., None] | None = None,
+    save_error: bool = True,
+) -> ParsingError | None:
     """
     Logs and categorizes exceptions occurring during parsing of recipes.
 
@@ -250,7 +260,9 @@ def handle_parsing_error(url: URL, exception: Exception, method: str | None = No
     if not save_error:
         return None
 
-    parsing_error = ParsingError(url=url, traceback=traceback.TracebackException.from_exception(exception))
+    parsing_error = ParsingError(
+        url=url, traceback=traceback.TracebackException.from_exception(exception)
+    )
     method = method if method else "general parsing error"
     host = urllib.parse.urlparse(url).hostname
     if not host:
@@ -313,20 +325,33 @@ def errors2str() -> list[tuple[str, str]]:
                 title = f"{host.split('.')[0]}: {method} - {exception_name} (found by recipe2txt)"
 
                 urls = [parsing_error.url for parsing_error in parsing_error_list]
-                triggered_by = f"scrape_html()" if method == "general parsing error" else f".{method}()"
-                infos = unordered("host: " + code(host),
-                                  "recipe-scrapers version: " + code(SCRAPER_VERSION),
-                                  "exception: " + code(exception_name),
-                                  "triggered by calling: " +  code(triggered_by),
-                                  "triggered on: ") + unordered(*urls, level=1)
+                triggered_by = (
+                    f"scrape_html()"
+                    if method == "general parsing error"
+                    else f".{method}()"
+                )
+                infos = unordered(
+                    "host: " + code(host),
+                    "recipe-scrapers version: " + code(SCRAPER_VERSION),
+                    "exception: " + code(exception_name),
+                    "triggered by calling: " + code(triggered_by),
+                    "triggered on: ",
+                ) + unordered(*urls, level=1)
 
                 tb_ex_list = [error.traceback for error in parsing_error_list]
                 shared_frames = get_shared_frames(tb_ex_list)
-                formatted_stacks = format_stacks(tb_ex_list, shared_frames, "recipe2txt")
+                formatted_stacks = format_stacks(
+                    tb_ex_list, shared_frames, "recipe2txt"
+                )
 
                 if len(urls) > 1:
-                    dot_explanation = italic("'...' indicates frames present in all traces"
-                                             "(but only shown in the first)") + linesep * 2
+                    dot_explanation = (
+                        italic(
+                            "'...' indicates frames present in all traces"
+                            "(but only shown in the first)"
+                        )
+                        + linesep * 2
+                    )
                 else:
                     dot_explanation = ""
 
@@ -396,11 +421,13 @@ def info2str(method: str, info: Any) -> str:
             unexpected_type = False
         if method == "ingredients":
             if isinstance(info, list):
-                if len(info[0]) < 2:  # Every item in the list is probably just one character
+                if (
+                    len(info[0]) < 2
+                ):  # Every item in the list is probably just one character
                     for i in range(len(info)):
                         if not info[i]:
-                            info[i] = ' '
-                        elif info[i] == ',':
+                            info[i] = " "
+                        elif info[i] == ",":
                             info[i] = linesep
                     info = "".join(info)
                 else:
@@ -412,7 +439,7 @@ def info2str(method: str, info: Any) -> str:
                 unexpected_type = False
         elif method == "instructions":
             if isinstance(info, str):
-                info = info.replace(linesep*2, linesep)
+                info = info.replace(linesep * 2, linesep)
                 info = info.replace("\n,", "\n")
                 unexpected_type = False
             elif isinstance(info, list):
@@ -444,7 +471,13 @@ def get_info(method: str, parsed: Parsed) -> Any:
     info = NA
     try:
         info = getattr(parsed, method)()
-    except (SchemaOrgException, ElementNotFoundInHtml, TypeError, AttributeError, KeyError) as e:
+    except (
+        SchemaOrgException,
+        ElementNotFoundInHtml,
+        TypeError,
+        AttributeError,
+        KeyError,
+    ) as e:
         handle_parsing_error(get_url(parsed), e, method_name, log)
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
@@ -472,8 +505,10 @@ def gen_status(infos: list[str]) -> RecipeStatus:
         A recipe-status that matches the values in infos
     """
     if len(infos) > len(METHODS):
-        raise ValueError("This function only analyzes attributes contained in html2recipe.methods." +
-                         f" Expected {len(METHODS)} elements, got {len(infos)}")
+        raise ValueError(
+            "This function only analyzes attributes contained in html2recipe.methods."
+            + f" Expected {len(METHODS)} elements, got {len(infos)}"
+        )
     for i in range(len(ESSENTIAL)):
         if infos[i] == NA:
             return RecipeStatus.INCOMPLETE_ESSENTIAL
@@ -504,10 +539,19 @@ def parsed2recipe(parsed: Parsed) -> Recipe:
         infos.append(info_str)
 
     status = gen_status(infos)
-    recipe = Recipe(url=get_url(parsed), status=status, scraper_version=SCRAPER_VERSION,
-                    ingredients=infos[0], instructions=infos[1],
-                    title=infos[2], total_time=infos[3], yields=infos[4],
-                    host=infos[5], image=infos[6], nutrients=infos[7])
+    recipe = Recipe(
+        url=get_url(parsed),
+        status=status,
+        scraper_version=SCRAPER_VERSION,
+        ingredients=infos[0],
+        instructions=infos[1],
+        title=infos[2],
+        total_time=infos[3],
+        yields=infos[4],
+        host=infos[5],
+        image=infos[6],
+        nutrients=infos[7],
+    )
     return recipe
 
 
@@ -523,29 +567,41 @@ def _re2md(recipe: Recipe) -> list[str]:
     escaped = [esc(step) for step in recipe.instructions.split(linesep)]
     instructions = ordered(*escaped)
 
-    md = [header(title, 2, True), paragraph(),
-          recipe.total_time + " min | " + recipe.yields, paragraph()] + \
-         ingredients + [EMPTY_COMMENT] + instructions + \
-         [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
+    md = (
+        [
+            header(title, 2, True),
+            paragraph(),
+            recipe.total_time + " min | " + recipe.yields,
+            paragraph(),
+        ]
+        + ingredients
+        + [EMPTY_COMMENT]
+        + instructions
+        + [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
+    )
 
     return md
 
 
 def _re2txt(recipe: Recipe) -> list[str]:
     title = recipe.title if recipe.title != NA else recipe.url
-    txt = [title,
-           linesep*2,
-           recipe.total_time + " min | " + recipe.yields + linesep*2,
-           recipe.ingredients,
-           linesep * 2,
-           recipe.instructions.replace(linesep, linesep * 2),
-           linesep * 2,
-           "from: " + recipe.url,
-           linesep*5]
+    txt = [
+        title,
+        linesep * 2,
+        recipe.total_time + " min | " + recipe.yields + linesep * 2,
+        recipe.ingredients,
+        linesep * 2,
+        recipe.instructions.replace(linesep, linesep * 2),
+        linesep * 2,
+        "from: " + recipe.url,
+        linesep * 5,
+    ]
     return txt
 
 
-def recipe2out(recipe: Recipe, counts: Counts | None = None, md: bool = False) -> list[str] | None:
+def recipe2out(
+    recipe: Recipe, counts: Counts | None = None, md: bool = False
+) -> list[str] | None:
     """
     Formats a recipe for to be written to a file
 
@@ -589,8 +645,7 @@ def html2parsed(url: URL, html: str) -> Parsed | None:
     """
     try:
         parsed: Parsed = Parsed(recipe_scrapers.scrape_html(html=html, org_url=url))
-    except (WebsiteNotImplementedError,
-            NoSchemaFoundInWildMode):
+    except (WebsiteNotImplementedError, NoSchemaFoundInWildMode):
         logger.error("Unknown Website. Extraction not supported")
         return None
     except (AttributeError, TypeError) as e:

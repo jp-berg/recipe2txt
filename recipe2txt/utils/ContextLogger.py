@@ -21,16 +21,25 @@ import traceback
 from logging.handlers import RotatingFileHandler
 from os import linesep
 from types import TracebackType
-from typing import (Any, Callable, Final, Generator, Literal, TypeAlias,
-                    get_args)
+from typing import Any, Callable, Final, Generator, Literal, TypeAlias, get_args
 
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.traceback_utils import shorten_paths
 
-LOG_LEVEL_NAMES: Final[TypeAlias] = Literal["debug", "info", "warning", "error", "critical"]
-LOG_LEVEL_VALUES: Final[list[int]] = [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]
+LOG_LEVEL_NAMES: Final[TypeAlias] = Literal[
+    "debug", "info", "warning", "error", "critical"
+]
+LOG_LEVEL_VALUES: Final[list[int]] = [
+    logging.DEBUG,
+    logging.INFO,
+    logging.WARNING,
+    logging.ERROR,
+    logging.CRITICAL,
+]
 
-STRING2LEVEL: Final[dict[LiteralString, int]] = dict(zip(get_args(LOG_LEVEL_NAMES), LOG_LEVEL_VALUES))
+STRING2LEVEL: Final[dict[LiteralString, int]] = dict(
+    zip(get_args(LOG_LEVEL_NAMES), LOG_LEVEL_VALUES)
+)
 
 LOGFILE: Final = "file.log"
 
@@ -133,12 +142,15 @@ class Context:
 
 
 class QueueContextFilter(logging.Filter):
-    def __init__(self, log_level: int = logging.NOTSET, handler: logging.Handler | None = None) -> None:
+    def __init__(
+        self, log_level: int = logging.NOTSET, handler: logging.Handler | None = None
+    ) -> None:
         self.log_level = log_level
         # TODO: Add reset
         self.handler = handler if handler else logging.NullHandler()
-        self.tasklocal_context: dict[str, Context] = {DEFAULT_CONTEXT: Context(self.handler)}
-
+        self.tasklocal_context: dict[str, Context] = {
+            DEFAULT_CONTEXT: Context(self.handler)
+        }
 
     def set_handler(self, handler: logging.Handler | None = None) -> None:
         self.handler = handler if handler else logging.NullHandler()
@@ -174,16 +186,23 @@ class QueueContextFilter(logging.Filter):
         return var.process(record, self.log_level)
 
 
-def format_exception(exc_info: tuple[type[BaseException], BaseException, TracebackType | None],
-                     indent_for_context: bool = False, full: bool = False) -> str:
+def format_exception(
+    exc_info: tuple[type[BaseException], BaseException, TracebackType | None],
+    indent_for_context: bool = False,
+    full: bool = False,
+) -> str:
     ex_class, exception, trace = exc_info
     if full:
         tb_ex = traceback.TracebackException.from_exception(exception)
         tb_ex.stack = shorten_paths(tb_ex.stack, first_visible_dir="Rezepte")
         tb = tb_ex.format()
         indent = "\t\t" if indent_for_context else "\t"
-        tb_lines = [indent + line + os.linesep
-                    for frame in tb for line in frame.split(os.linesep) if line]
+        tb_lines = [
+            indent + line + os.linesep
+            for frame in tb
+            for line in frame.split(os.linesep)
+            if line
+        ]
         formatted = linesep + "".join(tb_lines)
     else:
         formatted = f"{ex_class.__name__} - {exception}"
@@ -213,7 +232,6 @@ def add_context(record: logging.LogRecord) -> logging.LogRecord:
 
 
 class QueueContextFormatter(logging.Formatter):
-
     def format(self, record: logging.LogRecord) -> str:
         record = add_context(record)
         exc_info = None
@@ -222,8 +240,11 @@ class QueueContextFormatter(logging.Formatter):
         if record.exc_info and record.exc_info[0] and record.exc_info[1]:
             exc_info, record.exc_info = record.exc_info, exc_info
             exc_text, record.exc_text = record.exc_text, exc_text
-            fmt_ex = format_exception(exc_info, indent_for_context=bool(getattr(record, "ctx", "")),
-                                      full=getattr(record, FULL_TRACE_ATTR, False))
+            fmt_ex = format_exception(
+                exc_info,
+                indent_for_context=bool(getattr(record, "ctx", "")),
+                full=getattr(record, FULL_TRACE_ATTR, False),
+            )
         s = super().format(record) + fmt_ex
 
         record.exc_info = exc_info
@@ -233,9 +254,15 @@ class QueueContextFormatter(logging.Formatter):
 
 
 class QueueContextManager:
-
-    def __init__(self, logger: logging.Logger, logging_fun: Callable[..., None], msg: str, *args: Any,
-                 defer_emit: bool = False, **kwargs: Any):
+    def __init__(
+        self,
+        logger: logging.Logger,
+        logging_fun: Callable[..., None],
+        msg: str,
+        *args: Any,
+        defer_emit: bool = False,
+        **kwargs: Any,
+    ):
         self.args = args
         self.kwargs = kwargs
         self.logging_fun = logging_fun
@@ -247,12 +274,16 @@ class QueueContextManager:
         extra = {CTX_ATTR: True, DEFER_EMIT: self.defer_emit}
         self.logging_fun(self.msg, *self.args, stacklevel=2, extra=extra, **self.kwargs)
 
-    def __exit__(self, exc_type: type, exc_value: BaseException, traceback: TracebackType) -> Literal[False]:
+    def __exit__(
+        self, exc_type: type, exc_value: BaseException, traceback: TracebackType
+    ) -> Literal[False]:
         if not (exc_type or exc_value or traceback):
             self.logger.debug(DO_NOT_LOG, extra=END_CONTEXT)
         else:
-            self.logger.error(f"Leaving context '{self.msg % self.args}' because of exception {exc_type}: {exc_value}",
-                              extra=END_CONTEXT)
+            self.logger.error(
+                f"Leaving context '{self.msg % self.args}' because of exception {exc_type}: {exc_value}",
+                extra=END_CONTEXT,
+            )
         return False
 
 
@@ -275,15 +306,18 @@ def suppress_logging() -> Generator[None, None, None]:
 
 
 class EndContextFilter(logging.Filter):
-
     def filter(self, record: logging.LogRecord) -> bool:
         if record.msg == DO_NOT_LOG:
             return False
         return True
 
 
-def get_file_handler(file: str = LOGFILE, level: int = logging.DEBUG) -> logging.FileHandler:
-    file_handler = RotatingFileHandler(file, mode='w', maxBytes=10000000, backupCount=4, encoding="utf-8")
+def get_file_handler(
+    file: str = LOGFILE, level: int = logging.DEBUG
+) -> logging.FileHandler:
+    file_handler = RotatingFileHandler(
+        file, mode="w", maxBytes=10000000, backupCount=4, encoding="utf-8"
+    )
     file_handler.setLevel(level)
     f = EndContextFilter()
     file_handler.addFilter(f)
@@ -309,7 +343,9 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
-def root_log_setup(level: int, file: str | None = None, no_parallel: bool = True) -> None:
+def root_log_setup(
+    level: int, file: str | None = None, no_parallel: bool = True
+) -> None:
     l = logging.getLogger()
 
     l.setLevel(logging.DEBUG)

@@ -32,6 +32,7 @@ class AsyncFetcher(Fetcher):
     """
     Subclass that provides an asynchronous :py:meth:`fetch`.
     """
+
     is_async: Literal[True] = True
     connections = 4
 
@@ -41,14 +42,28 @@ class AsyncFetcher(Fetcher):
 
     async def _fetch(self, urls: set[URL]) -> None:
         q: asyncio.queues.Queue[URL] = asyncio.Queue()
-        for url in urls: await q.put(url)
-        timeout = aiohttp.ClientTimeout(total=10 * len(urls) * self.timeout, connect=self.timeout,
-                                        sock_connect=None, sock_read=None)
-        tasks = [asyncio.create_task(self._fetch_task(q, timeout)) for i in range(self.connections)]
-        await(asyncio.gather(*tasks))
+        for url in urls:
+            await q.put(url)
+        timeout = aiohttp.ClientTimeout(
+            total=10 * len(urls) * self.timeout,
+            connect=self.timeout,
+            sock_connect=None,
+            sock_read=None,
+        )
+        tasks = [
+            asyncio.create_task(self._fetch_task(q, timeout))
+            for i in range(self.connections)
+        ]
+        await asyncio.gather(*tasks)
 
-    async def _fetch_task(self, url_queue: asyncio.queues.Queue[URL], timeout: aiohttp.client.ClientTimeout) -> None:
-        async with aiohttp.ClientSession(timeout=timeout, headers={"User-Agent" : self.user_agent}) as session:
+    async def _fetch_task(
+        self,
+        url_queue: asyncio.queues.Queue[URL],
+        timeout: aiohttp.client.ClientTimeout,
+    ) -> None:
+        async with aiohttp.ClientSession(
+            timeout=timeout, headers={"User-Agent": self.user_agent}
+        ) as session:
             while not url_queue.empty():
                 url = await url_queue.get()
                 with QCM(logger, logger.info, "Fetching %s", url, defer_emit=True):
@@ -57,7 +72,10 @@ class AsyncFetcher(Fetcher):
                         async with session.get(url) as response:
                             html = await response.text()
                         self.counts.reached += 1
-                    except (aiohttp.client_exceptions.TooManyRedirects, asyncio.TimeoutError) as e:
+                    except (
+                        aiohttp.client_exceptions.TooManyRedirects,
+                        asyncio.TimeoutError,
+                    ) as e:
                         logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:
                         if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):

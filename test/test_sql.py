@@ -37,7 +37,9 @@ out_path_md = TEST_PROJECT_TMPDIR / out_name_md
 db: sql.Database
 
 
-def compare_for(recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equality: bool = True) -> str | None:
+def compare_for(
+    recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equality: bool = True
+) -> str | None:
     for attr in attributes:
         if attr not in h2r.RECIPE_ATTRIBUTES:
             raise ValueError("Not a valid attribute for Recipe: " + attr)
@@ -53,7 +55,6 @@ def compare_for(recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equa
 
 
 class TestHelpers(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls) -> None:
         if not create_tmpdirs():
@@ -68,15 +69,21 @@ class TestHelpers(unittest.TestCase):
         truth_up_to_date = [True, True, False, False, False, False, False]
         truth_out_of_date = [True, True, True, True, True, True, False]
         version_up_to_date = h2r.SCRAPER_VERSION
-        version_out_of_date = '-1'
+        version_out_of_date = "-1"
 
         self.assertEqual(len(truth_up_to_date), len(h2r.RecipeStatus))
         self.assertEqual(len(truth_out_of_date), len(h2r.RecipeStatus))
 
-        for status, up_to_date, out_of_date in zip(h2r.RecipeStatus, truth_up_to_date, truth_out_of_date):
+        for status, up_to_date, out_of_date in zip(
+            h2r.RecipeStatus, truth_up_to_date, truth_out_of_date
+        ):
             with self.subTest(status=status):
-                self.assertEqual(sql.fetch_again(status, version_up_to_date), up_to_date)
-                self.assertEqual(sql.fetch_again(status, version_out_of_date), out_of_date)
+                self.assertEqual(
+                    sql.fetch_again(status, version_up_to_date), up_to_date
+                )
+                self.assertEqual(
+                    sql.fetch_again(status, version_out_of_date), out_of_date
+                )
 
     def test_is_accessible_db(self):
         for path in db_paths:
@@ -91,12 +98,10 @@ class TestHelpers(unittest.TestCase):
 
 
 class TestDatabase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls) -> None:
         if not create_tmpdirs():
             print("Could not create tmpdirs:", TMPDIRS, file=sys.stderr)
-
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -119,7 +124,6 @@ class TestDatabase(unittest.TestCase):
     def tearDown(self) -> None:
         db.empty_db()
 
-
     def test_basic_IO(self):
         for recipe in test_recipes:
             with self.subTest(status=recipe.status):
@@ -139,28 +143,43 @@ class TestDatabase(unittest.TestCase):
         to_fetch = db.urls_to_fetch(urls)
         for recipe in test_recipes:
             with self.subTest(recipe=recipe.url):
-                if recipe.status in (h2r.RecipeStatus.NOT_INITIALIZED,
-                                     h2r.RecipeStatus.UNREACHABLE):
+                if recipe.status in (
+                    h2r.RecipeStatus.NOT_INITIALIZED,
+                    h2r.RecipeStatus.UNREACHABLE,
+                ):
                     self.assertTrue(recipe.url in to_fetch)
                 else:
                     self.assertFalse(recipe.url in to_fetch)
-                    if recipe.status in (h2r.RecipeStatus.UNKNOWN,
-                                         h2r.RecipeStatus.INCOMPLETE_ESSENTIAL,
-                                         h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
-                                         h2r.RecipeStatus.COMPLETE_ON_DISPLAY):
-                        self.assertTrue(sql.fetch_again(recipe.status, '0.0'))
+                    if recipe.status in (
+                        h2r.RecipeStatus.UNKNOWN,
+                        h2r.RecipeStatus.INCOMPLETE_ESSENTIAL,
+                        h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
+                        h2r.RecipeStatus.COMPLETE_ON_DISPLAY,
+                    ):
+                        self.assertTrue(sql.fetch_again(recipe.status, "0.0"))
 
     def test_insert_recipe(self):
         updated = h2r.Recipe(
-            title=test_recipes[2].title, url=test_recipes[2].url,
+            title=test_recipes[2].title,
+            url=test_recipes[2].url,
             status=h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
-            ingredients=os.linesep.join(["Something starchy", "Some spices", "Something crunchy"]),
-            instructions=os.linesep.join(["Dice", "Mix", "Fry", "Eat"]), total_time="30"
+            ingredients=os.linesep.join(
+                ["Something starchy", "Some spices", "Something crunchy"]
+            ),
+            instructions=os.linesep.join(["Dice", "Mix", "Fry", "Eat"]),
+            total_time="30",
         )
 
         on_disk = db.get_recipe(updated.url)
-        if failed := compare_for(on_disk, updated, "status", "ingredients", "instructions", "total_time",
-                                 equality=False):
+        if failed := compare_for(
+            on_disk,
+            updated,
+            "status",
+            "ingredients",
+            "instructions",
+            "total_time",
+            equality=False,
+        ):
             self.fail("Recipe comparison (inequality) failed on attribute " + failed)
 
         tmp = db.insert_recipe(updated)
@@ -168,8 +187,16 @@ class TestDatabase(unittest.TestCase):
         self.assertIsNotNone(on_disk)
         self.assertEqual(tmp, on_disk)
 
-        if failed := compare_for(on_disk, updated, "title", "url", "status", "ingredients", "instructions",
-                                 "total_time"):
+        if failed := compare_for(
+            on_disk,
+            updated,
+            "title",
+            "url",
+            "status",
+            "ingredients",
+            "instructions",
+            "total_time",
+        ):
             self.fail("Recipe comparison (equality) failed on attribute " + failed)
 
         self.assertNotEqual(updated.host, on_disk.host)
@@ -181,11 +208,19 @@ class TestDatabase(unittest.TestCase):
         out_path2 = os.path.join(TEST_PROJECT_TMPDIR, "out_test2.txt")
         db = sql.Database(db_path, out_path2)
 
-        testrecipe = h2r.Recipe(url="https://www.testurl.com/testrecipe", scraper_version=h2r.SCRAPER_VERSION,
-                                title="Testrecipe", host="testurl.com", ingredients=os.linesep.join(["ham", "spam"]),
-                                instructions=os.linesep.join(
-                                    ["Clean data", "Classify data", "Label data", "train model"]),
-                                total_time='120', yields='1', status=h2r.RecipeStatus.COMPLETE_ON_DISPLAY)
+        testrecipe = h2r.Recipe(
+            url="https://www.testurl.com/testrecipe",
+            scraper_version=h2r.SCRAPER_VERSION,
+            title="Testrecipe",
+            host="testurl.com",
+            ingredients=os.linesep.join(["ham", "spam"]),
+            instructions=os.linesep.join(
+                ["Clean data", "Classify data", "Label data", "train model"]
+            ),
+            total_time="120",
+            yields="1",
+            status=h2r.RecipeStatus.COMPLETE_ON_DISPLAY,
+        )
         db.new_recipe(testrecipe)
         db.close()
 

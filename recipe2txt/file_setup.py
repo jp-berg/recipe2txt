@@ -43,9 +43,12 @@ from recipe2txt.html2recipe import errors2str
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import (File, create_timestamped_dir,
-                                   ensure_accessible_file_critical,
-                                   ensure_existence_dir)
+from recipe2txt.utils.misc import (
+    File,
+    create_timestamped_dir,
+    ensure_accessible_file_critical,
+    ensure_existence_dir,
+)
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
@@ -60,26 +63,33 @@ class ProgramDirectories(NamedTuple):
     The paths describe storage locations for program data, configuration and state, ideally in line with
     the XDG Base Directory Specification (see specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
     """
+
     data: Path
     config: Path
     state: Path
 
 
-DEFAULT_DIRS: Final = ProgramDirectories(xdg_data_home() / PROGRAM_NAME,
-                                         xdg_config_home() / PROGRAM_NAME,
-                                         xdg_state_home() / PROGRAM_NAME)
+DEFAULT_DIRS: Final = ProgramDirectories(
+    xdg_data_home() / PROGRAM_NAME,
+    xdg_config_home() / PROGRAM_NAME,
+    xdg_state_home() / PROGRAM_NAME,
+)
 """
 Specifies the paths the program will use during normal operation for storage of data, configuration-files and state. 
         
 The specified paths try to adhere to the XDG Base Directory Specification.
 """
 
-DEBUG_DIRECTORY_BASE: Final = Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
+DEBUG_DIRECTORY_BASE: Final = (
+    Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
+)
 """Specifies the root directory for all files used by this program when the '--debug'-flag is set."""
 
-DEBUG_DIRS: Final = ProgramDirectories(DEBUG_DIRECTORY_BASE / "data",
-                                       DEBUG_DIRECTORY_BASE / "config",
-                                       DEBUG_DIRECTORY_BASE / "state")
+DEBUG_DIRS: Final = ProgramDirectories(
+    DEBUG_DIRECTORY_BASE / "data",
+    DEBUG_DIRECTORY_BASE / "config",
+    DEBUG_DIRECTORY_BASE / "state",
+)
 """
 Specifies the paths the program will use when the '--debug'-flag is set.
 
@@ -111,7 +121,9 @@ def get_default_output() -> str:
     return os.path.join(os.getcwd(), RECIPES_NAME)
 
 
-def file_setup(output: str, debug: bool = False) -> Tuple[AccessibleDatabase, File, File]:
+def file_setup(
+    output: str, debug: bool = False
+) -> Tuple[AccessibleDatabase, File, File]:
     """
     Initializes all files that the program will need to read from and write to.
 
@@ -150,8 +162,12 @@ def get_files(debug: bool = False) -> list[str]:
     """
     directories = list(DEBUG_DIRS)
     directories = directories if debug else directories + list(DEFAULT_DIRS)
-    files = [str(file) for directory in directories if directory.is_dir()
-             for file in directory.iterdir()]
+    files = [
+        str(file)
+        for directory in directories
+        if directory.is_dir()
+        for file in directory.iterdir()
+    ]
     return files
 
 
@@ -206,7 +222,10 @@ def write_errors(debug: bool = False) -> int:
 
     data_path = DEBUG_DIRS.state if debug else DEFAULT_DIRS.state
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
-        logger.error("Could not create %s, no reports will be written", data_path / "error_reports")
+        logger.error(
+            "Could not create %s, no reports will be written",
+            data_path / "error_reports",
+        )
         return 0
     how_to_report_file = error_dir / "how_to_report_errors.txt"
     if not how_to_report_file.is_file():
@@ -214,16 +233,20 @@ def write_errors(debug: bool = False) -> int:
 
     current_error_dir = create_timestamped_dir(error_dir)
     if not current_error_dir:
-        logger.error("Could not create directory for error reporting, no reports will be written.")
+        logger.error(
+            "Could not create directory for error reporting, no reports will be written."
+        )
         return 0
 
     for title, msg in errors:
         filename = (current_error_dir / title).with_suffix(".md")
         filename.write_text(msg)
 
-    warn_msg = f"During its execution the program encountered recipes " \
-               f"that could not be (completely) scraped.{os.linesep}" \
-               f"Please see {os.linesep}%s{os.linesep}if you want to help fix this."
+    warn_msg = (
+        f"During its execution the program encountered recipes "
+        f"that could not be (completely) scraped.{os.linesep}"
+        f"Please see {os.linesep}%s{os.linesep}if you want to help fix this."
+    )
     logger.warning(warn_msg, how_to_report_file)
 
     return len(errors)

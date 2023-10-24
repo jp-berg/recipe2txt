@@ -44,7 +44,7 @@ class TestStreamHandler(logging.StreamHandler):
             super().emit(record)
 
     def get_formatted_records(self):
-        for record in self.seenRecords[len(self.formattedRecords):]:
+        for record in self.seenRecords[len(self.formattedRecords) :]:
             self.formattedRecords.append(self.format(record))
         return self.formattedRecords
 
@@ -59,13 +59,20 @@ def get_exc_info(exception: BaseException | None = None):
     return exc_info
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
-def record_factory(should_trigger: bool, exc_info=None,
-                   context: tuple[str, tuple[Any, ...]] | None = None,
-                   ctx: str = None, defer: bool = False, is_context: bool | None = None,
-                   full_trace: bool = False, msg=None, *args: Any) -> logging.LogRecord:
+def record_factory(
+    should_trigger: bool,
+    exc_info=None,
+    context: tuple[str, tuple[Any, ...]] | None = None,
+    ctx: str = None,
+    defer: bool = False,
+    is_context: bool | None = None,
+    full_trace: bool = False,
+    msg=None,
+    *args: Any,
+) -> logging.LogRecord:
     global level
     if should_trigger:
         record_level = level + 10
@@ -85,7 +92,9 @@ def record_factory(should_trigger: bool, exc_info=None,
         else:
             msg = test_msg
     func = "TESTFUNC"
-    record = logging.LogRecord(name, record_level, pathname, lineno, msg, args, exc_info=exc_info, func=func)
+    record = logging.LogRecord(
+        name, record_level, pathname, lineno, msg, args, exc_info=exc_info, func=func
+    )
     if context:
         record.context_msg = context[0]
         record.context_args = context[1]
@@ -104,12 +113,31 @@ def record_factory(should_trigger: bool, exc_info=None,
 
 
 class LoggerTester(unittest.TestCase):
-    RECORD_ATTR: Final[list[LiteralString]] = ["context_args", "context_msg", "msg", "name", "pathname", "with_context",
-                                               "exc_info", "exc_text", "filename", "funcName", "levelname", "levelno",
-                                               "lineno", "module"]
+    RECORD_ATTR: Final[list[LiteralString]] = [
+        "context_args",
+        "context_msg",
+        "msg",
+        "name",
+        "pathname",
+        "with_context",
+        "exc_info",
+        "exc_text",
+        "filename",
+        "funcName",
+        "levelname",
+        "levelno",
+        "lineno",
+        "module",
+    ]
 
-    CONTEXT_ATTR: Final[list[LiteralString]] = ["context_msg", "context_args", "with_context",
-                                                "triggered", "defer_emit", "deferred_records"]
+    CONTEXT_ATTR: Final[list[LiteralString]] = [
+        "context_msg",
+        "context_args",
+        "with_context",
+        "triggered",
+        "defer_emit",
+        "deferred_records",
+    ]
 
     def __init__(self, method_name="runTest"):
         super().__init__(method_name)
@@ -118,12 +146,18 @@ class LoggerTester(unittest.TestCase):
         self.logger = logging.Logger("test_logger", logging.DEBUG)
         self.logger.addHandler(self.stream_handler)
 
-    def get_context(self, is_context: bool = False, is_emittable: bool = False,
-                    deferred: int | None = None) -> CTXL.Context:
+    def get_context(
+        self,
+        is_context: bool = False,
+        is_emittable: bool = False,
+        deferred: int | None = None,
+    ) -> CTXL.Context:
         c = CTXL.Context(self.stream_handler)
         if not is_context:
             if deferred is not None:
-                raise ValueError("The context cannot have deferred records if there is no active context.")
+                raise ValueError(
+                    "The context cannot have deferred records if there is no active context."
+                )
             return c
 
         c.with_context = True
@@ -145,7 +179,9 @@ class LoggerTester(unittest.TestCase):
                 c.deferred_records.append(context_record)
             c.defer_emit = True
             if deferred > 0:
-                first_in_context = record_factory(True, context=(context_msg, context_args))
+                first_in_context = record_factory(
+                    True, context=(context_msg, context_args)
+                )
                 c.context_args = ()
                 c.context_msg = ""
                 c.triggered = True
@@ -161,7 +197,9 @@ class LoggerTester(unittest.TestCase):
             self.fail(f"Objects differ on '{attribute}': {attr1} vs {attr2}")
         return attr1 == attr2
 
-    def assertRecordEqual(self, record1: logging.LogRecord, record2: logging.LogRecord) -> None:
+    def assertRecordEqual(
+        self, record1: logging.LogRecord, record2: logging.LogRecord
+    ) -> None:
         if not isinstance(record1, logging.LogRecord):
             self.fail("record1 is not of the class LogRecord")
         if not isinstance(record2, logging.LogRecord):
@@ -169,14 +207,18 @@ class LoggerTester(unittest.TestCase):
         for attribute in self.RECORD_ATTR:
             self.assertAttributeEqual(record1, record2, attribute)
 
-    def assertRecordListsEqual(self, records1: list[logging.LogRecord], records2: logging.LogRecord) -> None:
+    def assertRecordListsEqual(
+        self, records1: list[logging.LogRecord], records2: logging.LogRecord
+    ) -> None:
         if not len(records1) == len(records2):
             self.fail("Length of LogRecord-lists do not match.")
         for idx, (record1, record2) in enumerate(zip(records1, records2)):
             with self.subTest(i=f"Mismatch on index {idx}"):
                 self.assertRecordEqual(record1, record2)
 
-    def assertContextEqual(self, context1: CTXL.Context, context2: CTXL.Context) -> None:
+    def assertContextEqual(
+        self, context1: CTXL.Context, context2: CTXL.Context
+    ) -> None:
         if not isinstance(context1, CTXL.Context):
             raise ValueError("context1 is not of the class Context")
         if not isinstance(context2, CTXL.Context):
@@ -184,7 +226,9 @@ class LoggerTester(unittest.TestCase):
         for attribute in self.CONTEXT_ATTR:
             if attribute == "deferred_records":
                 with self.subTest(msg="Mismatch on deferred_records."):
-                    self.assertRecordListsEqual(context1.deferred_records, context2.deferred_records)
+                    self.assertRecordListsEqual(
+                        context1.deferred_records, context2.deferred_records
+                    )
                     continue
             self.assertAttributeEqual(context1, context2, attribute)
 
@@ -197,7 +241,6 @@ class LoggerTester(unittest.TestCase):
 
 
 class TestContext(LoggerTester):
-
     def tearDown(self) -> None:
         global level
         level = logging.WARNING
@@ -245,18 +288,21 @@ class TestContext(LoggerTester):
         validation = self.get_context(is_context=True, deferred=no_def)
 
         context.close_context()
-        self.assertRecordListsEqual(self.stream_handler.seenRecords, validation.deferred_records)
+        self.assertRecordListsEqual(
+            self.stream_handler.seenRecords, validation.deferred_records
+        )
 
 
 class TestContextProcess(LoggerTester):
-
     def setUp(self):
         self.record_normal = record_factory(True)
         self.record_normal_reject = record_factory(False)
         self.record_context = record_factory(True, is_context=True)
         self.record_context_reject = record_factory(False, is_context=True)
 
-        self.record_close_context = record_factory(False, msg=CTXL.DO_NOT_LOG, is_context=False)
+        self.record_close_context = record_factory(
+            False, msg=CTXL.DO_NOT_LOG, is_context=False
+        )
 
         self.context = self.get_context()
         self.validation = self.get_context()
@@ -306,19 +352,22 @@ class TestContextProcess(LoggerTester):
         self.assertContextEqual(self.context, validation_triggered_defer)
 
         self.assertFalse(self.context.process(self.record_close_context, level))
-        self.assertRecordListsEqual(self.stream_handler.seenRecords, validation_triggered_defer.deferred_records)
+        self.assertRecordListsEqual(
+            self.stream_handler.seenRecords, validation_triggered_defer.deferred_records
+        )
 
 
 class TestQueueContextFormatter(LoggerTester):
-
     def __init__(self, method_name="runTest"):
         super().__init__(method_name)
-        self.ctx_unformatted_formatted = \
-            [(("Doing stuff", ()), f"While doing stuff:{os.linesep}\t"),
-             (("doing %s and %s and also %s", ("thing1", "thing2", "thing3")),
-              f"While doing thing1 and thing2 and also thing3:{os.linesep}\t"),
-             # ((context_msg, context_args), f"While {context_msg % context_args}:{os.linesep}\t")
-             ]
+        self.ctx_unformatted_formatted = [
+            (("Doing stuff", ()), f"While doing stuff:{os.linesep}\t"),
+            (
+                ("doing %s and %s and also %s", ("thing1", "thing2", "thing3")),
+                f"While doing thing1 and thing2 and also thing3:{os.linesep}\t",
+            ),
+            # ((context_msg, context_args), f"While {context_msg % context_args}:{os.linesep}\t")
+        ]
 
     def test_format_context(self):
         for test, validation in self.ctx_unformatted_formatted:
@@ -335,8 +384,10 @@ class TestQueueContextFormatter(LoggerTester):
         record = CTXL.add_context(record)
         self.assertEqual(record.ctx, "\t")
 
-        records_strs = [(record_factory(True, context=unformatted), formatted)
-                        for unformatted, formatted in self.ctx_unformatted_formatted]
+        records_strs = [
+            (record_factory(True, context=unformatted), formatted)
+            for unformatted, formatted in self.ctx_unformatted_formatted
+        ]
         for record, string in records_strs:
             with self.subTest(msg=f"Failure while creating '{repr(string)}'"):
                 record = CTXL.add_context(record)
@@ -352,4 +403,3 @@ class TestAll(unittest.TestCase):
         for test, validation in zip(test_paths, log_paths):
             with self.subTest(msg=f"While testing {test.name}"):
                 assertFilesEqual(self, test, validation)
-

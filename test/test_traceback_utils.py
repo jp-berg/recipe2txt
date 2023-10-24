@@ -21,21 +21,23 @@ import recipe2txt.utils.traceback_utils as tb_u
 
 
 class TracebackTests(unittest.TestCase):
-
     def setUp(self) -> None:
         self.gen_tbs = GenTraces(-7, -29, 23, 37)
 
     def test_shorten_paths(self):
-
         path_start = os.path.join("...", "test")
         for val, trace in zip(self.gen_tbs.error_vals, self.gen_tbs.tb_ex_list):
             anon_stack = tb_u.shorten_paths(trace.stack, "test")
             for frame in anon_stack:
-                with self.subTest(msg=f"partial anonymization | Number = {val} | Frame = {frame}"):
+                with self.subTest(
+                    msg=f"partial anonymization | Number = {val} | Frame = {frame}"
+                ):
                     self.assertTrue(frame.filename.startswith(path_start))
             anon_stack = tb_u.shorten_paths(trace.stack, "tests")
             for frame in anon_stack:
-                with self.subTest(msg=f"full anonymization | Number = {val} | Frame = {frame}"):
+                with self.subTest(
+                    msg=f"full anonymization | Number = {val} | Frame = {frame}"
+                ):
                     self.assertEqual(frame.filename, ".../gen_stack.py")
 
     def test_get_shared_frames(self):
@@ -44,11 +46,15 @@ class TracebackTests(unittest.TestCase):
         i = 0
         for shared_frame in shared:
             for tb in self.gen_tbs.tb_ex_list:
-                with self.subTest(shared_frame=shared_frame, frame=tb.stack[i], frame_number=i):
+                with self.subTest(
+                    shared_frame=shared_frame, frame=tb.stack[i], frame_number=i
+                ):
                     self.assertEqual(tb.stack[i], shared_frame)
             i += 1
 
-        remaining = [tb_ex.stack[i:] for tb_ex in self.gen_tbs.tb_ex_list if len(tb_ex.stack) > i]
+        remaining = [
+            tb_ex.stack[i:] for tb_ex in self.gen_tbs.tb_ex_list if len(tb_ex.stack) > i
+        ]
 
         if not remaining:
             return
@@ -68,10 +74,11 @@ class TracebackTests(unittest.TestCase):
                 break
 
         if equal_frames:
-            self.fail(f"get_shared_frames()-cutoff to early: all stacks still have a common frame (Failed for frames {equal_frames})")
+            self.fail(
+                f"get_shared_frames()-cutoff to early: all stacks still have a common frame (Failed for frames {equal_frames})"
+            )
 
     def test_format_stacks(self):
-
         validation = "".join(self.gen_tbs.get_formatted())
 
         shared_frames = tb_u.get_shared_frames(self.gen_tbs.tb_ex_list)

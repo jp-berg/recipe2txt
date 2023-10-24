@@ -27,8 +27,7 @@ import sys
 import textwrap
 from enum import unique
 from pathlib import Path
-from typing import (Any, Final, Generic, Iterable, Literal, LiteralString,
-                    TypeVar)
+from typing import Any, Final, Generic, Iterable, Literal, LiteralString, TypeVar
 
 from recipe2txt.utils.conditional_imports import StrEnum, tomllib
 from recipe2txt.utils.misc import File, ensure_accessible_file_critical
@@ -55,7 +54,7 @@ def short_flag(long_name: str) -> str:
         raise ValueError(
             f"There cannot be a short version of a positional argument ('{long_name}')"
         )
-    segments = long_name[2:].split('-')
+    segments = long_name[2:].split("-")
     starting_letters = [segment.strip()[0] for segment in segments if segment]
     return "-" + "".join(starting_letters)
 
@@ -97,7 +96,8 @@ def obj2toml_i(o: Any) -> str:
 @unique
 class ArgKey(StrEnum):
     """Enum describing all :py:meth:`argparse.ArgumentParser.add_to_parser`-parameters addressed by
-     :py:class:`BasicOption` and its subclasses."""
+    :py:class:`BasicOption` and its subclasses."""
+
     help = "help"
     default = "default"
     choices = "choices"
@@ -113,19 +113,28 @@ class BasicOption:
      Useful for e.g. "--foo bar" for the CLI and  "foo = 'bar'" for the TOML-file
     """
 
-    help_wrapper = textwrap.TextWrapper(width=72,
-                                        initial_indent="# ",
-                                        subsequent_indent="# ",
-                                        break_long_words=False,
-                                        break_on_hyphens=False)
+    help_wrapper = textwrap.TextWrapper(
+        width=72,
+        initial_indent="# ",
+        subsequent_indent="# ",
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
     """textwrap-instance for the help-strings in the TOML-file"""
 
-    def __init__(self, option_name: str, help_str: str, default: Any = None, short: str | None = ""):
+    def __init__(
+        self,
+        option_name: str,
+        help_str: str,
+        default: Any = None,
+        short: str | None = "",
+    ):
         option_name = option_name.strip()
         is_optional = option_name.startswith("--")
-        if option_name.startswith('-') and not is_optional:
+        if option_name.startswith("-") and not is_optional:
             raise ValueError(
-                "'option_name' should be the long version of the optional argument. Use '--'.")
+                "'option_name' should be the long version of the optional argument. Use '--'."
+            )
         self.name = option_name[2:] if is_optional else option_name
         self.option_names = [option_name]
 
@@ -133,9 +142,13 @@ class BasicOption:
             short = short.strip()
             if short:
                 if not is_optional:
-                    raise ValueError(f"Positional arguments ('{option_name}') cannot have a short version!")
-                if not short.startswith('-'):
-                    raise ValueError(f"Missing '-' at the beginning of the 'short'-argument {short}")
+                    raise ValueError(
+                        f"Positional arguments ('{option_name}') cannot have a short version!"
+                    )
+                if not short.startswith("-"):
+                    raise ValueError(
+                        f"Missing '-' at the beginning of the 'short'-argument {short}"
+                    )
                 if len(short) >= len(option_name):
                     raise ValueError(f"{short=} is not shorter than {option_name=}")
                 self.option_names.append(short)
@@ -147,7 +160,9 @@ class BasicOption:
     def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
         help_tmp = self.arguments[ArgKey.help]
         if self.arguments[ArgKey.default] is not None:
-            self.arguments[ArgKey.help] = f"{self.arguments[ArgKey.help]} (default: '{self.arguments[ArgKey.default]}')"
+            self.arguments[
+                ArgKey.help
+            ] = f"{self.arguments[ArgKey.help]} (default: '{self.arguments[ArgKey.default]}')"
         parser.add_argument(*self.option_names, **self.arguments)  # type: ignore[misc]
         self.arguments[ArgKey.help] = help_tmp
 
@@ -188,7 +203,7 @@ class BasicOption:
         return False
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 """Generic Type"""
 
 
@@ -200,14 +215,23 @@ class ChoiceOption(BasicOption, Generic[T]):
     It provides the ability to select from a restricted set of choices.
     """
 
-    def __init__(self, option_name: str, help_str: str, default: T, choices: Iterable[T], short: str | None = ""):
+    def __init__(
+        self,
+        option_name: str,
+        help_str: str,
+        default: T,
+        choices: Iterable[T],
+        short: str | None = "",
+    ):
         if default not in choices:
             raise ValueError(f"Parameter {default=} not in {choices=}")
         super().__init__(option_name, help_str, default, short)
         self.arguments[ArgKey.choices] = choices
 
     def to_toml_str(self) -> str:
-        choice_str = " | ".join([obj2toml(choice) for choice in self.arguments[ArgKey.choices]])
+        choice_str = " | ".join(
+            [obj2toml(choice) for choice in self.arguments[ArgKey.choices]]
+        )
         return super().to_toml_str_intern(f" # Possible values: {choice_str}\n")
 
     def toml_valid(self, value: Any) -> bool:
@@ -223,10 +247,20 @@ class TypeOption(BasicOption):
     Since the value is being parsed from TOML it should be representable as such (i.e. probably only 'int' and 'float'
     make sense as types).
     """
-    def __init__(self, option_name: str, help_str: str, default: Any, t: type | None = None, short: str | None = ""):
+
+    def __init__(
+        self,
+        option_name: str,
+        help_str: str,
+        default: Any,
+        t: type | None = None,
+        short: str | None = "",
+    ):
         if t is None:
             if default is None:
-                raise ValueError("t could not be inferred (since 't' and 'default' are None")
+                raise ValueError(
+                    "t could not be inferred (since 't' and 'default' are None"
+                )
             t = type(default)
         elif not isinstance(default, t):
             raise ValueError(f"Parameter {default=} does not match type {t=}")
@@ -235,7 +269,9 @@ class TypeOption(BasicOption):
 
     def toml_valid(self, value: Any) -> bool:
         if not (t := self.arguments.get(ArgKey.type)):
-            raise RuntimeError("'argument_args' does not contain 'type' (but it should)")
+            raise RuntimeError(
+                "'argument_args' does not contain 'type' (but it should)"
+            )
         return isinstance(value, t)
 
 
@@ -245,7 +281,13 @@ class BoolOption(BasicOption):
     parameter 'action' set to 'store_true'.
     """
 
-    def __init__(self, option_name: str, help_str: str, default: bool = False, short: str | None = ""):
+    def __init__(
+        self,
+        option_name: str,
+        help_str: str,
+        default: bool = False,
+        short: str | None = "",
+    ):
         super().__init__(option_name, help_str, default, short)
         self.arguments[ArgKey.action] = "store_true"
 
@@ -256,7 +298,7 @@ class BoolOption(BasicOption):
         return value in (True, False)
 
 
-NARG = Literal['?', '*', '+'] | int
+NARG = Literal["?", "*", "+"] | int
 
 
 class NArgOption(BasicOption):
@@ -266,8 +308,15 @@ class NArgOption(BasicOption):
 
     It differs from the method by providing an empty list instead of failing if the option is not explicitly set.
     """
-    def __init__(self, option_name: str, help_str: str, default: list[Any] | None = None, nargs: NARG = '*',
-                 short: str | None = ""):
+
+    def __init__(
+        self,
+        option_name: str,
+        help_str: str,
+        default: list[Any] | None = None,
+        nargs: NARG = "*",
+        short: str | None = "",
+    ):
         d = [] if default is None else default
         super().__init__(option_name, help_str, d, short)
         self.arguments[ArgKey.nargs] = nargs
@@ -320,9 +369,7 @@ class ArgConfig:
     to the file while being added.
     """
 
-    def __init__(self,
-                 parser: argparse.ArgumentParser,
-                 config_file: Path):
+    def __init__(self, parser: argparse.ArgumentParser, config_file: Path):
         self.parser = parser
         self.existed_before = config_file.is_file()
         self.file = ensure_accessible_file_critical(config_file)
@@ -331,13 +378,15 @@ class ArgConfig:
                 try:
                     self.toml = tomllib.load(cfg)
                 except tomllib.TOMLDecodeError as e:
-                    msg = f"The config-file ({config_file}) seems to be misconfigured ({e})." \
-                          " Fix the error or delete the file and generate a new one by running" \
-                          " the program with any argument (eg. 'recipe2txt --help')"
+                    msg = (
+                        f"The config-file ({config_file}) seems to be misconfigured ({e})."
+                        " Fix the error or delete the file and generate a new one by running"
+                        " the program with any argument (eg. 'recipe2txt --help')"
+                    )
                     print(msg, file=sys.stderr)
                     sys.exit(os.EX_DATAERR)
         else:
-            self.file.write_text(CFG_PREAMBLE % (80 * '*', parser.prog, 80 * '*'))
+            self.file.write_text(CFG_PREAMBLE % (80 * "*", parser.prog, 80 * "*"))
 
     def error_exit(self) -> None:
         if not self.existed_before:
@@ -362,7 +411,9 @@ class ArgConfig:
             self.error_exit()
             raise e
 
-    def add_arg(self, name: str, help_str: str, default: Any = None, short: str | None = "") -> None:
+    def add_arg(
+        self, name: str, help_str: str, default: Any = None, short: str | None = ""
+    ) -> None:
         """
         Register a standard argument consisting of a string name, expecting a string value.
 
@@ -381,7 +432,14 @@ class ArgConfig:
         """
         self._add_option(BasicOption, (name, help_str, default, short))
 
-    def add_choice(self, name: str, help_str: str, default: T, choices: Iterable[T], short: str | None = "") -> None:
+    def add_choice(
+        self,
+        name: str,
+        help_str: str,
+        default: T,
+        choices: Iterable[T],
+        short: str | None = "",
+    ) -> None:
         """
         Register a choice, prompting the user to select from a restricted set of values.
 
@@ -394,7 +452,14 @@ class ArgConfig:
         """
         self._add_option(ChoiceOption, (name, help_str, default, choices, short))
 
-    def add_type(self, name: str, help_str: str, default: Any, t: type | None = None, short: str | None = "") -> None:
+    def add_type(
+        self,
+        name: str,
+        help_str: str,
+        default: Any,
+        t: type | None = None,
+        short: str | None = "",
+    ) -> None:
         """
         Register an argument with a certain type.
 
@@ -408,7 +473,9 @@ class ArgConfig:
         """
         self._add_option(TypeOption, (name, help_str, default, t, short))
 
-    def add_bool(self, name: str, help_str: str, default: bool = False, short: str | None = "") -> None:
+    def add_bool(
+        self, name: str, help_str: str, default: bool = False, short: str | None = ""
+    ) -> None:
         """
         Register a boolean argument
 
@@ -420,18 +487,23 @@ class ArgConfig:
         """
         self._add_option(BoolOption, (name, help_str, default, short))
 
-    def add_narg(self, name: str, help_str: str, default: list[Any] | None = None, nargs: NARG = '*',
-                 short: str | None = "") -> None:
+    def add_narg(
+        self,
+        name: str,
+        help_str: str,
+        default: list[Any] | None = None,
+        nargs: NARG = "*",
+        short: str | None = "",
+    ) -> None:
         """
-       Register an argument taking one or more elements.
+        Register an argument taking one or more elements.
 
-       Args:
-           nargs (): Associate different number of command-line arguments with a single action. Mirrors the 'nargs'
-                    parameter of :py:meth:`argparse.ArgumentParser.add_argument`
-           name (): see :py:meth:`ArgConfig.add_arg`
-           help_str (): see :py:meth:`ArgConfig.add_arg`
-           default (): See :py:meth:`ArgConfig.add_arg`
-           short (): see :py:meth:`ArgConfig.add_arg`
+        Args:
+            nargs (): Associate different number of command-line arguments with a single action. Mirrors the 'nargs'
+                     parameter of :py:meth:`argparse.ArgumentParser.add_argument`
+            name (): see :py:meth:`ArgConfig.add_arg`
+            help_str (): see :py:meth:`ArgConfig.add_arg`
+            default (): See :py:meth:`ArgConfig.add_arg`
+            short (): see :py:meth:`ArgConfig.add_arg`
         """
         self._add_option(NArgOption, (name, help_str, default, nargs, short))
-        

@@ -17,8 +17,7 @@ import random
 import test.testfiles.permanent.testfile_generator as file_gen
 import unittest
 from test.test_helpers import *
-from test.test_sql import (db_path, out_name_md, out_name_txt, out_path_md,
-                           out_path_txt)
+from test.test_sql import db_path, out_name_md, out_name_txt, out_path_md, out_path_txt
 
 from recipe2txt.fetcher import Cache
 from recipe2txt.sql import is_accessible_db
@@ -26,7 +25,6 @@ from recipe2txt.utils.misc import ensure_accessible_file
 
 
 class Test(unittest.TestCase):
-
     def setUp(self) -> None:
         create_tmpdirs()
         if not is_accessible_db(db_path):
@@ -40,9 +38,7 @@ class Test(unittest.TestCase):
         delete_tmpdirs()
 
     def test_require_fetching(self):
-
-        tf = file_gen.TestFileFetcher(output=out_path_txt,
-                                      database=db_path)
+        tf = file_gen.TestFileFetcher(output=out_path_txt, database=db_path)
 
         urls = file_gen.URL_LIST
         random.shuffle(urls)
@@ -68,8 +64,9 @@ class Test(unittest.TestCase):
             self.fail(err_msg % f"{tf.cache=} | Got {to_fetch}, expected {urls}")
 
     def test_write_txt(self):
-        tf = file_gen.TestFileFetcher(output=out_path_txt,
-                                      database=db_path, markdown=False)
+        tf = file_gen.TestFileFetcher(
+            output=out_path_txt, database=db_path, markdown=False
+        )
 
         urls = file_gen.URL_LIST
         tf.fetch(urls)
@@ -79,8 +76,9 @@ class Test(unittest.TestCase):
                     self.assertEqual(line, validation)
 
     def test_write_md(self):
-        tf = file_gen.TestFileFetcher(output=out_path_md,
-                                      database=db_path, markdown=True)
+        tf = file_gen.TestFileFetcher(
+            output=out_path_md, database=db_path, markdown=True
+        )
 
         urls = file_gen.URL_LIST
         tf.fetch(urls)

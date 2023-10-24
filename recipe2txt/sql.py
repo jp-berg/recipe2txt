@@ -36,8 +36,7 @@ from typing import Any, Final, NewType, Optional, Tuple, TypeGuard
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
 
-from .html2recipe import (METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION,
-                          Recipe)
+from .html2recipe import METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, Recipe
 from .html2recipe import RecipeStatus as RS
 from .html2recipe import gen_status, int2status, none2na
 from .utils.misc import *
@@ -77,40 +76,70 @@ _CREATE_TABLES: Final = textwrap.dedent(
             UNIQUE(fileID, recipeID) ON CONFLICT IGNORE
         ) STRICT;
     """
-                                                       )
+)
 RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
     "recipeID",
-    "last_fetched"
+    "last_fetched",
 ]
 """Contains the names of all rows in the table 'recipes'."""
 
-_INSERT_RECIPE: Final = "INSERT OR IGNORE INTO recipes" + \
-                             " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
-                             " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
+_INSERT_RECIPE: Final = (
+    "INSERT OR IGNORE INTO recipes"
+    + " ("
+    + ", ".join(RECIPE_ATTRIBUTES)
+    + ")"
+    + " VALUES ("
+    + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
+    + ")"
+)
 
-_INSERT_OR_REPLACE_RECIPE: Final = "INSERT OR REPLACE INTO recipes" + \
-                                        " (" + ", ".join(RECIPE_ATTRIBUTES) + ")" + \
-                                        " VALUES (" + ("?," * len(RECIPE_ATTRIBUTES))[:-1] + ")"
+_INSERT_OR_REPLACE_RECIPE: Final = (
+    "INSERT OR REPLACE INTO recipes"
+    + " ("
+    + ", ".join(RECIPE_ATTRIBUTES)
+    + ")"
+    + " VALUES ("
+    + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
+    + ")"
+)
 
 _INSERT_FILE: Final = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
 
-_ASSOCIATE_FILE_RECIPE: Final = "INSERT OR IGNORE INTO contents (fileID, recipeID) VALUES (" \
-                                     " (SELECT fileID FROM files WHERE filepath = ?)," \
-                                     " (SELECT recipeID FROM recipes WHERE url = ?))"
+_ASSOCIATE_FILE_RECIPE: Final = (
+    "INSERT OR IGNORE INTO contents (fileID, recipeID) VALUES ("
+    " (SELECT fileID FROM files WHERE filepath = ?),"
+    " (SELECT recipeID FROM recipes WHERE url = ?))"
+)
 
-_FILEPATHS_JOIN_RECIPES: Final = " ((SELECT * FROM files WHERE filepath = ?) " \
-                                      " NATURAL JOIN contents NATURAL JOIN recipes) "
-_GET_RECIPE: Final = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
-_GET_RECIPES: Final = "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM" + _FILEPATHS_JOIN_RECIPES + \
-                           "WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
+_FILEPATHS_JOIN_RECIPES: Final = (
+    " ((SELECT * FROM files WHERE filepath = ?) "
+    " NATURAL JOIN contents NATURAL JOIN recipes) "
+)
+_GET_RECIPE: Final = (
+    "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+)
+_GET_RECIPES: Final = (
+    "SELECT "
+    + ", ".join(RECIPE_ATTRIBUTES)
+    + " FROM"
+    + _FILEPATHS_JOIN_RECIPES
+    + "WHERE status >= "
+    + str(int(RS.INCOMPLETE_ON_DISPLAY))
+)
 _GET_URLS_STATUS_VERSION: Final = "SELECT url, status, scraper_version FROM recipes"
 _GET_CONTENT: Final = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
-_GET_TITLES_HOSTS: Final = "SELECT title, host FROM" + _FILEPATHS_JOIN_RECIPES + \
-                                " WHERE status >= " + str(int(RS.INCOMPLETE_ON_DISPLAY))
+_GET_TITLES_HOSTS: Final = (
+    "SELECT title, host FROM"
+    + _FILEPATHS_JOIN_RECIPES
+    + " WHERE status >= "
+    + str(int(RS.INCOMPLETE_ON_DISPLAY))
+)
 
-_DROP_ALL: Final = "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; " \
-                                  "DROP TABLE IF EXISTS contents"
+_DROP_ALL: Final = (
+    "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; "
+    "DROP TABLE IF EXISTS contents"
+)
 
 AccessibleDatabase = NewType("AccessibleDatabase", Path)
 """Type representing a database file, that was (at one point during program execution) a valid and accessible
@@ -179,8 +208,16 @@ def fetch_again(status: RS, scraper_version: str) -> bool:
     if status in (RS.UNREACHABLE, RS.NOT_INITIALIZED):
         return True
 
-    if status in (RS.INCOMPLETE_ESSENTIAL, RS.UNKNOWN, RS.INCOMPLETE_ON_DISPLAY, RS.COMPLETE_ON_DISPLAY) \
-            and scraper_version < SCRAPER_VERSION:
+    if (
+        status
+        in (
+            RS.INCOMPLETE_ESSENTIAL,
+            RS.UNKNOWN,
+            RS.INCOMPLETE_ON_DISPLAY,
+            RS.COMPLETE_ON_DISPLAY,
+        )
+        and scraper_version < SCRAPER_VERSION
+    ):
         return True
 
     return False
@@ -287,14 +324,18 @@ class Database:
         for url, status, version in available:
             if url in wanted and not fetch_again(status, version):
                 if status == RS.UNKNOWN:
-                    logger.info("Not refetching %s, scraper-version (%s) since last fetch has not changed.",
-                                url, version)
+                    logger.info(
+                        "Not refetching %s, scraper-version (%s) since last fetch has not changed.",
+                        url,
+                        version,
+                    )
                 else:
                     logger.info("Using cached version of %s", url)
 
                 wanted.remove(url)
                 self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, url))
-                if not wanted: break
+                if not wanted:
+                    break
         self.con.commit()
         return wanted
 
@@ -333,8 +374,9 @@ class Database:
         updated = []
         if old_row:
             for old_val, new_val in zip(old_row, new_row):
-                if (new_val and new_val != NA) \
-                        and (prefer_new or not (old_val and old_val != NA)):
+                if (new_val and new_val != NA) and (
+                    prefer_new or not (old_val and old_val != NA)
+                ):
                     merged_row.append(new_val)
                     updated.append(True)
                 else:
@@ -344,14 +386,21 @@ class Database:
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
                 if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN:  # type: ignore[operator]
-                    merged_row[-2] = gen_status(merged_row[:len(METHODS)])  # type: ignore[arg-type]
+                    merged_row[-2] = gen_status(merged_row[: len(METHODS)])  # type: ignore[arg-type]
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore[arg-type]
                 if logger.isEnabledFor(logging.INFO):
-                    for attr, old_val, new_val, is_replaced in zip(RECIPE_ATTRIBUTES, old_row, new_row, updated):
+                    for attr, old_val, new_val, is_replaced in zip(
+                        RECIPE_ATTRIBUTES, old_row, new_row, updated
+                    ):
                         if is_replaced:
-                            logger.info("%s: %s => %s", attr, head_str(old_val), head_str(new_val))
+                            logger.info(
+                                "%s: %s => %s",
+                                attr,
+                                head_str(old_val),
+                                head_str(new_val),
+                            )
                 self.replace_recipe(r)
             else:
                 r = Recipe(*merged_row)  # type: ignore[arg-type]

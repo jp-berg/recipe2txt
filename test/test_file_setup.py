@@ -16,8 +16,13 @@
 import unittest
 from pathlib import Path
 from shutil import rmtree
-from test.test_helpers import (NONE_DIRS, NORMAL_DIRS, TEST_PROJECT_TMPDIR,
-                               TESTFILE, assertAccessibleFile)
+from test.test_helpers import (
+    NONE_DIRS,
+    NORMAL_DIRS,
+    TEST_PROJECT_TMPDIR,
+    TESTFILE,
+    assertAccessibleFile,
+)
 
 import recipe2txt.file_setup as fs
 from recipe2txt.sql import is_accessible_db
@@ -32,12 +37,13 @@ COPY_RECIPES_NAME_TXT = fs.RECIPES_NAME_TXT
 disable_loggers()
 
 
-test_debug_dirs = fs.ProgramDirectories(tmp_data_dir / "data",
-                                        tmp_data_dir / "config",
-                                        tmp_data_dir / "state")
+test_debug_dirs = fs.ProgramDirectories(
+    tmp_data_dir / "data", tmp_data_dir / "config", tmp_data_dir / "state"
+)
 
 db_path = test_debug_dirs.data / fs.DB_NAME
 log_path = test_debug_dirs.state / fs.LOG_NAME
+
 
 def name_back():
     fs.DEBUG_DIRS = copy_debug_dirs
@@ -54,7 +60,6 @@ unittest.addModuleCleanup(remove_dir)
 
 
 class Test(unittest.TestCase):
-
     def setUp(self) -> None:
         fs.DEBUG_DIRS = test_debug_dirs
         fs.DEFAULT_OUTPUT_LOCATION_NAME = "NOTAFILE"
@@ -69,7 +74,9 @@ class Test(unittest.TestCase):
 
     def test_file_setup(self):
         testfiles = [Path(*testdir) / TESTFILE for testdir in NORMAL_DIRS]
-        test_params = [((str(file), True), (db_path, file, log_path)) for file in testfiles]
+        test_params = [
+            ((str(file), True), (db_path, file, log_path)) for file in testfiles
+        ]
 
         for idx, (test, validation) in enumerate(test_params):
             fs.file_setup(*test)
@@ -92,7 +99,9 @@ class Test(unittest.TestCase):
 
     def test_file_setup_failure(self):
         failfiles = [Path(*faildir) / TESTFILE for faildir in NONE_DIRS]
-        fail_params = [((str(file), True), (db_path, file, log_path)) for file in failfiles]
+        fail_params = [
+            ((str(file), True), (db_path, file, log_path)) for file in failfiles
+        ]
 
         for idx, (test, validation) in enumerate(fail_params):
             with self.subTest(i=idx):
@@ -122,7 +131,9 @@ class Test(unittest.TestCase):
         for directory in fs.DEBUG_DIRS:
             self.assertTrue(directory.is_dir())
 
-        files = [directory / f"file-{idx}" for idx, directory in enumerate(fs.DEBUG_DIRS)]
+        files = [
+            directory / f"file-{idx}" for idx, directory in enumerate(fs.DEBUG_DIRS)
+        ]
         for file in files:
             file.write_text("TESTFILE")
             assertAccessibleFile(self, file, True)

@@ -33,13 +33,22 @@ from pathlib import Path
 from typing import Final, Tuple, get_args
 
 from recipe2txt.fetcher import Cache
-from recipe2txt.file_setup import (CONFIG_FILE, PROGRAM_NAME, erase_files,
-                                   file_setup, get_default_output, get_files)
+from recipe2txt.file_setup import (
+    CONFIG_FILE,
+    PROGRAM_NAME,
+    erase_files,
+    file_setup,
+    get_default_output,
+    get_files,
+)
 from recipe2txt.utils.ArgConfig import ArgConfig
-from recipe2txt.utils.ContextLogger import (LOG_LEVEL_NAMES, STRING2LEVEL,
-                                            get_logger, root_log_setup)
-from recipe2txt.utils.misc import (URL, Counts, File, dict2str, extract_urls,
-                                   read_files)
+from recipe2txt.utils.ContextLogger import (
+    LOG_LEVEL_NAMES,
+    STRING2LEVEL,
+    get_logger,
+    root_log_setup,
+)
+from recipe2txt.utils.misc import URL, Counts, File, dict2str, extract_urls, read_files
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
@@ -55,8 +64,15 @@ class FileListingArgParse(argparse.ArgumentParser):
         help_msg = super().format_help()
         files = get_files()
         files.sort()
-        files_str = os.linesep + "  " + (os.linesep + "  ").join(files) if files else " none"
-        help_msg += os.linesep + "files created or used by this program:" + files_str + os.linesep
+        files_str = (
+            os.linesep + "  " + (os.linesep + "  ").join(files) if files else " none"
+        )
+        help_msg += (
+            os.linesep
+            + "files created or used by this program:"
+            + files_str
+            + os.linesep
+        )
         return help_msg
 
 
@@ -74,40 +90,76 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
         prog=PROGRAM_NAME,
         description="Scrapes URLs of recipes into text files",
         epilog=f"Change the default-values for these options by modifying the '{PROGRAM_NAME}.toml'"
-               f"file mentioned below."
+        f"file mentioned below.",
     )
 
     arg_config = ArgConfig(parser, config_file)
 
     arg_config.add_narg("url", "URLs whose recipes should be added to the recipe-file")
-    arg_config.add_narg("--file", "Text-files containing URLs whose recipes should be added to the recipe-file")
-    arg_config.add_arg("--output", "Specifies an output file. THIS WILL OVERWRITE ANY EXISTING FILE WITH THE SAME"
-                                   " NAME.", default=get_default_output())
-    arg_config.add_choice("--verbosity", "Sets the 'chattiness' of the program",
-                          choices=get_args(LOG_LEVEL_NAMES), default="critical")
-    arg_config.add_type("--connections", default=Fetcher.connections, short="-con",
-                        help_str="{}Sets the number of simultaneous connections"
-                        .format("" if Fetcher.is_async else
-                                "Since the package 'aiohttp' is not installed the number of simultaneous connections"
-                                " will always be 1. Thus this flag and its parameters will not be evaluated. "))
-    arg_config.add_choice("--cache", choices=["only", "new", "default"], default="default",
-                          help_str="Controls how the program should handle its cache: With 'only' no new data will be"
-                                   " downloaded, the recipes will be generated from data that has been downloaded"
-                                   " previously. If a recipe is not in the cache, it will not be written into the final"
-                                   " output. 'new' will make the program ignore any saved data and download the"
-                                   " requested recipes even if they have already been downloaded. Old data will be"
-                                   " replaced by the new version, if it is available. The 'default' will fetch and"
-                                   " merge missing data with the data already saved, only inserting new data into the"
-                                   " cache where there was none previously.")
-    arg_config.add_bool("--debug", "Activates debug-mode: Changes the directory for application data")
-    arg_config.add_type("--timeout", default=Fetcher.timeout,
-                        help_str="Sets the number of seconds the program waits for an individual website to respond,"
-                                 " eg. {}.".format('sets the connect-value of aiohttp.ClientTimeout' if Fetcher.is_async
-                                                  else 'sets the timeout-argument of urllib.request.urlopen'))
+    arg_config.add_narg(
+        "--file",
+        "Text-files containing URLs whose recipes should be added to the recipe-file",
+    )
+    arg_config.add_arg(
+        "--output",
+        "Specifies an output file. THIS WILL OVERWRITE ANY EXISTING FILE WITH THE SAME"
+        " NAME.",
+        default=get_default_output(),
+    )
+    arg_config.add_choice(
+        "--verbosity",
+        "Sets the 'chattiness' of the program",
+        choices=get_args(LOG_LEVEL_NAMES),
+        default="critical",
+    )
+    arg_config.add_type(
+        "--connections",
+        default=Fetcher.connections,
+        short="-con",
+        help_str="{}Sets the number of simultaneous connections".format(
+            ""
+            if Fetcher.is_async
+            else "Since the package 'aiohttp' is not installed the number of simultaneous connections"
+            " will always be 1. Thus this flag and its parameters will not be evaluated. "
+        ),
+    )
+    arg_config.add_choice(
+        "--cache",
+        choices=["only", "new", "default"],
+        default="default",
+        help_str="Controls how the program should handle its cache: With 'only' no new data will be"
+        " downloaded, the recipes will be generated from data that has been downloaded"
+        " previously. If a recipe is not in the cache, it will not be written into the final"
+        " output. 'new' will make the program ignore any saved data and download the"
+        " requested recipes even if they have already been downloaded. Old data will be"
+        " replaced by the new version, if it is available. The 'default' will fetch and"
+        " merge missing data with the data already saved, only inserting new data into the"
+        " cache where there was none previously.",
+    )
+    arg_config.add_bool(
+        "--debug", "Activates debug-mode: Changes the directory for application data"
+    )
+    arg_config.add_type(
+        "--timeout",
+        default=Fetcher.timeout,
+        help_str="Sets the number of seconds the program waits for an individual website to respond,"
+        " eg. {}.".format(
+            "sets the connect-value of aiohttp.ClientTimeout"
+            if Fetcher.is_async
+            else "sets the timeout-argument of urllib.request.urlopen"
+        ),
+    )
     arg_config.add_bool("--markdown", "Generates markdown-output instead of '.txt'")
-    arg_config.add_arg("--user-agent", "Sets the user-agent to be used for the requests.", default=Fetcher.user_agent)
-    arg_config.add_arg("--erase-appdata", "Erases all data- and cache-files (e.g. the files listed below)",
-                       short=None)
+    arg_config.add_arg(
+        "--user-agent",
+        "Sets the user-agent to be used for the requests.",
+        default=Fetcher.user_agent,
+    )
+    arg_config.add_arg(
+        "--erase-appdata",
+        "Erases all data- and cache-files (e.g. the files listed below)",
+        short=None,
+    )
 
     return parser
 
@@ -153,12 +205,18 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
     ext = output.suffix
     if a.markdown:
         if ext != ".md":
-            logger.warning("The application is instructed to output a markdown file, but the filename extension"
-                           " indicates otherwise:'%s'", ext)
+            logger.warning(
+                "The application is instructed to output a markdown file, but the filename extension"
+                " indicates otherwise:'%s'",
+                ext,
+            )
     else:
-        if ext not in ('', '.txt'):
-            logger.warning("The application is instructed to output a text file, but the filename extension"
-                           " indicates otherwise:'%s'", ext)
+        if ext not in ("", ".txt"):
+            logger.warning(
+                "The application is instructed to output a text file, but the filename extension"
+                " indicates otherwise:'%s'",
+                ext,
+            )
 
     if CONFIG_FILE.stat().st_size == 0:
         logger.warning("The config-file %s is empty", CONFIG_FILE)
@@ -181,11 +239,15 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     db_file, recipe_file, log_file = file_setup(a.output, a.debug)
     root_log_setup(STRING2LEVEL[a.verbosity], str(log_file))
     if logger.isEnabledFor(logging.DEBUG):
-        logger.debug("CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + '\t'))
+        logger.debug(
+            "CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + "\t")
+        )
     logger.info("--- Preparing arguments ---")
     sancheck_args(a, recipe_file)
     if recipe_file.stat().st_size > 0:
-        logger.warning("The output-file %s already exists. It will be overwritten.", recipe_file)
+        logger.warning(
+            "The output-file %s already exists. It will be overwritten.", recipe_file
+        )
     else:
         logger.info("Output set to: %s", recipe_file)
     unprocessed: list[str] = read_files(*a.file)
@@ -197,9 +259,14 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     counts = Counts()
     counts.strings = len(unprocessed)
 
-    f = Fetcher(output=recipe_file, connections=a.connections,
-                counts=counts, database=db_file,
-                timeout=a.timeout, markdown=a.markdown,
-                cache=Cache(a.cache))
+    f = Fetcher(
+        output=recipe_file,
+        connections=a.connections,
+        counts=counts,
+        database=db_file,
+        timeout=a.timeout,
+        markdown=a.markdown,
+        cache=Cache(a.cache),
+    )
 
     return processed, f

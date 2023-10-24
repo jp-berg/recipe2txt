@@ -24,7 +24,6 @@ import recipe2txt.utils.misc as misc
 
 
 class FileTests(unittest.TestCase):
-
     def setUp(self) -> None:
         if not create_tmpdirs():
             self.fail()
@@ -48,20 +47,34 @@ class FileTests(unittest.TestCase):
 
         lines = misc.read_files(obscured_urls)
         urls = misc.extract_urls(lines)
-        if diff := validation-urls:
+        if diff := validation - urls:
             self.fail(f"Validation contains URLs that were not extracted:{diff}")
-        if diff := urls-validation:
+        if diff := urls - validation:
             self.fail(f"Validation does not contain URLs that were extracted:{diff}")
 
     def test_full_path(self):
         params = [
-            (["~", "Documents", "File1"], os.path.expanduser(os.path.join("~", "Documents", "File1"))),
-            (["  /tmp", "dir1", "file2.txt  "], os.path.join("/tmp", "dir1", "file2.txt")),
+            (
+                ["~", "Documents", "File1"],
+                os.path.expanduser(os.path.join("~", "Documents", "File1")),
+            ),
+            (
+                ["  /tmp", "dir1", "file2.txt  "],
+                os.path.join("/tmp", "dir1", "file2.txt"),
+            ),
             ([".", "file"], os.path.join(os.getcwd(), "file")),
-            (["$HOME", "Documents", "File1"], os.path.expandvars(os.path.join("$HOME", "Documents", "File1"))),
-            ([Path.cwd(), "NewDir", "File1.txt"], os.path.join(os.getcwd(), "NewDir", "File1.txt")),
-            (["/home", "user", Path("Documents", "important"), "file1.txt"],
-             os.path.join("/home", "user", "Documents", "important", "file1.txt"))
+            (
+                ["$HOME", "Documents", "File1"],
+                os.path.expandvars(os.path.join("$HOME", "Documents", "File1")),
+            ),
+            (
+                [Path.cwd(), "NewDir", "File1.txt"],
+                os.path.join(os.getcwd(), "NewDir", "File1.txt"),
+            ),
+            (
+                ["/home", "user", Path("Documents", "important"), "file1.txt"],
+                os.path.join("/home", "user", "Documents", "important", "file1.txt"),
+            ),
         ]
 
         for test, validation in params:
@@ -73,7 +86,9 @@ class FileTests(unittest.TestCase):
 
         for test, validation in params_path:
             with self.subTest(testpath=test):
-                self.assertTrue(os.path.samefile(misc.ensure_existence_dir(*test), validation))
+                self.assertTrue(
+                    os.path.samefile(misc.ensure_existence_dir(*test), validation)
+                )
                 os.removedirs(validation)
 
         for test in NONE_DIRS:
@@ -84,7 +99,11 @@ class FileTests(unittest.TestCase):
         params_path = [(test, os.path.join(*test, TESTFILE)) for test in NORMAL_DIRS]
         for test, validation in params_path:
             with self.subTest(directory=test):
-                self.assertTrue(os.path.samefile(misc.ensure_accessible_file(*test, TESTFILE), validation))
+                self.assertTrue(
+                    os.path.samefile(
+                        misc.ensure_accessible_file(*test, TESTFILE), validation
+                    )
+                )
                 if not os.path.isfile(validation):
                     self.fail("File", validation, "was not created")
                 try:
@@ -148,21 +167,29 @@ class FileTests(unittest.TestCase):
 
 
 class StrTests(unittest.TestCase):
-
     def test_dict2str(self):
-        dicts = [({1: "one", 2: "two", 3: "three"}, os.linesep.join(["1: one", "2: two", "3: three"])),
-                 ({"one": "Eins", "two": "Zwei", "three": "Drei"},
-                  os.linesep.join(["one: Eins", "two: Zwei", "three: Drei"]))]
+        dicts = [
+            (
+                {1: "one", 2: "two", 3: "three"},
+                os.linesep.join(["1: one", "2: two", "3: three"]),
+            ),
+            (
+                {"one": "Eins", "two": "Zwei", "three": "Drei"},
+                os.linesep.join(["one: Eins", "two: Zwei", "three: Drei"]),
+            ),
+        ]
 
         for d, validation in dicts:
             with self.subTest(testdict=d):
                 self.assertEqual(misc.dict2str(d), validation)
 
     def test_head_str(self):
-        objects = [("teststringteststringteststring", "teststr..."),
-                   ("teststring", "teststring"),
-                   ("test       ", "test..."),
-                   ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "[1, 2,...")]
+        objects = [
+            ("teststringteststringteststring", "teststr..."),
+            ("teststring", "teststring"),
+            ("test       ", "test..."),
+            ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "[1, 2,..."),
+        ]
 
         for obj, validation in objects:
             with self.subTest(testobj=obj):

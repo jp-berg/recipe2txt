@@ -20,8 +20,11 @@ from os import linesep
 from typing import Optional
 
 
-def shorten_paths(stack: traceback.StackSummary, first_visible_dir: str | None = None,
-                  skip_first: bool = False) -> traceback.StackSummary:
+def shorten_paths(
+    stack: traceback.StackSummary,
+    first_visible_dir: str | None = None,
+    skip_first: bool = False,
+) -> traceback.StackSummary:
     if first_visible_dir is None:
         paths = [frame.filename for frame in stack]
         shared = os.path.commonpath(paths)
@@ -41,7 +44,9 @@ def shorten_paths(stack: traceback.StackSummary, first_visible_dir: str | None =
     return stack
 
 
-def get_shared_frames(tb_exes: list[traceback.TracebackException]) -> traceback.StackSummary:
+def get_shared_frames(
+    tb_exes: list[traceback.TracebackException],
+) -> traceback.StackSummary:
     stacks = [tb_ex.stack for tb_ex in tb_exes]
     shortest = deepcopy(min(stacks, key=len))
     equal = True
@@ -62,9 +67,11 @@ def get_shared_frames(tb_exes: list[traceback.TracebackException]) -> traceback.
     return shared
 
 
-def format_stacks(tb_exes: list[traceback.TracebackException],
-                  shared_stack: traceback.StackSummary,
-                  first_visible_dir: str | None = None) -> list[list[str]]:
+def format_stacks(
+    tb_exes: list[traceback.TracebackException],
+    shared_stack: traceback.StackSummary,
+    first_visible_dir: str | None = None,
+) -> list[list[str]]:
     shared_stack_len = len(shared_stack)
     tb_exes_copy = deepcopy(tb_exes)
     for tb_ex in tb_exes_copy:

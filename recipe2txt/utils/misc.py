@@ -25,13 +25,29 @@ import validators
 
 from recipe2txt.utils.ContextLogger import DO_NOT_LOG, get_logger
 
-__all__ = ["URL", "is_url", "extract_urls", "File", "is_file", "Directory", "is_dir", "full_path",
-           "ensure_existence_dir", "ensure_existence_dir_critical", "create_timestamped_dir", "ensure_accessible_file",
-           "ensure_accessible_file_critical", "read_files", "Counts", "dict2str", "head_str"]
+__all__ = [
+    "URL",
+    "is_url",
+    "extract_urls",
+    "File",
+    "is_file",
+    "Directory",
+    "is_dir",
+    "full_path",
+    "ensure_existence_dir",
+    "ensure_existence_dir_critical",
+    "create_timestamped_dir",
+    "ensure_accessible_file",
+    "ensure_accessible_file_critical",
+    "read_files",
+    "Counts",
+    "dict2str",
+    "head_str",
+]
 
 logger = get_logger(__name__)
 
-URL = NewType('URL', str)
+URL = NewType("URL", str)
 
 
 def is_url(value: str) -> TypeGuard[URL]:
@@ -51,7 +67,9 @@ def extract_urls(lines: list[str]) -> set[URL]:
 
                 # Strip variables to avoid duplicating urls
                 parsed = urllib.parse.urlparse(url)
-                reconstructed = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
+                reconstructed = urllib.parse.urlunparse(
+                    (parsed.scheme, parsed.netloc, parsed.path, "", "", "")
+                )
                 url = reconstructed if is_url(reconstructed) else url
 
                 if url in processed:
@@ -64,14 +82,14 @@ def extract_urls(lines: list[str]) -> set[URL]:
     return processed
 
 
-File = NewType('File', Path)
+File = NewType("File", Path)
 
 
 def is_file(value: Path) -> TypeGuard[File]:
     return value.is_file()
 
 
-Directory = NewType('Directory', Path)
+Directory = NewType("Directory", Path)
 
 
 def is_dir(value: Path) -> TypeGuard[Directory]:
@@ -89,19 +107,32 @@ def full_path(*pathelements: str | Path) -> Path:
     return path
 
 
-def _ensure_existence_dir(path: Path) -> tuple[Directory | None, tuple[str, Any] | tuple[str, Any, Any]]:
+def _ensure_existence_dir(
+    path: Path,
+) -> tuple[Directory | None, tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_file():
-            return None, ("%s is already a file, thus a directory with the same name cannot exist", path)
+            return None, (
+                "%s is already a file, thus a directory with the same name cannot exist",
+                path,
+            )
         exists = is_dir(path)
     except OSError as e:
-        return None, ("Directory cannot be accessed: %s (%s)", path, getattr(e, 'message', repr(e)))
+        return None, (
+            "Directory cannot be accessed: %s (%s)",
+            path,
+            getattr(e, "message", repr(e)),
+        )
     if not exists:
         try:
             logger.info("Creating directory: %s", path)
             path.mkdir(parents=True, exist_ok=True)
         except OSError as e:
-            return None, ("Directory could not be created: %s (%s)", path, getattr(e, 'message', repr(e)))
+            return None, (
+                "Directory could not be created: %s (%s)",
+                path,
+                getattr(e, "message", repr(e)),
+            )
     return Directory(path), (DO_NOT_LOG, "", "")
 
 
@@ -139,13 +170,22 @@ def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Directory 
     return directory
 
 
-def _ensure_accessible_file(path: Path) -> tuple[File | None, tuple[str, Any] | tuple[str, Any, Any]]:
+def _ensure_accessible_file(
+    path: Path,
+) -> tuple[File | None, tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_dir():
-            return None, ("%s is already a directory, thus a file with the same name cannot exist", path)
+            return None, (
+                "%s is already a directory, thus a file with the same name cannot exist",
+                path,
+            )
         exists = path.is_file()
     except OSError as e:
-        return None, ("File cannot be accessed: %s (%s)", path, getattr(e, 'message', repr(e)))
+        return None, (
+            "File cannot be accessed: %s (%s)",
+            path,
+            getattr(e, "message", repr(e)),
+        )
     if not exists:
         directory, msg = _ensure_existence_dir(path.parent)
         if directory:
@@ -153,7 +193,11 @@ def _ensure_accessible_file(path: Path) -> tuple[File | None, tuple[str, Any] | 
                 logger.info("Creating file: %s", path)
                 path.touch()
             except OSError as e:
-                return None, ("File could not be created: %s (%s)", path, getattr(e, 'message', repr(e)))
+                return None, (
+                    "File could not be created: %s (%s)",
+                    path,
+                    getattr(e, "message", repr(e)),
+                )
         else:
             return None, msg
     with path.open("r") as f:
@@ -206,20 +250,31 @@ class Counts:
         self.parsed_partially: int = 0
 
     def __str__(self) -> str:
-        s = linesep.join(["[Absolute|Percentage of count above]", "",
-                          "Total number of strings: {}",
-                          "Identified as URLs: [{}|{:.2f}%]",
-                          "URLs not yet (fully) saved: [{}|{:.2f}%]",
-                          "URLs reached: [{}|{:.2f}%]",
-                          "Recipes parsed partially: [{}|{:.2f}%]",
-                          "Recipes parsed fully: [{}|{:.2f}%]", ""]) \
-            .format(self.strings,
-                    self.urls, (self.urls / self.strings) * 100,
-                    self.require_fetching, (self.require_fetching / self.urls) * 100,
-                    self.reached, (self.reached / self.urls) * 100,
-                    self.parsed_partially, (self.parsed_partially / self.urls) * 100,
-                    self.parsed_successfully, (self.parsed_successfully / self.urls) * 100
-                    )
+        s = linesep.join(
+            [
+                "[Absolute|Percentage of count above]",
+                "",
+                "Total number of strings: {}",
+                "Identified as URLs: [{}|{:.2f}%]",
+                "URLs not yet (fully) saved: [{}|{:.2f}%]",
+                "URLs reached: [{}|{:.2f}%]",
+                "Recipes parsed partially: [{}|{:.2f}%]",
+                "Recipes parsed fully: [{}|{:.2f}%]",
+                "",
+            ]
+        ).format(
+            self.strings,
+            self.urls,
+            (self.urls / self.strings) * 100,
+            self.require_fetching,
+            (self.require_fetching / self.urls) * 100,
+            self.reached,
+            (self.reached / self.urls) * 100,
+            self.parsed_partially,
+            (self.parsed_partially / self.urls) * 100,
+            self.parsed_successfully,
+            (self.parsed_successfully / self.urls) * 100,
+        )
         return s
 
 
@@ -231,5 +286,5 @@ def dict2str(dictionary: dict[Any, Any], sep: str = linesep) -> str:
 def head_str(o: Any, max_length: int = 50) -> str:
     s = str(o)
     if len(s) > max_length:
-        s = s[:max_length - 3].rstrip() + "..."
+        s = s[: max_length - 3].rstrip() + "..."
     return s.replace(linesep, " ")

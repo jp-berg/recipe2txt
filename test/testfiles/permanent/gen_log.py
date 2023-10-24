@@ -21,16 +21,23 @@ from pathlib import Path
 from typing import Final, Generator
 
 import recipe2txt.utils.misc as misc
-from recipe2txt.utils.ContextLogger import (_LOG_FORMAT_STREAM, STRING2LEVEL,
-                                            QueueContextFilter,
-                                            QueueContextFormatter)
+from recipe2txt.utils.ContextLogger import (
+    _LOG_FORMAT_STREAM,
+    STRING2LEVEL,
+    QueueContextFilter,
+    QueueContextFormatter,
+)
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import (Directory, File, ensure_accessible_file,
-                                   ensure_existence_dir_critical)
+from recipe2txt.utils.misc import (
+    Directory,
+    File,
+    ensure_accessible_file,
+    ensure_existence_dir_critical,
+)
 
 logger = get_logger(__name__)
-if __name__ == '__main__':
+if __name__ == "__main__":
     logger.setLevel(logging.INFO)
 else:
     logger.setLevel(logging.CRITICAL)
@@ -50,11 +57,15 @@ dir_normal = log_files / "gen_log_res"
 dir_fail = Path("/root/test")
 
 
-def queue_processor(nums: list[int], directory_normal: Path, directory_fail: Path) -> int:
+def queue_processor(
+    nums: list[int], directory_normal: Path, directory_fail: Path
+) -> int:
     minimum = 1000
     total = 0
     for idx, num in enumerate(nums):
-        with QCM(write_logger, write_logger.info, "Processing %s", num):  # Check indentation, string formatting
+        with QCM(
+            write_logger, write_logger.info, "Processing %s", num
+        ):  # Check indentation, string formatting
             try:
                 res = int(gen_stack.fun5(num))
             except ZeroDivisionError as e:
@@ -64,7 +75,9 @@ def queue_processor(nums: list[int], directory_normal: Path, directory_fail: Pat
                 write_logger.error("Value caused error: ", exc_info=e)  # C
                 res = 202
             total += res
-            write_logger.info("Total is %s", total)  # Check if exceptions and other log messages work together
+            write_logger.info(
+                "Total is %s", total
+            )  # Check if exceptions and other log messages work together
             if total < minimum:
                 write_logger.warning("Needs %s more", minimum - total)
             # Check logging indentation in different module
@@ -77,9 +90,13 @@ def queue_processor(nums: list[int], directory_normal: Path, directory_fail: Pat
             else:
                 write_logger.warning("Total could not be written!")
             if idx == (len(nums) - 1):
-                write_logger.critical("Reached the last element")  # Check highest log level
+                write_logger.critical(
+                    "Reached the last element"
+                )  # Check highest log level
     if total < minimum:
-        write_logger.error("The total (%s) is smaller than %s", total, minimum)  # Check if context is released
+        write_logger.error(
+            "The total (%s) is smaller than %s", total, minimum
+        )  # Check if context is released
     return total
 
 
@@ -87,7 +104,9 @@ def gen_log() -> None:
     if dir_normal.is_dir():
         shutil.rmtree(dir_normal)
     queue = [-7, 29, 8, 41, 3, 44, -19, 2, 1, 6]
-    logging.info("The values used are %s", queue)  # Check 'stringification of logged objects
+    logging.info(
+        "The values used are %s", queue
+    )  # Check 'stringification of logged objects
     res = queue_processor(queue, dir_normal, dir_fail)
     write_logger.info("The result of the calculations: %s", res)
     shutil.rmtree(dir_normal)

@@ -25,6 +25,7 @@ from recipe2txt.utils.ContextLogger import get_logger
 
 logger = get_logger(__name__)
 
+
 def main() -> None:
     a = get_parser().parse_args()
     mutex_args(a)
@@ -36,6 +37,6 @@ def main() -> None:
     write_errors(a.debug)
     sys.exit(os.EX_OK)
 
-if __name__ == '__main__':
-    main()
 
+if __name__ == "__main__":
+    main()
