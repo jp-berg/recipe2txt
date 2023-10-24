@@ -18,17 +18,17 @@ Handles all file- and data-operations of the program aside from writing the reci
 Attributes:
     logger (logging.Logger): The logger for the module. Receives the constructed logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
-    default_dirs (Final[ProgramDirectories]): Specifies the paths the program will use during normal operation for
+    DEFAULT_DIRS (Final[ProgramDirectories]): Specifies the paths the program will use during normal operation for
         storage of data, configuration-files and state. The specified paths try to adhere to the XDG Base Directory
         Specification
     DEBUG_DIRECTORY_BASE (Final[Path]): Specifies the root directory for all files used by this program when the
         '--debug'-flag is set.
-    debug_dirs (Final[ProgramDirectories]): Specifies the paths the program will use when the '--debug'-flag is set.
+    DEBUG_DIRS (Final[ProgramDirectories]): Specifies the paths the program will use when the '--debug'-flag is set.
     The directories (data, config, state) mirror their :py:data:`default-dirs` counterparts in function.
     LOG_NAME (Final[LiteralString]): name of the log-file the loggers of this program will write to
     DB_NAME (Final[LiteralString]): name of the sqlite-database-file used by this program
     RECIPES_NAME (Final[LiteralString]): name of the default output-file all the collected recipes will be written to
-    how_to_report_txt (Final[LiteralString]): help-text describing how to report errors arising from the external
+    HOW_TO_REPORT_TXT (Final[LiteralString]): help-text describing how to report errors arising from the external
         :py:mod:`recipe-scrapers`
 """
 import os
@@ -65,9 +65,9 @@ class ProgramDirectories(NamedTuple):
     state: Path
 
 
-default_dirs: Final = ProgramDirectories(xdg_data_home() / PROGRAM_NAME,
-                                                             xdg_config_home() / PROGRAM_NAME,
-                                                             xdg_state_home() / PROGRAM_NAME)
+DEFAULT_DIRS: Final = ProgramDirectories(xdg_data_home() / PROGRAM_NAME,
+                                         xdg_config_home() / PROGRAM_NAME,
+                                         xdg_state_home() / PROGRAM_NAME)
 """
 Specifies the paths the program will use during normal operation for storage of data, configuration-files and state. 
         
@@ -77,9 +77,9 @@ The specified paths try to adhere to the XDG Base Directory Specification.
 DEBUG_DIRECTORY_BASE: Final = Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
 """Specifies the root directory for all files used by this program when the '--debug'-flag is set."""
 
-debug_dirs: Final = ProgramDirectories(DEBUG_DIRECTORY_BASE / "data",
-                                                           DEBUG_DIRECTORY_BASE / "config",
-                                                           DEBUG_DIRECTORY_BASE / "state")
+DEBUG_DIRS: Final = ProgramDirectories(DEBUG_DIRECTORY_BASE / "data",
+                                       DEBUG_DIRECTORY_BASE / "config",
+                                       DEBUG_DIRECTORY_BASE / "state")
 """
 Specifies the paths the program will use when the '--debug'-flag is set.
 
@@ -96,7 +96,7 @@ RECIPES_NAME: Final = "recipes"
 """name of the default output-file all the collected recipes will be written to"""
 RECIPES_NAME_TXT: Final = RECIPES_NAME + ".txt"
 RECIPES_NAME_MD: Final = RECIPES_NAME + ".md"
-CONFIG_FILE: Final = default_dirs.config / CONFIG_NAME
+CONFIG_FILE: Final = DEFAULT_DIRS.config / CONFIG_NAME
 """path to the config-file"""
 
 
@@ -128,7 +128,7 @@ def file_setup(output: str, debug: bool = False) -> Tuple[AccessibleDatabase, Fi
     Raises:
         SystemExit: When one of the files cannot be created/accessed by the program.
     """
-    directory = debug_dirs if debug else default_dirs
+    directory = DEBUG_DIRS if debug else DEFAULT_DIRS
 
     output_file = ensure_accessible_file_critical(output)
 
@@ -148,8 +148,8 @@ def get_files(debug: bool = False) -> list[str]:
     Returns:
         A list of absolute paths pointing towards all the program files
     """
-    directories = list(debug_dirs)
-    directories = directories if debug else directories + list(default_dirs)
+    directories = list(DEBUG_DIRS)
+    directories = directories if debug else directories + list(DEFAULT_DIRS)
     files = [str(file) for directory in directories if directory.is_dir()
              for file in directory.iterdir()]
     return files
@@ -162,8 +162,8 @@ def erase_files(debug: bool = False) -> None:
     Args:
         debug: Only delete the debug-version of those directories.
     """
-    directories = list(debug_dirs)
-    directories = directories if debug else directories + list(default_dirs)
+    directories = list(DEBUG_DIRS)
+    directories = directories if debug else directories + list(DEFAULT_DIRS)
 
     for directory in directories:
         if directory.is_dir():
@@ -171,7 +171,7 @@ def erase_files(debug: bool = False) -> None:
             rmtree(directory)
 
 
-how_to_report_txt: Final = textwrap.dedent(
+HOW_TO_REPORT_TXT: Final = textwrap.dedent(
     """During its execution the program encountered errors while trying to scrape recipes.
     In cases where the error seems to originate from the underlying library 'recipe-scrapers' an error-report per error
     has been generated and saved to a file.
@@ -204,13 +204,13 @@ def write_errors(debug: bool = False) -> int:
 
     logger.info("---Writing error reports---")
 
-    data_path = debug_dirs.state if debug else default_dirs.state
+    data_path = DEBUG_DIRS.state if debug else DEFAULT_DIRS.state
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
         logger.error("Could not create %s, no reports will be written", data_path / "error_reports")
         return 0
     how_to_report_file = error_dir / "how_to_report_errors.txt"
     if not how_to_report_file.is_file():
-        how_to_report_file.write_text(how_to_report_txt)
+        how_to_report_file.write_text(HOW_TO_REPORT_TXT)
 
     current_error_dir = create_timestamped_dir(error_dir)
     if not current_error_dir:

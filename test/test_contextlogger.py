@@ -17,7 +17,7 @@ import logging
 import os
 import shutil
 import unittest
-from test.test_helpers import assertFilesEqual, test_project_tmpdir
+from test.test_helpers import TEST_PROJECT_TMPDIR, assertFilesEqual
 from test.testfiles.permanent.gen_log import gen_logs, log_paths
 from typing import Any, Final, Optional, TypeVar
 
@@ -104,11 +104,11 @@ def record_factory(should_trigger: bool, exc_info=None,
 
 
 class LoggerTester(unittest.TestCase):
-    record_attr: Final[list[LiteralString]] = ["context_args", "context_msg", "msg", "name", "pathname", "with_context",
+    RECORD_ATTR: Final[list[LiteralString]] = ["context_args", "context_msg", "msg", "name", "pathname", "with_context",
                                                "exc_info", "exc_text", "filename", "funcName", "levelname", "levelno",
                                                "lineno", "module"]
 
-    context_attr: Final[list[LiteralString]] = ["context_msg", "context_args", "with_context",
+    CONTEXT_ATTR: Final[list[LiteralString]] = ["context_msg", "context_args", "with_context",
                                                 "triggered", "defer_emit", "deferred_records"]
 
     def __init__(self, method_name="runTest"):
@@ -166,7 +166,7 @@ class LoggerTester(unittest.TestCase):
             self.fail("record1 is not of the class LogRecord")
         if not isinstance(record2, logging.LogRecord):
             self.fail("record2 is not of the class LogRecord")
-        for attribute in self.record_attr:
+        for attribute in self.RECORD_ATTR:
             self.assertAttributeEqual(record1, record2, attribute)
 
     def assertRecordListsEqual(self, records1: list[logging.LogRecord], records2: logging.LogRecord) -> None:
@@ -181,7 +181,7 @@ class LoggerTester(unittest.TestCase):
             raise ValueError("context1 is not of the class Context")
         if not isinstance(context2, CTXL.Context):
             raise ValueError("context2 is not of the class Context")
-        for attribute in self.context_attr:
+        for attribute in self.CONTEXT_ATTR:
             if attribute == "deferred_records":
                 with self.subTest(msg="Mismatch on deferred_records."):
                     self.assertRecordListsEqual(context1.deferred_records, context2.deferred_records)
@@ -345,7 +345,7 @@ class TestQueueContextFormatter(LoggerTester):
 
 class TestAll(unittest.TestCase):
     def test_logging(self):
-        test_path = test_project_tmpdir / "logfiles"
+        test_path = TEST_PROJECT_TMPDIR / "logfiles"
         if test_path.is_dir():
             shutil.rmtree(test_path)
         test_paths: list[File] = gen_logs(test_path)

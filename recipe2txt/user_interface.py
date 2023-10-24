@@ -36,8 +36,8 @@ from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import (CONFIG_FILE, PROGRAM_NAME, erase_files,
                                    file_setup, get_default_output, get_files)
 from recipe2txt.utils.ArgConfig import ArgConfig
-from recipe2txt.utils.ContextLogger import (LOG_LEVEL_NAMES, get_logger,
-                                            root_log_setup, string2level)
+from recipe2txt.utils.ContextLogger import (LOG_LEVEL_NAMES, STRING2LEVEL,
+                                            get_logger, root_log_setup)
 from recipe2txt.utils.misc import (URL, Counts, File, dict2str, extract_urls,
                                    read_files)
 
@@ -179,7 +179,7 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
 
     """
     db_file, recipe_file, log_file = file_setup(a.output, a.debug)
-    root_log_setup(string2level[a.verbosity], str(log_file))
+    root_log_setup(STRING2LEVEL[a.verbosity], str(log_file))
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + '\t'))
     logger.info("--- Preparing arguments ---")

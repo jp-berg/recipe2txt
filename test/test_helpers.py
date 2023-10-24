@@ -29,32 +29,32 @@ from recipe2txt.utils.ContextLogger import disable_loggers
 
 disable_loggers()
 
-__all__ = ["test_project_tmpdir", "xdg_tmpdir", "tmpdir", "tmpdir_name", "filedir_name",
-           "test_filedir", "tmpdirs", "create_tmpdirs", "delete_tmpdirs", "test_recipes",
-           "assertAccessibleFile", "assertFilesEqual", "testfile", "normal_dirs", "none_dirs",
+__all__ = ["TEST_PROJECT_TMPDIR", "XDG_TMPDIR", "TMPDIR", "TMPDIR_NAME", "FILEDIR_NAME",
+           "TEST_FILEDIR", "TMPDIRS", "create_tmpdirs", "delete_tmpdirs", "test_recipes",
+           "assertAccessibleFile", "assertFilesEqual", "TESTFILE", "NORMAL_DIRS", "NONE_DIRS",
            "assertEval"]
 
-tmpdir_name: Final = "tmp_testfiles_re2txt"
-filedir_name: Final = "testfiles"
+TMPDIR_NAME: Final = "tmp_testfiles_re2txt"
+FILEDIR_NAME: Final = "testfiles"
 
-test_filedir: Final = Path(__file__).parent / "testfiles"
+TEST_FILEDIR: Final = Path(__file__).parent / "testfiles"
 
-test_project_tmpdir: Final = Path(test_filedir, tmpdir_name)
-xdg_tmpdir: Final = Path(xdg_data_home(), tmpdir_name)
-tmpdir: Final = Path(gettempdir(), tmpdir_name)
+TEST_PROJECT_TMPDIR: Final = Path(TEST_FILEDIR, TMPDIR_NAME)
+XDG_TMPDIR: Final = Path(xdg_data_home(), TMPDIR_NAME)
+TMPDIR: Final = Path(gettempdir(), TMPDIR_NAME)
 
-tmpdirs:Final[list[Path]] = [test_project_tmpdir, xdg_tmpdir, tmpdir]
+TMPDIRS: Final[list[Path]] = [TEST_PROJECT_TMPDIR, XDG_TMPDIR, TMPDIR]
 
-testdirs = ["TESTFOLDER1", "TESTFOLDER2"]
-testfile = "TESTFILE.txt"
+TESTDIRS: Final = ["TESTFOLDER1", "TESTFOLDER2"]
+TESTFILE: Final = "TESTFILE.txt"
 
 if getpass.getuser() == 'root':
     raise EnvironmentError("DO NOT RUN THESE TESTS AS ROOT-USER")
-none_dirs = [[os.devnull] + testdirs,
-             ["/root"] + testdirs]
-normal_dirs = [[folder] + testdirs for folder in tmpdirs]
+NONE_DIRS: Final = [[os.devnull] + TESTDIRS,
+                    ["/root"] + TESTDIRS]
+NORMAL_DIRS: Final = [[folder] + TESTDIRS for folder in TMPDIRS]
 
-for directory in tmpdirs:
+for directory in TMPDIRS:
     directory.mkdir(parents=True, exist_ok=True)
 
 
@@ -81,7 +81,7 @@ test_recipes: list[h2r.Recipe] = [
 
 def create_tmpdirs() -> bool:
     res = True
-    for directory in tmpdirs:
+    for directory in TMPDIRS:
         if not directory.is_dir():
             try:
                 directory.mkdir(parents=True, exist_ok=True)
@@ -92,7 +92,7 @@ def create_tmpdirs() -> bool:
 
 def delete_tmpdirs() -> bool:
     res = True
-    for directory in tmpdirs:
+    for directory in TMPDIRS:
         if directory.is_dir():
             try:
                 rmtree(directory)

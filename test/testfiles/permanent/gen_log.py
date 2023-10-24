@@ -21,11 +21,11 @@ from pathlib import Path
 from typing import Final, Generator
 
 import recipe2txt.utils.misc as misc
-from recipe2txt.utils.ContextLogger import (_LOG_FORMAT_STREAM,
+from recipe2txt.utils.ContextLogger import (_LOG_FORMAT_STREAM, STRING2LEVEL,
                                             QueueContextFilter,
                                             QueueContextFormatter)
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
-from recipe2txt.utils.ContextLogger import get_logger, string2level
+from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import (Directory, File, ensure_accessible_file,
                                    ensure_existence_dir_critical)
 
@@ -35,8 +35,8 @@ if __name__ == '__main__':
 else:
     logger.setLevel(logging.CRITICAL)
 
-root: Final = Directory(Path(__file__).parent)
-log_files = ensure_existence_dir_critical(root, "logfiles")
+ROOT: Final = Directory(Path(__file__).parent)
+log_files = ensure_existence_dir_critical(ROOT, "logfiles")
 write_logger = logging.getLogger("writelogger")
 write_logger.propagate = False
 write_logger.setLevel(logging.DEBUG)
@@ -116,7 +116,7 @@ def gen_logs(folder: Path) -> list[File]:
     write_logger.handlers.clear()
     write_logger.filters.clear()
     paths = []
-    for string, num in string2level.items():
+    for string, num in STRING2LEVEL.items():
         file = misc.ensure_accessible_file_critical(folder, string)
         if file.stat().st_size == 0:
             logger.info("Generating %s", file)

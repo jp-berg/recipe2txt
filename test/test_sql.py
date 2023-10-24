@@ -29,10 +29,10 @@ out_name = "out"
 out_name_txt = out_name + ".txt"
 out_name_md = out_name + ".md"
 
-db_path = test_project_tmpdir / db_name
-db_paths = [folder / db_name for folder in tmpdirs]
-out_path_txt = test_project_tmpdir / out_name_txt
-out_path_md = test_project_tmpdir / out_name_md
+db_path = TEST_PROJECT_TMPDIR / db_name
+db_paths = [folder / db_name for folder in TMPDIRS]
+out_path_txt = TEST_PROJECT_TMPDIR / out_name_txt
+out_path_md = TEST_PROJECT_TMPDIR / out_name_md
 
 db: sql.Database
 
@@ -57,12 +57,12 @@ class TestHelpers(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         if not create_tmpdirs():
-            print("Could not create tmpdirs:", tmpdirs, file=sys.stderr)
+            print("Could not create tmpdirs:", TMPDIRS, file=sys.stderr)
 
     @classmethod
     def tearDownClass(cls) -> None:
         if not delete_tmpdirs():
-            print("Could not delete tmpdirs:", tmpdirs, file=sys.stderr)
+            print("Could not delete tmpdirs:", TMPDIRS, file=sys.stderr)
 
     def test_fetch_again(self):
         truth_up_to_date = [True, True, False, False, False, False, False]
@@ -86,7 +86,7 @@ class TestHelpers(unittest.TestCase):
         db_path_inaccessible = os.path.join("/root", db_name)
         self.assertFalse(sql.is_accessible_db(db_path_inaccessible))
 
-        db_path_nonexistent = os.path.join(test_project_tmpdir, "NOT_A_FOLDER", db_name)
+        db_path_nonexistent = os.path.join(TEST_PROJECT_TMPDIR, "NOT_A_FOLDER", db_name)
         self.assertFalse(sql.is_accessible_db(db_path_nonexistent))
 
 
@@ -95,13 +95,13 @@ class TestDatabase(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         if not create_tmpdirs():
-            print("Could not create tmpdirs:", tmpdirs, file=sys.stderr)
+            print("Could not create tmpdirs:", TMPDIRS, file=sys.stderr)
 
 
     @classmethod
     def tearDownClass(cls) -> None:
         if not delete_tmpdirs():
-            print("Could not delete tmpdirs:", tmpdirs, file=sys.stderr)
+            print("Could not delete tmpdirs:", TMPDIRS, file=sys.stderr)
 
     def setUp(self) -> None:
         if sql.is_accessible_db(db_path):
@@ -178,7 +178,7 @@ class TestDatabase(unittest.TestCase):
     def test_get_contents(self):
         global db
         db.close()
-        out_path2 = os.path.join(test_project_tmpdir, "out_test2.txt")
+        out_path2 = os.path.join(TEST_PROJECT_TMPDIR, "out_test2.txt")
         db = sql.Database(db_path, out_path2)
 
         testrecipe = h2r.Recipe(url="https://www.testurl.com/testrecipe", scraper_version=h2r.SCRAPER_VERSION,

@@ -22,10 +22,10 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
-from test.test_helpers import test_project_tmpdir
+from test.test_helpers import TEST_PROJECT_TMPDIR
 from typing import Final, Literal, TypeAlias, get_args
 
-from recipe2txt.file_setup import DB_NAME, LOG_NAME, debug_dirs
+from recipe2txt.file_setup import DB_NAME, DEBUG_DIRS, LOG_NAME
 from recipe2txt.utils.ContextLogger import LOG_LEVEL_NAMES
 from recipe2txt.utils.misc import (Directory, create_timestamped_dir,
                                    ensure_accessible_file_critical)
@@ -55,9 +55,9 @@ URLS_ORIGIN: Final = TEST_FILES / "permanent" / "all_urls.txt"
 PYTHON_PATH: Final = WORK_DIR / ".venv" / "bin" / "python"
 REPORTS: Final = TEST_DIR / "reports_test4recipe2txt"
 URLS_SHUFFLED: Final = REPORTS / "urls_shuffled.txt"
-LOGFILE: Final = debug_dirs.state / LOG_NAME
-ERROR_DIR: Final = debug_dirs.state / "error_reports"
-DB_FILE: Final = debug_dirs.data / DB_NAME
+LOGFILE: Final = DEBUG_DIRS.state / LOG_NAME
+ERROR_DIR: Final = DEBUG_DIRS.state / "error_reports"
+DB_FILE: Final = DEBUG_DIRS.data / DB_NAME
 RE2TXT: Final[list[str]] = [path2str(PYTHON_PATH), "-m", "recipe2txt.re2txt"]
 
 
@@ -160,7 +160,7 @@ def main(number_of_urls: int = 5, connections: int = 0, delete_database: bool = 
         args += ["--output", path2str(output_file.with_suffix(".txt"))]
 
     if input_format == "file":
-        url_file = ensure_accessible_file_critical(test_project_tmpdir, "urls.txt")
+        url_file = ensure_accessible_file_critical(TEST_PROJECT_TMPDIR, "urls.txt")
         url_file.write_text(os.linesep.join(test_urls))
         args += ["--file", path2str(url_file)]
     else:
@@ -199,8 +199,8 @@ def main(number_of_urls: int = 5, connections: int = 0, delete_database: bool = 
     urls_to_write = urls[no_urls:] + test_urls
     URLS_SHUFFLED.write_text(os.linesep.join(urls_to_write))
 
-    if test_project_tmpdir.is_dir():
-        shutil.rmtree(test_project_tmpdir)
+    if TEST_PROJECT_TMPDIR.is_dir():
+        shutil.rmtree(TEST_PROJECT_TMPDIR)
 
     shutil.make_archive(str(report_dir), 'zip', report_dir)
     zip_file = report_dir.with_suffix('.zip')

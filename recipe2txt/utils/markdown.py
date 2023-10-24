@@ -24,7 +24,7 @@ __all__ = ["EMPTY_COMMENT", "esc", "header", "quote", "italic", "bold", "s_th", 
            "page_sep", "link", "section_link", "unordered", "ordered", "table", "paragraph"]
 
 
-indent: Final = " " * 4
+INDENT: Final = " " * 4
 
 """matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
 NOT_ESCAPED: Final[Pattern[str]] = re.compile(r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)")
@@ -110,7 +110,7 @@ def _indent(level: int) -> str:
         level = 0
     elif level > 6:
         level = 6
-    return level * indent
+    return level * INDENT
 
 
 def unordered(*items: str, level: int = 0) -> list[str]:

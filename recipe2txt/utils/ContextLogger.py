@@ -30,7 +30,7 @@ from recipe2txt.utils.traceback_utils import shorten_paths
 LOG_LEVEL_NAMES: Final[TypeAlias] = Literal["debug", "info", "warning", "error", "critical"]
 LOG_LEVEL_VALUES: Final[list[int]] = [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]
 
-string2level: Final[dict[LiteralString, int]] = dict(zip(get_args(LOG_LEVEL_NAMES), LOG_LEVEL_VALUES))
+STRING2LEVEL: Final[dict[LiteralString, int]] = dict(zip(get_args(LOG_LEVEL_NAMES), LOG_LEVEL_VALUES))
 
 LOGFILE: Final = "file.log"
 

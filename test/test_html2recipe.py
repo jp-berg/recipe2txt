@@ -55,7 +55,7 @@ class Test(unittest.TestCase):
                 self.assertEqual(h2r.int2status(recipe), validation)
 
     def test__get_info(self):
-        for html, url, recipe in zip(file_gen.html_list, file_gen.url_list, file_gen.recipe_list):
+        for html, url, recipe in zip(file_gen.HTML_LIST, file_gen.URL_LIST, file_gen.RECIPE_LIST):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.METHODS:
                 with self.subTest(url=url, method=method):
@@ -66,12 +66,12 @@ class Test(unittest.TestCase):
                     ("instructions", ["", "\t", "\n"]), ("ingredients", "{["),
                     ("instructions", ["[", " ", "}"])]
 
-        for url, (method, info) in zip(file_gen.url_list, bad_info):
+        for url, (method, info) in zip(file_gen.URL_LIST, bad_info):
             with self.subTest(method=method, info=info):
                 self.assertEqual(h2r.get_info(method, info), h2r.NA)
 
     def test_html2recipe(self):
-        for url, html, validation in zip(file_gen.url_list, file_gen.html_list, file_gen.recipe_list):
+        for url, html, validation in zip(file_gen.URL_LIST, file_gen.HTML_LIST, file_gen.RECIPE_LIST):
             with self.subTest(url=url):
                 if not (p := h2r.html2parsed(url, html)):
                     self.fail("Failed to parse")
@@ -83,7 +83,7 @@ class Test(unittest.TestCase):
                         v = getattr(validation, a)
                         self.assertEqual(v, r)
 
-        self.assertIsNone(h2r.html2parsed(*file_gen.html_bad))
+        self.assertIsNone(h2r.html2parsed(*file_gen.HTML_BAD))
 
     def test_gen_status(self):
         for recipe in test_recipes[2:]:
@@ -95,7 +95,7 @@ class Test(unittest.TestCase):
             h2r.gen_status(list(h2r.Recipe()))
 
     def test_recipe2out(self):
-        for recipe, md_valid, txt_valid in zip(file_gen.recipe_list, file_gen.md_list, file_gen.txt_list):
+        for recipe, md_valid, txt_valid in zip(file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST):
             self.maxDiff = None
             with self.subTest(recipe=recipe.url, mode="txt"):
                 out_txt = h2r.recipe2out(recipe, counts=None, md=False)
@@ -108,6 +108,6 @@ class Test(unittest.TestCase):
 
     @unittest.skip("Seems not verifiable in current form")
     def test_html2parsed(self):
-        for html, url in zip(file_gen.html_list, file_gen.url_list):
+        for html, url in zip(file_gen.HTML_LIST, file_gen.URL_LIST):
             with self.subTest(i=os.path.basename(url)):
                 self.assertEqual(h2r.html2parsed(url, html), recipe_scrapers.scrape_html(html=html, org_url=url))

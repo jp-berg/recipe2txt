@@ -18,7 +18,7 @@ import shutil
 import unittest
 from pathlib import Path
 from test.test_helpers import *
-from test.test_helpers import none_dirs, normal_dirs, testfile
+from test.test_helpers import NONE_DIRS, NORMAL_DIRS, TESTFILE
 
 import recipe2txt.utils.misc as misc
 
@@ -34,7 +34,7 @@ class FileTests(unittest.TestCase):
             self.fail()
 
     def test_extract_urls(self):
-        obscured_urls = test_filedir / "permanent" / "obscured_urls.txt"
+        obscured_urls = TEST_FILEDIR / "permanent" / "obscured_urls.txt"
         unobscured_urls = obscured_urls.with_name("unobscured_urls.txt")
         if not obscured_urls.is_file():
             self.fail(f"{obscured_urls} does not exist.")
@@ -69,22 +69,22 @@ class FileTests(unittest.TestCase):
                 self.assertEqual(str(misc.full_path(*test)), validation)
 
     def test_ensure_existence_dir(self):
-        params_path = [(test, os.path.join(*test)) for test in normal_dirs]
+        params_path = [(test, os.path.join(*test)) for test in NORMAL_DIRS]
 
         for test, validation in params_path:
             with self.subTest(testpath=test):
                 self.assertTrue(os.path.samefile(misc.ensure_existence_dir(*test), validation))
                 os.removedirs(validation)
 
-        for test in none_dirs:
+        for test in NONE_DIRS:
             with self.subTest(directory=test):
                 self.assertIsNone(misc.ensure_existence_dir(*test))
 
     def test_ensure_accessible_file(self):
-        params_path = [(test, os.path.join(*test, testfile)) for test in normal_dirs]
+        params_path = [(test, os.path.join(*test, TESTFILE)) for test in NORMAL_DIRS]
         for test, validation in params_path:
             with self.subTest(directory=test):
-                self.assertTrue(os.path.samefile(misc.ensure_accessible_file(*test, testfile), validation))
+                self.assertTrue(os.path.samefile(misc.ensure_accessible_file(*test, TESTFILE), validation))
                 if not os.path.isfile(validation):
                     self.fail("File", validation, "was not created")
                 try:
@@ -100,27 +100,27 @@ class FileTests(unittest.TestCase):
                 os.rmdir(validation := os.path.dirname(validation))
                 os.rmdir(os.path.dirname(validation))
 
-        for test in none_dirs:
-            self.assertIsNone(misc.ensure_accessible_file(*test, testfile))
+        for test in NONE_DIRS:
+            self.assertIsNone(misc.ensure_accessible_file(*test, TESTFILE))
 
     def test_ensure_critical(self):
-        crit_fail_path = none_dirs[1]
+        crit_fail_path = NONE_DIRS[1]
 
         with self.assertRaises(SystemExit) as e:
             misc.ensure_existence_dir_critical(*crit_fail_path)
         self.assertEqual(e.exception.code, os.EX_IOERR)
 
         with self.assertRaises(SystemExit) as e:
-            misc.ensure_accessible_file_critical(*crit_fail_path, testfile)
+            misc.ensure_accessible_file_critical(*crit_fail_path, TESTFILE)
         self.assertEqual(e.exception.code, os.EX_IOERR)
 
     def test_read_files(self):
         file1_content = ["one", "two", "three", "four"]
         file2_content = ["five", "six", "seven", "eight"]
 
-        file1_path = test_project_tmpdir / "testfile1.txt"
-        file2_path = xdg_tmpdir / "testfile2.txt"
-        file_notafile_path = test_project_tmpdir / "NOTAFILE"
+        file1_path = TEST_PROJECT_TMPDIR / "testfile1.txt"
+        file2_path = XDG_TMPDIR / "testfile2.txt"
+        file_notafile_path = TEST_PROJECT_TMPDIR / "NOTAFILE"
 
         file1_path.write_text(os.linesep.join(file1_content) + os.linesep)
         file2_path.write_text(os.linesep.join(file2_content) + os.linesep)
@@ -135,7 +135,7 @@ class FileTests(unittest.TestCase):
         os.remove(file2_path)
 
     def test_dir_file_name_conflict(self):
-        directory = misc.full_path(*normal_dirs[0])
+        directory = misc.full_path(*NORMAL_DIRS[0])
         os.makedirs(directory, exist_ok=True)
 
         self.assertIsNone(misc.ensure_accessible_file(directory))

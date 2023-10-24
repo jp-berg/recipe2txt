@@ -16,16 +16,16 @@
 import unittest
 from pathlib import Path
 from shutil import rmtree
-from test.test_helpers import (assertAccessibleFile, none_dirs, normal_dirs,
-                               test_project_tmpdir, testfile)
+from test.test_helpers import (NONE_DIRS, NORMAL_DIRS, TEST_PROJECT_TMPDIR,
+                               TESTFILE, assertAccessibleFile)
 
 import recipe2txt.file_setup as fs
 from recipe2txt.sql import is_accessible_db
 from recipe2txt.utils.ContextLogger import disable_loggers
 from recipe2txt.utils.misc import ensure_existence_dir
 
-copy_debug_dirs = fs.debug_dirs
-tmp_data_dir = test_project_tmpdir / "test-xdg-dirs"
+copy_debug_dirs = fs.DEBUG_DIRS
+tmp_data_dir = TEST_PROJECT_TMPDIR / "test-xdg-dirs"
 
 COPY_RECIPES_NAME_TXT = fs.RECIPES_NAME_TXT
 
@@ -40,7 +40,7 @@ db_path = test_debug_dirs.data / fs.DB_NAME
 log_path = test_debug_dirs.state / fs.LOG_NAME
 
 def name_back():
-    fs.debug_dirs = copy_debug_dirs
+    fs.DEBUG_DIRS = copy_debug_dirs
     fs.RECIPES_NAME_TXT = COPY_RECIPES_NAME_TXT
 
 
@@ -56,9 +56,9 @@ unittest.addModuleCleanup(remove_dir)
 class Test(unittest.TestCase):
 
     def setUp(self) -> None:
-        fs.debug_dirs = test_debug_dirs
+        fs.DEBUG_DIRS = test_debug_dirs
         fs.DEFAULT_OUTPUT_LOCATION_NAME = "NOTAFILE"
-        fs.RECIPES_NAME_TXT = testfile
+        fs.RECIPES_NAME_TXT = TESTFILE
         for directory in test_debug_dirs:
             if not ensure_existence_dir(directory):
                 self.fail(f"Could not create {directory}")
@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         remove_dir()
 
     def test_file_setup(self):
-        testfiles = [Path(*testdir) / testfile for testdir in normal_dirs]
+        testfiles = [Path(*testdir) / TESTFILE for testdir in NORMAL_DIRS]
         test_params = [((str(file), True), (db_path, file, log_path)) for file in testfiles]
 
         for idx, (test, validation) in enumerate(test_params):
@@ -79,7 +79,7 @@ class Test(unittest.TestCase):
                 assertAccessibleFile(self, validation[2])
 
     def test_no_overwrite(self):
-        outfile = test_project_tmpdir / testfile
+        outfile = TEST_PROJECT_TMPDIR / TESTFILE
         fs.file_setup(outfile, True)
 
         assertAccessibleFile(self, outfile)
@@ -91,7 +91,7 @@ class Test(unittest.TestCase):
         self.assertEqual(outfile.read_text(), "TEST")
 
     def test_file_setup_failure(self):
-        failfiles = [Path(*faildir) / testfile for faildir in none_dirs]
+        failfiles = [Path(*faildir) / TESTFILE for faildir in NONE_DIRS]
         fail_params = [((str(file), True), (db_path, file, log_path)) for file in failfiles]
 
         for idx, (test, validation) in enumerate(fail_params):
@@ -100,9 +100,9 @@ class Test(unittest.TestCase):
                     fs.file_setup(*test)
 
     def test_get_files(self):
-        file1 = fs.debug_dirs.config / "file1"
-        file2 = fs.debug_dirs.data / "file2"
-        file3 = fs.debug_dirs.data / "file3"
+        file1 = fs.DEBUG_DIRS.config / "file1"
+        file2 = fs.DEBUG_DIRS.data / "file2"
+        file3 = fs.DEBUG_DIRS.data / "file3"
 
         file1.write_text("TESTFILE")
         file2.write_text("TESTFILE")
@@ -119,10 +119,10 @@ class Test(unittest.TestCase):
             self.fail(f"Files in validation_files but not in test_files: {diff2}")
 
     def test_erase_files(self):
-        for directory in fs.debug_dirs:
+        for directory in fs.DEBUG_DIRS:
             self.assertTrue(directory.is_dir())
 
-        files = [directory / f"file-{idx}" for idx, directory in enumerate(fs.debug_dirs)]
+        files = [directory / f"file-{idx}" for idx, directory in enumerate(fs.DEBUG_DIRS)]
         for file in files:
             file.write_text("TESTFILE")
             assertAccessibleFile(self, file, True)
@@ -131,5 +131,5 @@ class Test(unittest.TestCase):
 
         for file in files:
             self.assertFalse(file.is_file())
-        for directory in fs.debug_dirs:
+        for directory in fs.DEBUG_DIRS:
             self.assertFalse(directory.is_dir())

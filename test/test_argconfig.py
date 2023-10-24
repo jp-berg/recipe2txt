@@ -18,13 +18,13 @@ import random
 import shutil
 import textwrap
 import unittest
-from test.test_helpers import assertEval, delete_tmpdirs, test_project_tmpdir
+from test.test_helpers import TEST_PROJECT_TMPDIR, assertEval, delete_tmpdirs
 from typing import Any
 
 import recipe2txt.utils.ArgConfig as argconfig
 from recipe2txt.fetcher import Fetcher
 from recipe2txt.file_setup import (CONFIG_NAME, DEBUG_DIRECTORY_BASE,
-                                   debug_dirs, get_default_output)
+                                   DEBUG_DIRS, get_default_output)
 from recipe2txt.user_interface import config_args
 from recipe2txt.utils.misc import ensure_accessible_file, ensure_existence_dir
 
@@ -134,8 +134,8 @@ class TestBasicOption(TestInit):
                 self.assertValidInit(b, init_params)
 
     def test_to_toml(self):
-        self.assertIsNotNone(ensure_existence_dir(test_project_tmpdir))
-        testpath = test_project_tmpdir / "TESTFILE.toml"
+        self.assertIsNotNone(ensure_existence_dir(TEST_PROJECT_TMPDIR))
+        testpath = TEST_PROJECT_TMPDIR / "TESTFILE.toml"
 
         for idx, (init_params, valid_string) in enumerate(params):
             with self.subTest(i=idx, parameter=init_params):
@@ -442,7 +442,7 @@ class TestArgConfig(unittest.TestCase):
     def test_app_argconfig(self):
         for idx, (changed_params, valid_string) in enumerate(app_params):
             with self.subTest(i=idx, parameter=params):
-                f = ensure_accessible_file(debug_dirs.config, CONFIG_NAME)
+                f = ensure_accessible_file(DEBUG_DIRS.config, CONFIG_NAME)
                 f.write_text(valid_string)
                 p = config_args(f)
                 d_parsed = vars(p.parse_args(["www.test.com"]))
@@ -463,7 +463,7 @@ class TestArgConfig(unittest.TestCase):
     def test_app_argconfig_failure(self):
         for idx, malformed_string in enumerate(app_wrong_values):
             with self.subTest(malformed_string=malformed_string):
-                f = ensure_accessible_file(debug_dirs.config, CONFIG_NAME)
+                f = ensure_accessible_file(DEBUG_DIRS.config, CONFIG_NAME)
                 f.write_text(malformed_string + os.linesep)
                 p = config_args(f)
                 d_parsed = vars(p.parse_args(["www.test.com"]))

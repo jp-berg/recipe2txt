@@ -31,9 +31,9 @@ class Test(unittest.TestCase):
         create_tmpdirs()
         if not is_accessible_db(db_path):
             self.fail(f"Could not create tmp database: {db_path}")
-        if not ensure_accessible_file(test_project_tmpdir, out_name_txt):
+        if not ensure_accessible_file(TEST_PROJECT_TMPDIR, out_name_txt):
             self.fail(f"Could not create/access tmp file: {out_path_txt}")
-        if not ensure_accessible_file(test_project_tmpdir, out_name_md):
+        if not ensure_accessible_file(TEST_PROJECT_TMPDIR, out_name_md):
             self.fail(f"Could not create/access tmp file: {out_path_txt}")
 
     def tearDown(self) -> None:
@@ -44,9 +44,9 @@ class Test(unittest.TestCase):
         tf = file_gen.TestFileFetcher(output=out_path_txt,
                                       database=db_path)
 
-        urls = file_gen.url_list
+        urls = file_gen.URL_LIST
         random.shuffle(urls)
-        first = set(file_gen.url_list[:2])
+        first = set(file_gen.URL_LIST[:2])
         tf.fetch(first)
 
         err_msg = "require_fetching() does not filter adequately with setting %s"
@@ -71,10 +71,10 @@ class Test(unittest.TestCase):
         tf = file_gen.TestFileFetcher(output=out_path_txt,
                                       database=db_path, markdown=False)
 
-        urls = file_gen.url_list
+        urls = file_gen.URL_LIST
         tf.fetch(urls)
         with open(out_path_txt, "r") as file:
-            for line, validation in zip(file, file_gen.full_txt):
+            for line, validation in zip(file, file_gen.FULL_TXT):
                 with self.subTest(line=line, validation=validation):
                     self.assertEqual(line, validation)
 
@@ -82,9 +82,9 @@ class Test(unittest.TestCase):
         tf = file_gen.TestFileFetcher(output=out_path_md,
                                       database=db_path, markdown=True)
 
-        urls = file_gen.url_list
+        urls = file_gen.URL_LIST
         tf.fetch(urls)
         with open(out_path_md, "r") as file:
-            for line, validation in zip(file, file_gen.full_md):
+            for line, validation in zip(file, file_gen.FULL_MD):
                 with self.subTest(line=line, validation=validation):
                     self.assertEqual(line, validation)

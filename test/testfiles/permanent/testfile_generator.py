@@ -31,7 +31,7 @@ from recipe2txt.utils.ContextLogger import (disable_loggers, get_logger,
 from recipe2txt.utils.misc import (URL, Directory, File,
                                    ensure_accessible_file_critical, is_url)
 
-__all__ = ["html", "html_bad", "recipe_list", "md_list", "txt_list", "url_list", "full_txt", "full_md"]
+__all__ = ["html", "HTML_BAD", "RECIPE_LIST", "MD_LIST", "TXT_LIST", "URL_LIST", "FULL_TXT", "FULL_MD"]
 
 logger = get_logger(__name__)
 
@@ -42,18 +42,18 @@ else:
     disable_loggers()
 
 
-root: Final = Directory(Path(__file__).parent)
+ROOT: Final = Directory(Path(__file__).parent)
 
 
 def get_urls() -> list[URL]:
-    urls_file = root / "URLs"
+    urls_file = ROOT / "URLs"
     txt = urls_file.read_text()
     urls = [line for line in txt.split(os.linesep) if line and is_url(line)]
     urls.sort()
     return urls
 
 
-url_list: Final[list[URL]] = get_urls()
+URL_LIST: Final[list[URL]] = get_urls()
 
 
 class FileExtension(StrEnum):
@@ -65,11 +65,12 @@ class FileExtension(StrEnum):
 
 def gen_full_path(filename: str, file_extension: FileExtension) -> File:
     f_e = f"{file_extension}"
-    return ensure_accessible_file_critical(root, f_e[1:], filename + f_e)
+    return ensure_accessible_file_critical(ROOT, f_e[1:], filename + f_e)
 
 
-filenames: Final[list[str]] = [url.rsplit(":", 1)[1] for url in url_list if is_url(url)]
-filenames.sort()
+tmp_filenames = [url.rsplit(":", 1)[1] for url in URL_LIST if is_url(url)]
+tmp_filenames.sort()
+FILENAMES: Final[list[str]] = tmp_filenames
 
 
 def fetch_url(url: URL, filename: File) -> bytes:
@@ -85,7 +86,7 @@ def fetch_url(url: URL, filename: File) -> bytes:
 
 def gen_html(filenames: list[str]) -> list[bytes]:
     html_paths = [gen_full_path(name, FileExtension.html) for name in filenames]
-    html = [fetch_url(url, filename) for url, filename in zip(url_list, html_paths)]
+    html = [fetch_url(url, filename) for url, filename in zip(URL_LIST, html_paths)]
     return html
 
 
@@ -138,7 +139,7 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
     files_parsed = [gen_full_path(name, FileExtension.parsed) for name in filenames]
     recipes = []
 
-    for html, parsed, url in zip(files_html, files_parsed, url_list):
+    for html, parsed, url in zip(files_html, files_parsed, URL_LIST):
         if not parsed.stat().st_size > 0:
             logger.info("Generating %s from %s", parsed, html)
             recipes.append(parse_html(html, parsed, url))
@@ -171,18 +172,18 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
     return formatted_recipes
 
 
-html_list: Final[list[bytes]] = gen_html(filenames)
-_bad_url: Final = "https://en.wikipedia.org/wiki/Recipe"
-html_bad: Final[tuple[str, bytes]] = (_bad_url, fetch_url(URL(_bad_url),
+HTML_LIST: Final[list[bytes]] = gen_html(FILENAMES)
+_BAD_URL: Final = "https://en.wikipedia.org/wiki/Recipe"
+HTML_BAD: Final[tuple[str, bytes]] = (_BAD_URL, fetch_url(URL(_BAD_URL),
                                                           gen_full_path("FAIL_RECIPE", FileExtension.html)))
-recipe_list: Final[list[h2r.Recipe]] = gen_parsed(filenames)
-md_list: Final[list[str]] = gen_formatted(filenames, FileExtension.md)
-txt_list: Final[list[str]] = gen_formatted(filenames, FileExtension.txt)
+RECIPE_LIST: Final[list[h2r.Recipe]] = gen_parsed(FILENAMES)
+MD_LIST: Final[list[str]] = gen_formatted(FILENAMES, FileExtension.md)
+TXT_LIST: Final[list[str]] = gen_formatted(FILENAMES, FileExtension.txt)
 
-db: AccessibleDatabase = ensure_accessible_db_critical(root, "testfile_db.sqlite3")
+db: AccessibleDatabase = ensure_accessible_db_critical(ROOT, "testfile_db.sqlite3")
 
 
-url2html: dict[str, bytes] = {url: html for url, html in zip(url_list, html_list)}
+url2html: dict[str, bytes] = {url: html for url, html in zip(URL_LIST, HTML_LIST)}
 
 
 class TestFileFetcher(Fetcher):
@@ -213,6 +214,6 @@ def gen_formatted_full(urls: set[URL], file_extension: FileExtension) -> list[st
     return lines
 
 
-url_set = set(url_list)
-full_md: Final[list[str]] = gen_formatted_full(url_set, FileExtension.md)
-full_txt: Final[list[str]] = gen_formatted_full(url_set, FileExtension.txt)
+url_set = set(URL_LIST)
+FULL_MD: Final[list[str]] = gen_formatted_full(url_set, FileExtension.md)
+FULL_TXT: Final[list[str]] = gen_formatted_full(url_set, FileExtension.txt)
