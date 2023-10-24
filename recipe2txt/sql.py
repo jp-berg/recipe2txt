@@ -29,6 +29,7 @@ import logging
 import os
 import sqlite3
 import sys
+import textwrap
 from pathlib import Path
 from typing import Any, Final, NewType, Optional, Tuple, TypeGuard
 
@@ -44,38 +45,39 @@ from .utils.misc import *
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
 
-_CREATE_TABLES: Final[LiteralString] = """
-CREATE TABLE IF NOT EXISTS recipes(
-	recipeID        INTEGER NOT NULL,
-	url             TEXT NOT NULL UNIQUE,
-	status	        INTEGER NOT NULL,
-	last_fetched    TEXT DEFAULT (datetime()),
-	scraper_version TEXT,
-	host	        TEXT,
-	title	        TEXT,
-	total_time      TEXT,
-	image	        TEXT,
-	ingredients     TEXT,
-	instructions    TEXT,
-	yields	        TEXT,
-	nutrients       TEXT,
-	PRIMARY KEY(recipeID AUTOINCREMENT)
-) STRICT;
-CREATE TABLE IF NOT EXISTS files(
-	fileID	      INTEGER NOT NULL,
-	filepath      TEXT NOT NULL UNIQUE,
-	last_changed  TEXT DEFAULT (datetime()),
-	PRIMARY KEY(fileID AUTOINCREMENT)
-) STRICT;
-CREATE TABLE IF NOT EXISTS contents(
-	fileID	 INTEGER NOT NULL,
-	recipeID INTEGER NOT NULL,
-	FOREIGN KEY(fileID) REFERENCES files(fileID) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(recipeID) REFERENCES recipes(recipeID) ON UPDATE CASCADE ON DELETE CASCADE
-	UNIQUE(fileID, recipeID) ON CONFLICT IGNORE
-) STRICT;
-"""
-
+_CREATE_TABLES: Final[LiteralString] = textwrap.dedent(
+    """
+        CREATE TABLE IF NOT EXISTS recipes(
+            recipeID        INTEGER NOT NULL,
+            url             TEXT NOT NULL UNIQUE,
+            status	        INTEGER NOT NULL,
+            last_fetched    TEXT DEFAULT (datetime()),
+            scraper_version TEXT,
+            host	        TEXT,
+            title	        TEXT,
+            total_time      TEXT,
+            image	        TEXT,
+            ingredients     TEXT,
+            instructions    TEXT,
+            yields	        TEXT,
+            nutrients       TEXT,
+            PRIMARY KEY(recipeID AUTOINCREMENT)
+        ) STRICT;
+        CREATE TABLE IF NOT EXISTS files(
+            fileID	      INTEGER NOT NULL,
+            filepath      TEXT NOT NULL UNIQUE,
+            last_changed  TEXT DEFAULT (datetime()),
+            PRIMARY KEY(fileID AUTOINCREMENT)
+        ) STRICT;
+        CREATE TABLE IF NOT EXISTS contents(
+            fileID	 INTEGER NOT NULL,
+            recipeID INTEGER NOT NULL,
+            FOREIGN KEY(fileID) REFERENCES files(fileID) ON UPDATE CASCADE ON DELETE CASCADE,
+            FOREIGN KEY(recipeID) REFERENCES recipes(recipeID) ON UPDATE CASCADE ON DELETE CASCADE
+            UNIQUE(fileID, recipeID) ON CONFLICT IGNORE
+        ) STRICT;
+    """
+                                                       )
 RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
     "recipeID",
     "last_fetched"

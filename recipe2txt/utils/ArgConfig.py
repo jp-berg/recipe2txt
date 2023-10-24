@@ -276,27 +276,30 @@ class NArgOption(BasicOption):
         return isinstance(value, list)
 
 
-CFG_PREAMBLE: Final[LiteralString] = """#%s
-# Configuration file for the program %s
-#
-# Every option listed here has a CLI-pendant that it mirrors in function.
-# If an option is defined here it will override the default-value for that
-# option.
-# Options defined here will be overridden by CLI arguments.
-#
-# This means that if the program expects a value for the option 'foo' it will
-# first try to parse 'foo' from the CLI args, failing that it will try to find
-# a value for 'foo' in this file, failing that it will use the default value
-# defined in its source code.
-#
-# To recover the original file simply delete this file and run the program.
-# (e.g. 'recipe2txt --help')
-#
-# For information about this file-format, please visit: https://toml.io
-#%s
-
-
-"""
+CFG_PREAMBLE: Final[LiteralString] = textwrap.dedent(
+    """
+    #*****************************************************************************
+    # Configuration file for the program %s
+    #
+    # Every option listed here has a CLI-pendant that it mirrors in function.
+    # If an option is defined here it will override the default-value for that
+    # option.
+    # Options defined here will be overridden by CLI arguments.
+    #
+    # This means that if the program expects a value for the option 'foo' it will
+    # first try to parse 'foo' from the CLI args, failing that it will try to find
+    # a value for 'foo' in this file, failing that it will use the default value
+    # defined in its source code.
+    #
+    # To recover the original file simply delete this file and run the program.
+    # (e.g. 'recipe2txt --help')
+    #
+    # For information about this file-format, please visit: https://toml.io
+    #*****************************************************************************
+    
+    
+    """
+)
 """
 Help text explaining how the config-file works.
 

@@ -183,7 +183,8 @@ how_to_report_txt: Final[LiteralString] = textwrap.dedent(
     into the 'Write'-field. Check the 'Pre-filling  checks'-boxes ONLY if you made sure to follow their instructions. 
     After that click 'Submit new issue'. The maintainers of the library will have a look at your problem and try to fix
     it. Please note that they are volunteers and under no obligation to help you. Be kind to them.
-    """)
+    """
+)
 """Text describing how to report errors originating from the :py:mod:`recipe-scrapers`-library."""
 
 
