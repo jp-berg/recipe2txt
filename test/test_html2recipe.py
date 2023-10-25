@@ -2,25 +2,29 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
-import test.testfiles.permanent.testfile_generator as file_gen
 import unittest
-from test.test_helpers import *
 
 import recipe_scrapers
 
 import recipe2txt.html2recipe as h2r
+import test.testfiles.permanent.testfile_generator as file_gen
+from test.test_helpers import *
 
 
 class Test(unittest.TestCase):
@@ -59,7 +63,7 @@ class Test(unittest.TestCase):
 
     def test__get_info(self):
         for html, url, recipe in zip(
-            file_gen.HTML_LIST, file_gen.URL_LIST, file_gen.RECIPE_LIST
+                file_gen.HTML_LIST, file_gen.URL_LIST, file_gen.RECIPE_LIST
         ):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.METHODS:
@@ -84,7 +88,7 @@ class Test(unittest.TestCase):
 
     def test_html2recipe(self):
         for url, html, validation in zip(
-            file_gen.URL_LIST, file_gen.HTML_LIST, file_gen.RECIPE_LIST
+                file_gen.URL_LIST, file_gen.HTML_LIST, file_gen.RECIPE_LIST
         ):
             with self.subTest(url=url):
                 if not (p := h2r.html2parsed(url, html)):
@@ -92,8 +96,8 @@ class Test(unittest.TestCase):
                 if not (recipe := h2r.parsed2recipe(url, p)):
                     self.fail("Failed to convert to recipe")
                 for a in h2r.RECIPE_ATTRIBUTES[
-                    :-1
-                ]:  # scraper version will probably differ
+                         :-1
+                         ]:  # scraper version will probably differ
                     with self.subTest(attribute=a):
                         r = getattr(recipe, a)
                         v = getattr(validation, a)
@@ -114,7 +118,7 @@ class Test(unittest.TestCase):
 
     def test_recipe2out(self):
         for recipe, md_valid, txt_valid in zip(
-            file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST
+                file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST
         ):
             self.maxDiff = None
             with self.subTest(recipe=recipe.url, mode="txt"):

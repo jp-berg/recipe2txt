@@ -2,15 +2,19 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import getpass
@@ -69,7 +73,6 @@ NORMAL_DIRS: Final = [[folder] + TESTDIRS for folder in TMPDIRS]
 
 for directory in TMPDIRS:
     directory.mkdir(parents=True, exist_ok=True)
-
 
 test_recipes: list[h2r.Recipe] = [
     h2r.Recipe(),
@@ -135,7 +138,7 @@ def delete_tmpdirs() -> bool:
 
 
 def assertAccessibleFile(
-    testcase: unittest.TestCase, file: Path, not_empty: bool = False
+        testcase: unittest.TestCase, file: Path, not_empty: bool = False
 ) -> None:
     if not file.is_file():
         testcase.fail(f"{file} is not a file")
@@ -153,13 +156,13 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
     with test.open("r") as test_file:
         with validation.open("r") as validation_file:
             for idx, (test_line, validation_line) in enumerate(
-                zip(test_file.readlines(), validation_file.readlines())
+                    zip(test_file.readlines(), validation_file.readlines())
             ):
                 with testcase.subTest(
-                    test_file=test, validation_file=validation, line=idx
+                        test_file=test, validation_file=validation, line=idx
                 ):
                     if test_line.startswith("Creating") and validation_line.startswith(
-                        "Creating"
+                            "Creating"
                     ):
                         prefix_test, path_test = test_line.split(": ", 1)
                         prefix_validation, path_validation = validation_line.split(
@@ -175,12 +178,12 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
 
 
 def assertEval(
-    testcase: unittest.TestCase,
-    func: Callable[..., Any],
-    data: list[tuple[tuple[Any, ...] | Any, tuple[Any, ...] | Any]],
+        testcase: unittest.TestCase,
+        func: Callable[..., Any],
+        data: list[tuple[tuple[Any, ...] | Any, tuple[Any, ...] | Any]],
 ) -> None:
     for idx, (test, validation) in enumerate(data):
         with testcase.subTest(
-            iteration=idx, test_data=test, validation_data=validation
+                iteration=idx, test_data=test, validation_data=validation
         ):
             testcase.assertEqual(func(test), validation)

@@ -2,15 +2,19 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
@@ -22,7 +26,6 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
-from test.test_helpers import TEST_PROJECT_TMPDIR
 from typing import Final, Literal, TypeAlias, get_args
 
 from recipe2txt.file_setup import DB_NAME, DEBUG_DIRS, LOG_NAME
@@ -32,6 +35,7 @@ from recipe2txt.utils.misc import (
     create_timestamped_dir,
     ensure_accessible_file_critical,
 )
+from test.test_helpers import TEST_PROJECT_TMPDIR
 
 
 def escape_whitespace(element: str) -> str:
@@ -178,13 +182,13 @@ parser.add_argument(
 
 
 def main(
-    number_of_urls: int = 5,
-    connections: int = 0,
-    delete_database: bool = False,
-    verbosity: LOG_LEVEL_NAMES = "info",
-    file_format: FileFormatValues = "txt",
-    input_format: InputFormatValues = "url",
-    long_timeout: bool = False,
+        number_of_urls: int = 5,
+        connections: int = 0,
+        delete_database: bool = False,
+        verbosity: LOG_LEVEL_NAMES = "info",
+        file_format: FileFormatValues = "txt",
+        input_format: InputFormatValues = "url",
+        long_timeout: bool = False,
 ) -> None:
     os.chdir(WORK_DIR)
     check_existence(PYTHON_PATH)

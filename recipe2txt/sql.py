@@ -2,26 +2,33 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
 Module facilitating the interaction of the program with the database (i.e. the cache).
 
 The database is a Sqlite3-database.
 Attributes:
-    logger (logging.Logger): The logger for the module. Receives the constructed logger from
+    logger (logging.Logger): The logger for the module. Receives the constructed
+    logger from
             :py:mod:`recipe2txt.utils.ContextLogger`
-    RECIPE_ROW_ATTRIBUTES (list[LiteralString]): Contains the names of all rows in the table 'recipes'.
+    RECIPE_ROW_ATTRIBUTES (list[LiteralString]): Contains the names of all rows in
+    the table 'recipes'.
     :py:data:`html2recipe.RECIPE_ATTRIBUTES` represents a subset of this list.
-    AccessibleDatabase (NewType): Type representing a database file, that was (at one point during program
+    AccessibleDatabase (NewType): Type representing a database file, that was (at one
+    point during program
     execution) a valid and accessible Sqlite3-database
 """
 
@@ -33,16 +40,16 @@ import textwrap
 from pathlib import Path
 from typing import Any, Final, NewType, Tuple, TypeGuard
 
-from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
-
+from recipe2txt.utils.conditional_imports import LiteralString
 from .html2recipe import METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, Recipe
 from .html2recipe import RecipeStatus as RS
 from .html2recipe import gen_status, int2status, none2na
 from .utils.misc import *
 
 logger = get_logger(__name__)
-"""The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
+"""The logger for the module. Receives the constructed logger from 
+:py:mod:`recipe2txt.utils.ContextLogger`"""
 
 _CREATE_TABLES: Final = textwrap.dedent("""
         CREATE TABLE IF NOT EXISTS recipes(
@@ -70,8 +77,10 @@ _CREATE_TABLES: Final = textwrap.dedent("""
         CREATE TABLE IF NOT EXISTS contents(
             fileID	 INTEGER NOT NULL,
             recipeID INTEGER NOT NULL,
-            FOREIGN KEY(fileID) REFERENCES files(fileID) ON UPDATE CASCADE ON DELETE CASCADE,
-            FOREIGN KEY(recipeID) REFERENCES recipes(recipeID) ON UPDATE CASCADE ON DELETE CASCADE
+            FOREIGN KEY(fileID) REFERENCES files(fileID) ON UPDATE CASCADE ON DELETE 
+            CASCADE,
+            FOREIGN KEY(recipeID) REFERENCES recipes(recipeID) ON UPDATE CASCADE ON 
+            DELETE CASCADE
             UNIQUE(fileID, recipeID) ON CONFLICT IGNORE
         ) STRICT;
     """)
@@ -82,23 +91,23 @@ RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
 """Contains the names of all rows in the table 'recipes'."""
 
 _INSERT_RECIPE: Final = (
-    "INSERT OR IGNORE INTO recipes"
-    + " ("
-    + ", ".join(RECIPE_ATTRIBUTES)
-    + ")"
-    + " VALUES ("
-    + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
-    + ")"
+        "INSERT OR IGNORE INTO recipes"
+        + " ("
+        + ", ".join(RECIPE_ATTRIBUTES)
+        + ")"
+        + " VALUES ("
+        + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
+        + ")"
 )
 
 _INSERT_OR_REPLACE_RECIPE: Final = (
-    "INSERT OR REPLACE INTO recipes"
-    + " ("
-    + ", ".join(RECIPE_ATTRIBUTES)
-    + ")"
-    + " VALUES ("
-    + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
-    + ")"
+        "INSERT OR REPLACE INTO recipes"
+        + " ("
+        + ", ".join(RECIPE_ATTRIBUTES)
+        + ")"
+        + " VALUES ("
+        + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
+        + ")"
 )
 
 _INSERT_FILE: Final = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
@@ -114,24 +123,24 @@ _FILEPATHS_JOIN_RECIPES: Final = (
     " NATURAL JOIN contents NATURAL JOIN recipes) "
 )
 _GET_RECIPE: Final = (
-    "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+        "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
 )
 _GET_RECIPES: Final = (
-    "SELECT "
-    + ", ".join(RECIPE_ATTRIBUTES)
-    + " FROM"
-    + _FILEPATHS_JOIN_RECIPES
-    + "WHERE status >= "
-    + str(int(RS.INCOMPLETE_ON_DISPLAY))
+        "SELECT "
+        + ", ".join(RECIPE_ATTRIBUTES)
+        + " FROM"
+        + _FILEPATHS_JOIN_RECIPES
+        + "WHERE status >= "
+        + str(int(RS.INCOMPLETE_ON_DISPLAY))
 )
 _GET_URLS_STATUS_VERSION: Final = "SELECT url, status, scraper_version FROM recipes"
 _GET_CONTENT: Final = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
 _GET_TITLES_HOSTS: Final = (
-    "SELECT title, host FROM"
-    + _FILEPATHS_JOIN_RECIPES
-    + " WHERE status >= "
-    + str(int(RS.INCOMPLETE_ON_DISPLAY))
+        "SELECT title, host FROM"
+        + _FILEPATHS_JOIN_RECIPES
+        + " WHERE status >= "
+        + str(int(RS.INCOMPLETE_ON_DISPLAY))
 )
 
 _DROP_ALL: Final = (
@@ -140,7 +149,8 @@ _DROP_ALL: Final = (
 )
 
 AccessibleDatabase = NewType("AccessibleDatabase", Path)
-"""Type representing a database file, that was (at one point during program execution) a valid and accessible
+"""Type representing a database file, that was (at one point during program 
+execution) a valid and accessible
 Sqlite3-database"""
 
 
@@ -164,7 +174,8 @@ def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
 
 def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
     """
-    Tries to find (or create if not existing) a valid database file from the path elements provided.
+    Tries to find (or create if not existing) a valid database file from the path
+    elements provided.
 
     Works like :py:function:`recipe2txt.utils.misc.ensure_accessible_file_critical`.
     Args:
@@ -189,15 +200,20 @@ def fetch_again(status: RS, scraper_version: str) -> bool:
     """
     Decides whether a recipe should be fetched again.
 
-    When a recipe is saved initially it receives a status. Depending on this status and depending on the scraper_version
-    the program will not just use the cache data, but tries to scrape the recipe a second time from the web. This will
-    happen always for recipes that were previously unreachable. If the requested recipes came from an unknown side or
-    were incomplete in some way the recipes will only be fetched again, if the scraper_version currently in use is
+    When a recipe is saved initially it receives a status. Depending on this status
+    and depending on the scraper_version
+    the program will not just use the cache data, but tries to scrape the recipe a
+    second time from the web. This will
+    happen always for recipes that were previously unreachable. If the requested
+    recipes came from an unknown side or
+    were incomplete in some way the recipes will only be fetched again,
+    if the scraper_version currently in use is
     higher than the scraper-version from the last time the recipe was fetched.
 
     Args:
         status: Indicating the current status of the recipe-entry
-        scraper_version: the version-number of :py:mod:`recipe_scrapers` stored with the recipe-entry. Corresponds to
+        scraper_version: the version-number of :py:mod:`recipe_scrapers` stored with
+        the recipe-entry. Corresponds to
             the version number of the scraper last used on the entry.
 
     Returns:
@@ -207,14 +223,14 @@ def fetch_again(status: RS, scraper_version: str) -> bool:
         return True
 
     if (
-        status
-        in (
+            status
+            in (
             RS.INCOMPLETE_ESSENTIAL,
             RS.UNKNOWN,
             RS.INCOMPLETE_ON_DISPLAY,
             RS.COMPLETE_ON_DISPLAY,
-        )
-        and scraper_version < SCRAPER_VERSION
+    )
+            and scraper_version < SCRAPER_VERSION
     ):
         return True
 
@@ -225,21 +241,27 @@ class Database:
     """
     The interface between the program and the cache (i.e. the Sqlite3-database).
 
-    All interaction between the database and the program (inserting, retrieving etc.) runs through this class.
-    The connection to the database is maintained for the lifetime of this class. Call :py:meth:`Database.close` to
+    All interaction between the database and the program (inserting, retrieving etc.)
+    runs through this class.
+    The connection to the database is maintained for the lifetime of this class. Call
+    :py:meth:`Database.close` to
     release the connection, when this class is no longer required.
 
-    The database remembers which recipes are associated with which files (e.g. which recipe will be written to which
-    file. Although not currently used this will hopefully allow to insert new information into old recipe-files without
+    The database remembers which recipes are associated with which files (e.g. which
+    recipe will be written to which
+    file. Although not currently used this will hopefully allow to insert new
+    information into old recipe-files without
     overwriting them in the future (Currently old files simply get overwritten).
 
-    The primary key for each :py:class:`html2recipe.Recipe` stored in the database is the
+    The primary key for each :py:class:`html2recipe.Recipe` stored in the database is
+    the
     :py:attr:`html2recipe.Recipe.url`.
 
     Attributes:
         con: The connection to the database
         cur: The cursor used by this class
-        filepath: The path to the recipe-file. All recipes touched during the lifetime of this class will be associated
+        filepath: The path to the recipe-file. All recipes touched during the
+        lifetime of this class will be associated
             with this file.
     """
 
@@ -247,7 +269,8 @@ class Database:
         """
         Initializes an instance of the database.
 
-        There should be one instance per output_file. Creates all the necessary tables if not available.
+        There should be one instance per output_file. Creates all the necessary
+        tables if not available.
 
         Args:
             database: The database to be used as cache
@@ -264,9 +287,12 @@ class Database:
         """
         Inserts a new recipe into the database
 
-        Will silently skip insertion if the url of this recipe is already in the cache. Use
-        :py:meth:`Database.insert_recipe`, if the recipe-entry in the cache should be updated or
-        :py:meth:`Database.replace_recipe`, if recipe should replace the recipe-entry in the cache completely.
+        Will silently skip insertion if the url of this recipe is already in the
+        cache. Use
+        :py:meth:`Database.insert_recipe`, if the recipe-entry in the cache should be
+        updated or
+        :py:meth:`Database.replace_recipe`, if recipe should replace the recipe-entry
+        in the cache completely.
         """
         self.cur.execute(_INSERT_RECIPE, tuple(recipe))
         self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, recipe.url))
@@ -274,20 +300,23 @@ class Database:
         return recipe
 
     def replace_recipe(self, recipe: Recipe) -> Recipe:
-        """Inserts a new recipe into the database or replaces an existing recipe (if the urls are the same)."""
+        """Inserts a new recipe into the database or replaces an existing recipe (if
+        the urls are the same)."""
         self.cur.execute(_INSERT_OR_REPLACE_RECIPE, tuple(recipe))
         self.cur.execute(_ASSOCIATE_FILE_RECIPE, (self.filepath, recipe.url))
         self.con.commit()
         return recipe
 
     def get_recipe_row(self, url: URL) -> Tuple[Any, ...] | None:
-        """Retrieves the entry that matches url from the recipe-table and returns the tuple if there was a match."""
+        """Retrieves the entry that matches url from the recipe-table and returns the
+        tuple if there was a match."""
         self.cur.execute(_GET_RECIPE, (url,))
         r = self.cur.fetchone()
         return tuple(r) if r else None
 
     def get_recipe(self, url: URL) -> Recipe:
-        """Retrieves the entry that matches url from the recipe-table and returns a :py:class:`html2recipe.Recipe`."""
+        """Retrieves the entry that matches url from the recipe-table and returns a
+        :py:class:`html2recipe.Recipe`."""
         if row := self.get_recipe_row(url):
             row = none2na(row)
             row = int2status(row)
@@ -301,7 +330,8 @@ class Database:
         return recipes
 
     def get_titles(self) -> list[tuple[str, str]]:
-        """Retrieves all titles and host-names from recipes associated with :py:attr:`Database.filepath`"""
+        """Retrieves all titles and host-names from recipes associated with
+        :py:attr:`Database.filepath`"""
         rows = self.cur.execute(_GET_TITLES_HOSTS, (self.filepath,))
         return rows.fetchall()
 
@@ -309,7 +339,8 @@ class Database:
         """
         Filters for recipes that need to be scraped from the web.
 
-        If the URL is already in the cache, :py:func:`fetch_again` decides whether the recipe should be scraped again.
+        If the URL is already in the cache, :py:func:`fetch_again` decides whether
+        the recipe should be scraped again.
 
         Args:
             wanted: URLs of the recipes that are wanted
@@ -339,12 +370,14 @@ class Database:
         return wanted
 
     def insert_recipe_unreachable(self, url: URL) -> Recipe:
-        """Mark the recipe associated with url as 'unreachable' (if url is unknown to the cache)."""
+        """Mark the recipe associated with url as 'unreachable' (if url is unknown to
+        the cache)."""
         r = Recipe(url=url, status=RS.UNREACHABLE, scraper_version=SCRAPER_VERSION)
         return self.insert_recipe(r)
 
     def insert_recipe_unknown(self, url: URL) -> Recipe:
-        """Mark the recipe associated with url as 'unknown' (if url is unknown to the cache)."""
+        """Mark the recipe associated with url as 'unknown' (if url is unknown to the
+        cache)."""
         r = Recipe(url=url, status=RS.UNKNOWN, scraper_version=SCRAPER_VERSION)
         return self.insert_recipe(r)
 
@@ -352,16 +385,21 @@ class Database:
         """
         Inserts a recipe into the cache.
 
-        If an entry with the same url-attribute already exists in the database, the information from recipe and the
-        entry are merged. The value of each attribute of the merged recipe/entry is selected from either recipe or the
-        entry, depending on which instance has the information or if new information is preferred over old ones. 'None'-
+        If an entry with the same url-attribute already exists in the database,
+        the information from recipe and the
+        entry are merged. The value of each attribute of the merged recipe/entry is
+        selected from either recipe or the
+        entry, depending on which instance has the information or if new information
+        is preferred over old ones. 'None'-
         or :py:data:`html2recipe.NA`-values are always replaced if possible.
 
-        The intent is to update recipes over time, hopefully reducing NA-values to a minimum.
+        The intent is to update recipes over time, hopefully reducing NA-values to a
+        minimum.
 
         Args:
             recipe: The recipe to insert
-            prefer_new: Whether new values should replace old ones, if non-NA-non-None-values are available for recipe
+            prefer_new: Whether new values should replace old ones,
+            if non-NA-non-None-values are available for recipe
             and entry.
 
         Returns:
@@ -374,7 +412,7 @@ class Database:
         if old_row:
             for old_val, new_val in zip(old_row, new_row):
                 if (new_val and new_val != NA) and (
-                    prefer_new or not (old_val and old_val != NA)
+                        prefer_new or not (old_val and old_val != NA)
                 ):
                     merged_row.append(new_val)
                     updated.append(True)
@@ -384,14 +422,16 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                if not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN:  # type: ignore[operator]
-                    merged_row[-2] = gen_status(merged_row[: len(METHODS)])  # type: ignore[arg-type]
+                if not old_row[-2] <= RS.UNKNOWN and new_row[
+                    -2] < RS.UNKNOWN:  # type: ignore[operator]
+                    merged_row[-2] = gen_status(
+                        merged_row[: len(METHODS)])  # type: ignore[arg-type]
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore[arg-type]
                 if logger.isEnabledFor(logging.INFO):
                     for attr, old_val, new_val, is_replaced in zip(
-                        RECIPE_ATTRIBUTES, old_row, new_row, updated
+                            RECIPE_ATTRIBUTES, old_row, new_row, updated
                     ):
                         if is_replaced:
                             logger.info(

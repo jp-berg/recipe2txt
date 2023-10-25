@@ -2,15 +2,19 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import logging
@@ -24,7 +28,6 @@ import recipe_scrapers
 import recipe2txt.html2recipe as h2r
 from recipe2txt.fetcher import Cache, Fetcher
 from recipe2txt.sql import AccessibleDatabase, ensure_accessible_db_critical
-from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import (
     disable_loggers,
@@ -32,6 +35,7 @@ from recipe2txt.utils.ContextLogger import (
     root_log_setup,
     suppress_logging,
 )
+from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.misc import (
     URL,
     Directory,
@@ -53,12 +57,10 @@ __all__ = [
 
 logger = get_logger(__name__)
 
-
 if __name__ == "__main__":
     root_log_setup(logging.INFO)
 else:
     disable_loggers()
-
 
 ROOT: Final = Directory(Path(__file__).parent)
 

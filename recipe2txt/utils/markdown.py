@@ -2,22 +2,25 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import hashlib
 import re
 from os import linesep
 from typing import Final, Pattern
-
 
 __all__ = [
     "EMPTY_COMMENT",
@@ -39,10 +42,10 @@ __all__ = [
     "paragraph",
 ]
 
-
 INDENT: Final = " " * 4
 
-"""matches all characters in the second capture group if they are not lead by a '\' (negative lookbehind)"""
+"""matches all characters in the second capture group if they are not lead by a '\' (
+negative lookbehind)"""
 NOT_ESCAPED: Final[Pattern[str]] = re.compile(
     r"(?<!\\)(`|\*|_|{|}|\[|\]|\(|\)|#|\+|-|\.|!|~~)"
 )
@@ -63,7 +66,7 @@ def esc(string: str) -> str:
 
 
 def header(
-    string: str, level: int = 1, fragmentified_section_link: bool = False
+        string: str, level: int = 1, fragmentified_section_link: bool = False
 ) -> str:
     if level < 1:
         level = 1
@@ -71,7 +74,7 @@ def header(
         level = 6
     if fragmentified_section_link:
         f = fragmentify(string)
-        pre = f'<div id="{f}"></div>{linesep*2}'
+        pre = f'<div id="{f}"></div>{linesep * 2}'
     else:
         pre = ""
     return pre + "#" * level + " " + string
@@ -116,7 +119,7 @@ def link(url: str, description: str | None = None) -> str:
 
 
 def section_link(
-    header: str, description: str | None = None, fragmentified: bool = False
+        header: str, description: str | None = None, fragmentified: bool = False
 ) -> str:
     if fragmentified:
         ref = "#" + fragmentify(header)

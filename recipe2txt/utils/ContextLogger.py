@@ -2,15 +2,19 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
@@ -143,7 +147,8 @@ class Context:
 
 class QueueContextFilter(logging.Filter):
     def __init__(
-        self, log_level: int = logging.NOTSET, handler: logging.Handler | None = None
+            self, log_level: int = logging.NOTSET,
+            handler: logging.Handler | None = None
     ) -> None:
         self.log_level = log_level
         # TODO: Add reset
@@ -187,9 +192,9 @@ class QueueContextFilter(logging.Filter):
 
 
 def format_exception(
-    exc_info: tuple[type[BaseException], BaseException, TracebackType | None],
-    indent_for_context: bool = False,
-    full: bool = False,
+        exc_info: tuple[type[BaseException], BaseException, TracebackType | None],
+        indent_for_context: bool = False,
+        full: bool = False,
 ) -> str:
     ex_class, exception, trace = exc_info
     if full:
@@ -255,13 +260,13 @@ class QueueContextFormatter(logging.Formatter):
 
 class QueueContextManager:
     def __init__(
-        self,
-        logger: logging.Logger,
-        logging_fun: Callable[..., None],
-        msg: str,
-        *args: Any,
-        defer_emit: bool = False,
-        **kwargs: Any,
+            self,
+            logger: logging.Logger,
+            logging_fun: Callable[..., None],
+            msg: str,
+            *args: Any,
+            defer_emit: bool = False,
+            **kwargs: Any,
     ):
         self.args = args
         self.kwargs = kwargs
@@ -275,7 +280,7 @@ class QueueContextManager:
         self.logging_fun(self.msg, *self.args, stacklevel=2, extra=extra, **self.kwargs)
 
     def __exit__(
-        self, exc_type: type, exc_value: BaseException, traceback: TracebackType
+            self, exc_type: type, exc_value: BaseException, traceback: TracebackType
     ) -> Literal[False]:
         if not (exc_type or exc_value or traceback):
             self.logger.debug(DO_NOT_LOG, extra=END_CONTEXT)
@@ -314,7 +319,7 @@ class EndContextFilter(logging.Filter):
 
 
 def get_file_handler(
-    file: str = LOGFILE, level: int = logging.DEBUG
+        file: str = LOGFILE, level: int = logging.DEBUG
 ) -> logging.FileHandler:
     file_handler = RotatingFileHandler(
         file, mode="w", maxBytes=10000000, backupCount=4, encoding="utf-8"
@@ -327,7 +332,9 @@ def get_file_handler(
     return file_handler
 
 
-def get_stream_handler(level: int = logging.WARNING) -> logging.StreamHandler:  # type: ignore [type-arg]
+def get_stream_handler(
+        level: int = logging.WARNING) -> logging.StreamHandler:  # type: ignore [
+    # type-arg]
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
     f = QueueContextFilter(level, stream_handler)
@@ -345,7 +352,7 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def root_log_setup(
-    level: int, file: str | None = None, no_parallel: bool = True
+        level: int, file: str | None = None, no_parallel: bool = True
 ) -> None:
     l = logging.getLogger()
 

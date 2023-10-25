@@ -2,23 +2,29 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
 Module for processing commandline-arguments.
 
-Responsible for extracting relevant parameters from the command line parameters, doing basic checking for correctness
+Responsible for extracting relevant parameters from the command line parameters,
+doing basic checking for correctness
 and constructing a :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher` from them.
     Attributes:
-        logger (logging.Logger): The logger for the module. Receives the constructed logger from
+        logger (logging.Logger): The logger for the module. Receives the constructed
+        logger from
             :py:mod:`recipe2txt.utils.ContextLogger`
 """
 import argparse
@@ -50,10 +56,12 @@ from recipe2txt.utils.misc import URL, Counts, File, dict2str, extract_urls, rea
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
 except ImportError:
-    from recipe2txt.fetcher import Fetcher as Fetcher  # type: ignore[assignment] # isort: skip
+    from recipe2txt.fetcher import \
+        Fetcher as Fetcher  # type: ignore[assignment] # isort: skip
 
 logger = get_logger(__name__)
-"""The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
+"""The logger for the module. Receives the constructed logger from 
+:py:mod:`recipe2txt.utils.ContextLogger`"""
 
 
 class FileListingArgParse(argparse.ArgumentParser):
@@ -65,10 +73,10 @@ class FileListingArgParse(argparse.ArgumentParser):
             os.linesep + "  " + (os.linesep + "  ").join(files) if files else " none"
         )
         help_msg += (
-            os.linesep
-            + "files created or used by this program:"
-            + files_str
-            + os.linesep
+                os.linesep
+                + "files created or used by this program:"
+                + files_str
+                + os.linesep
         )
         return help_msg
 
@@ -78,7 +86,8 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
     Creates a parser for this program.
 
     Args:
-        config_file (): The path to this programs config file (will be created if it does not exist)
+        config_file (): The path to this programs config file (will be created if it
+        does not exist)
 
     Returns:
         The :py:class:`argparse.ArgumentParser` for this program
@@ -211,7 +220,9 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
         logger.warning("Number of connections smaller than 1, setting to 1 ")
         a.connections = 1
     elif a.connections > 1 and not Fetcher.is_async:
-        logger.warning("Number of connections greater than 1, but package aiohttp not installed.")  # type: ignore[unreachable]
+        logger.warning(
+            "Number of connections greater than 1, but package aiohttp not "
+            "installed.")  # type: ignore[unreachable]
     if a.timeout <= 0.0:
         logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
@@ -237,7 +248,8 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
 
 def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     """
-    Responsible for  using the CLI-flags to construct a valid :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`
+    Responsible for  using the CLI-flags to construct a valid
+    :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`
 
     Args:
         a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
@@ -245,7 +257,8 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
     Returns:
         A tuple of:
             A set of all possible urls gathered from the CLI-arguments.
-            An :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`, initialized with the validated parameters
+            An :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`, initialized
+            with the validated parameters
             gathered from :py:mod:`argparse`
 
     """

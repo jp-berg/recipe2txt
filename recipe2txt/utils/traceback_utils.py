@@ -2,15 +2,19 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
@@ -20,9 +24,9 @@ from os import linesep
 
 
 def shorten_paths(
-    stack: traceback.StackSummary,
-    first_visible_dir: str | None = None,
-    skip_first: bool = False,
+        stack: traceback.StackSummary,
+        first_visible_dir: str | None = None,
+        skip_first: bool = False,
 ) -> traceback.StackSummary:
     if first_visible_dir is None:
         paths = [frame.filename for frame in stack]
@@ -44,7 +48,7 @@ def shorten_paths(
 
 
 def get_shared_frames(
-    tb_exes: list[traceback.TracebackException],
+        tb_exes: list[traceback.TracebackException],
 ) -> traceback.StackSummary:
     stacks = [tb_ex.stack for tb_ex in tb_exes]
     shortest = deepcopy(min(stacks, key=len))
@@ -67,9 +71,9 @@ def get_shared_frames(
 
 
 def format_stacks(
-    tb_exes: list[traceback.TracebackException],
-    shared_stack: traceback.StackSummary,
-    first_visible_dir: str | None = None,
+        tb_exes: list[traceback.TracebackException],
+        shared_stack: traceback.StackSummary,
+        first_visible_dir: str | None = None,
 ) -> list[list[str]]:
     shared_stack_len = len(shared_stack)
     tb_exes_copy = deepcopy(tb_exes)

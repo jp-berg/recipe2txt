@@ -2,20 +2,26 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
-Provides a subclass for the :py:class:`fetcher.Fetcher` that supports asynchronous connections.
+Provides a subclass for the :py:class:`fetcher.Fetcher` that supports asynchronous
+connections.
 
-The subclass resides in a separate module so that :py:class:`fetcher.Fetcher` can be imported even if none of the async-
+The subclass resides in a separate module so that :py:class:`fetcher.Fetcher` can be
+imported even if none of the async-
 libraries are installed.
 """
 import asyncio
@@ -37,7 +43,8 @@ class AsyncFetcher(Fetcher):
     connections = 4
 
     def fetch_urls(self, urls: set[URL]) -> None:
-        """Fetches the missing URLs from the web and writes the results to the database."""
+        """Fetches the missing URLs from the web and writes the results to the
+        database."""
         asyncio.run(self._fetch(urls))
 
     async def _fetch(self, urls: set[URL]) -> None:
@@ -57,12 +64,12 @@ class AsyncFetcher(Fetcher):
         await asyncio.gather(*tasks)
 
     async def _fetch_task(
-        self,
-        url_queue: asyncio.queues.Queue[URL],
-        timeout: aiohttp.client.ClientTimeout,
+            self,
+            url_queue: asyncio.queues.Queue[URL],
+            timeout: aiohttp.client.ClientTimeout,
     ) -> None:
         async with aiohttp.ClientSession(
-            timeout=timeout, headers={"User-Agent": self.user_agent}
+                timeout=timeout, headers={"User-Agent": self.user_agent}
         ) as session:
             while not url_queue.empty():
                 url = await url_queue.get()
@@ -73,8 +80,8 @@ class AsyncFetcher(Fetcher):
                             html = await response.text()
                         self.counts.reached += 1
                     except (
-                        aiohttp.client_exceptions.TooManyRedirects,
-                        asyncio.TimeoutError,
+                            aiohttp.client_exceptions.TooManyRedirects,
+                            asyncio.TimeoutError,
                     ) as e:
                         logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:

@@ -2,15 +2,19 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 import itertools
 import os
@@ -18,7 +22,6 @@ import random
 import shutil
 import textwrap
 import unittest
-from test.test_helpers import TEST_PROJECT_TMPDIR, assertEval, delete_tmpdirs
 from typing import Any
 
 import recipe2txt.utils.ArgConfig as argconfig
@@ -31,6 +34,7 @@ from recipe2txt.file_setup import (
 )
 from recipe2txt.user_interface import config_args
 from recipe2txt.utils.misc import ensure_accessible_file, ensure_existence_dir
+from test.test_helpers import TEST_PROJECT_TMPDIR, assertEval, delete_tmpdirs
 
 
 class TestFunctions(unittest.TestCase):
@@ -104,7 +108,7 @@ params = [
 
 class TestInit(unittest.TestCase):
     def assertValidInit(
-        self, option: argconfig.BasicOption, validation: dict[str, Any]
+            self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         v_name = validation["option_name"]
         self.assertEqual(option.name, v_name[2:] if v_name.startswith("--") else v_name)
@@ -226,7 +230,7 @@ co_params = [(co_params_1, co_valid_string_1), (co_params_2, co_valid_string_2)]
 
 class TestInitOption(TestInit):
     def assertValidInit(
-        self, option: argconfig.BasicOption, validation: dict[str, Any]
+            self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         super().assertValidInit(option, validation)
         self.assertEqual(
@@ -290,7 +294,7 @@ t_params = [(t_params_1, t_valid_string_1), (t_params_2, t_valid_string_2)]
 
 class TestInitType(TestInit):
     def assertValidInit(
-        self, option: argconfig.BasicOption, validation: dict[str, Any]
+            self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         super().assertValidInit(option, validation)
         self.assertEqual(option.arguments[argconfig.ArgKey.type], validation["t"])
@@ -345,7 +349,7 @@ b_params = [(b_params_1, b_valid_string_1), (b_params_2, b_valid_string_2)]
 
 class TestInitBool(TestInit):
     def assertValidInit(
-        self, option: argconfig.BasicOption, validation: dict[str, Any]
+            self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         super().assertValidInit(option, validation)
         self.assertEqual(option.arguments[argconfig.ArgKey.action], "store_true")
@@ -407,7 +411,7 @@ n_params = [
 
 class TestInitNArg(TestInit):
     def assertValidInit(
-        self, option: argconfig.BasicOption, validation: dict[str, Any]
+            self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         super().assertValidInit(option, validation)
         self.assertEqual(

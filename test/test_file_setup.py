@@ -2,20 +2,29 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
 from pathlib import Path
 from shutil import rmtree
+
+import recipe2txt.file_setup as fs
+from recipe2txt.sql import is_accessible_db
+from recipe2txt.utils.ContextLogger import disable_loggers
+from recipe2txt.utils.misc import ensure_existence_dir
 from test.test_helpers import (
     NONE_DIRS,
     NORMAL_DIRS,
@@ -24,18 +33,12 @@ from test.test_helpers import (
     assertAccessibleFile,
 )
 
-import recipe2txt.file_setup as fs
-from recipe2txt.sql import is_accessible_db
-from recipe2txt.utils.ContextLogger import disable_loggers
-from recipe2txt.utils.misc import ensure_existence_dir
-
 copy_debug_dirs = fs.DEBUG_DIRS
 tmp_data_dir = TEST_PROJECT_TMPDIR / "test-xdg-dirs"
 
 COPY_RECIPES_NAME_TXT = fs.RECIPES_NAME_TXT
 
 disable_loggers()
-
 
 test_debug_dirs = fs.ProgramDirectories(
     tmp_data_dir / "data", tmp_data_dir / "config", tmp_data_dir / "state"

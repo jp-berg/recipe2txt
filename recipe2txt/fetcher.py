@@ -2,21 +2,26 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
 Contains the Fetcher-class and an Enum to support that class.
 
 Attributes:
-    logger (logging.Logger): The logger for the module. Receives the constructed logger from
+    logger (logging.Logger): The logger for the module. Receives the constructed
+    logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
 """
 import urllib.error
@@ -25,19 +30,21 @@ from os import linesep
 
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
-from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
+from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.markdown import *
 from recipe2txt.utils.misc import URL, Counts, File
 
 logger = get_logger(__name__)
-"""The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
+"""The logger for the module. Receives the constructed logger from 
+:py:mod:`recipe2txt.utils.ContextLogger`"""
 
 
 class Cache(StrEnum):
     """
-    Enum describing the three different cache-usage-strategies of :py:class:`AbstractFetcher`
+    Enum describing the three different cache-usage-strategies of
+    :py:class:`AbstractFetcher`
     """
 
     default = "default"
@@ -50,7 +57,8 @@ class Fetcher:
     Responsible for obtaining missing urls from the web and writing them to a file.
 
     Class Variables:
-        is_async(bool): Whether the class is asynchronous regarding fetching the urls from the internet.
+        is_async(bool): Whether the class is asynchronous regarding fetching the urls
+        from the internet.
     """
 
     is_async: bool = False
@@ -62,25 +70,27 @@ class Fetcher:
     )
 
     def __init__(
-        self,
-        output: File,
-        database: sql.AccessibleDatabase,
-        counts: Counts = Counts(),
-        timeout: float | None = None,
-        connections: int | None = None,
-        markdown: bool = False,
-        cache: Cache = Cache.default,
-        user_agent: str | None = None,
+            self,
+            output: File,
+            database: sql.AccessibleDatabase,
+            counts: Counts = Counts(),
+            timeout: float | None = None,
+            connections: int | None = None,
+            markdown: bool = False,
+            cache: Cache = Cache.default,
+            user_agent: str | None = None,
     ) -> None:
         """
         Initializes the Fetcher-class.
 
         Args:
             output: Write-destination of the obtained recipes
-            database: The database that stores the recipes and where they have been written to (the cache)
+            database: The database that stores the recipes and where they have been
+            written to (the cache)
             counts: For gathering statistics
             timeout: Maximum waiting time for a response from a server
-            connections: The maximum number of simultaneous connections the Fetcher is allowed to make
+            connections: The maximum number of simultaneous connections the Fetcher
+            is allowed to make
             markdown: Whether the output-file is formatted in Markdown
             cache: How the cache should be used
             user_agent: The user-agent for making http-requests
@@ -99,7 +109,8 @@ class Fetcher:
 
     def html2db(self, url: URL, html: str) -> None:
         """
-        Turns the HTML into a :py:class:`recipe2txt.html2recipe.Recipe` and stores it in the database.
+        Turns the HTML into a :py:class:`recipe2txt.html2recipe.Recipe` and stores it
+        in the database.
 
         Args:
             url: The URL of the recipe
@@ -115,17 +126,22 @@ class Fetcher:
         """
         Filters all recipes that do not need or should not be retrieved from the web.
 
-        The result heavily depends on the cache-usage-strategy defined by :py:attr:`cache`:
-            1.default: Recipes only need to be fetched, if the recipe is either not in the database or if they are
+        The result heavily depends on the cache-usage-strategy defined by
+        :py:attr:`cache`:
+            1.default: Recipes only need to be fetched, if the recipe is either not
+            in the database or if they are
             incomplete.
-            2.only: Do not fetch any recipes, only use the information already in the database
-            3.new: Fetch recipes from all URLs, regardless of their state in the database
+            2.only: Do not fetch any recipes, only use the information already in the
+            database
+            3.new: Fetch recipes from all URLs, regardless of their state in the
+            database
 
         Args:
             urls: The URLs, whose recipes should be written to the final file.
 
         Returns:
-            The URLs that the class needs to retrieve from the web according to the cache-usage-strategy
+            The URLs that the class needs to retrieve from the web according to the
+            cache-usage-strategy
         """
         self.counts.urls += len(urls)
         if self.cache is Cache.only:
@@ -143,10 +159,14 @@ class Fetcher:
         """
         Fetches the missing URLs from the web and writes the results to the database.
 
-        While using one function to fetch the webpages and another to send the collected data to the database might make
-        for simpler functions, it was deemed more important to save each recipe to disk as soon as possible. This is
-        preferred, because fetching recipes is so expensive in terms of time. Writing to disk early saves time in
-        case of an early termination of the program, since the collected data can be fetched from disk on the next run.
+        While using one function to fetch the webpages and another to send the
+        collected data to the database might make
+        for simpler functions, it was deemed more important to save each recipe to
+        disk as soon as possible. This is
+        preferred, because fetching recipes is so expensive in terms of time. Writing
+        to disk early saves time in
+        case of an early termination of the program, since the collected data can be
+        fetched from disk on the next run.
 
         Args:
             urls: The URLs from which the method retrieves the recipes
@@ -174,11 +194,14 @@ class Fetcher:
         """
         Gather the recipes and write them to :py:attr:`output`.
 
-        The urls will be filtered according to the caching-strategy. Recipes that cannot be obtained from cache will
-        be retrieved from the web. The recipes will be formatted and then written to the output-file.
+        The urls will be filtered according to the caching-strategy. Recipes that
+        cannot be obtained from cache will
+        be retrieved from the web. The recipes will be formatted and then written to
+        the output-file.
 
         Args:
-            urls: The urls corresponding to the recipes that should be written to the output-file
+            urls: The urls corresponding to the recipes that should be written to the
+            output-file
         """
         urls = self.require_fetching(urls)
         if urls:
@@ -191,7 +214,8 @@ class Fetcher:
         """
         Generates the lines that should be written to the :py:attr:`output`.
 
-        The method obtains the recipes corresponding to :py:attr:`output` from the database, formats them according to
+        The method obtains the recipes corresponding to :py:attr:`output` from the
+        database, formats them according to
         :py:attr:`markdown` and then concatenates the resulting lines.
 
         Returns:

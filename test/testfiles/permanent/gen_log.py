@@ -2,32 +2,36 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import contextlib
 import logging
 import shutil
-import test.testfiles.permanent.gen_stack as gen_stack
 from pathlib import Path
 from typing import Final, Generator
 
 import recipe2txt.utils.misc as misc
+import test.testfiles.permanent.gen_stack as gen_stack
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import (
     _LOG_FORMAT_STREAM,
     STRING2LEVEL,
     QueueContextFilter,
     QueueContextFormatter,
 )
-from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import (
     Directory,
@@ -58,13 +62,13 @@ dir_fail = Path("/root/test")
 
 
 def queue_processor(
-    nums: list[int], directory_normal: Path, directory_fail: Path
+        nums: list[int], directory_normal: Path, directory_fail: Path
 ) -> int:
     minimum = 1000
     total = 0
     for idx, num in enumerate(nums):
         with QCM(
-            write_logger, write_logger.info, "Processing %s", num
+                write_logger, write_logger.info, "Processing %s", num
         ):  # Check indentation, string formatting
             try:
                 res = int(gen_stack.fun5(num))

@@ -2,26 +2,30 @@
 #
 # This file is part of recipe2txt.
 #
-# recipe2txt is free software: you can redistribute it and/or modify it under the terms of
+# recipe2txt is free software: you can redistribute it and/or modify it under the
+# terms of
 # the GNU General Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# recipe2txt is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.
 # See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along with recipe2txt.
+# You should have received a copy of the GNU General Public License along with
+# recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
 import sqlite3
 import sys
 import unittest
-from test.test_helpers import *
 
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
 import recipe2txt.utils.misc as misc
+from test.test_helpers import *
 
 db_name = "db_test.sqlite3"
 out_name = "out"
@@ -37,7 +41,8 @@ db: sql.Database
 
 
 def compare_for(
-    recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str, equality: bool = True
+        recipe1: h2r.Recipe, recipe2: h2r.Recipe, *attributes: str,
+        equality: bool = True
 ) -> str | None:
     for attr in attributes:
         if attr not in h2r.RECIPE_ATTRIBUTES:
@@ -74,7 +79,7 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(len(truth_out_of_date), len(h2r.RecipeStatus))
 
         for status, up_to_date, out_of_date in zip(
-            h2r.RecipeStatus, truth_up_to_date, truth_out_of_date
+                h2r.RecipeStatus, truth_up_to_date, truth_out_of_date
         ):
             with self.subTest(status=status):
                 self.assertEqual(
@@ -143,17 +148,17 @@ class TestDatabase(unittest.TestCase):
         for recipe in test_recipes:
             with self.subTest(recipe=recipe.url):
                 if recipe.status in (
-                    h2r.RecipeStatus.NOT_INITIALIZED,
-                    h2r.RecipeStatus.UNREACHABLE,
+                        h2r.RecipeStatus.NOT_INITIALIZED,
+                        h2r.RecipeStatus.UNREACHABLE,
                 ):
                     self.assertTrue(recipe.url in to_fetch)
                 else:
                     self.assertFalse(recipe.url in to_fetch)
                     if recipe.status in (
-                        h2r.RecipeStatus.UNKNOWN,
-                        h2r.RecipeStatus.INCOMPLETE_ESSENTIAL,
-                        h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
-                        h2r.RecipeStatus.COMPLETE_ON_DISPLAY,
+                            h2r.RecipeStatus.UNKNOWN,
+                            h2r.RecipeStatus.INCOMPLETE_ESSENTIAL,
+                            h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
+                            h2r.RecipeStatus.COMPLETE_ON_DISPLAY,
                     ):
                         self.assertTrue(sql.fetch_again(recipe.status, "0.0"))
 
@@ -171,13 +176,13 @@ class TestDatabase(unittest.TestCase):
 
         on_disk = db.get_recipe(updated.url)
         if failed := compare_for(
-            on_disk,
-            updated,
-            "status",
-            "ingredients",
-            "instructions",
-            "total_time",
-            equality=False,
+                on_disk,
+                updated,
+                "status",
+                "ingredients",
+                "instructions",
+                "total_time",
+                equality=False,
         ):
             self.fail("Recipe comparison (inequality) failed on attribute " + failed)
 
@@ -187,14 +192,14 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(tmp, on_disk)
 
         if failed := compare_for(
-            on_disk,
-            updated,
-            "title",
-            "url",
-            "status",
-            "ingredients",
-            "instructions",
-            "total_time",
+                on_disk,
+                updated,
+                "title",
+                "url",
+                "status",
+                "ingredients",
+                "instructions",
+                "total_time",
         ):
             self.fail("Recipe comparison (equality) failed on attribute " + failed)
 
