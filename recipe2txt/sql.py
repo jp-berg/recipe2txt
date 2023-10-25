@@ -31,7 +31,7 @@ import sqlite3
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any, Final, NewType, Optional, Tuple, TypeGuard
+from typing import Any, Final, NewType, Tuple, TypeGuard
 
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
@@ -176,7 +176,7 @@ def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
 
     """
     db_path = full_path(*path_elem)
-    directory = ensure_existence_dir_critical(db_path.parent)
+    ensure_existence_dir_critical(db_path.parent)
     if is_accessible_db(db_path):
         db_file = db_path
     else:

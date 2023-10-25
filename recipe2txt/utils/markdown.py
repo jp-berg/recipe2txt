@@ -16,9 +16,8 @@
 import hashlib
 import re
 from os import linesep
-from typing import Final, Optional, Pattern
+from typing import Final, Pattern
 
-from recipe2txt.utils.conditional_imports import LiteralString
 
 __all__ = [
     "EMPTY_COMMENT",

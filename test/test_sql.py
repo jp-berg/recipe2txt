@@ -18,7 +18,6 @@ import sqlite3
 import sys
 import unittest
 from test.test_helpers import *
-from typing import Optional
 
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql

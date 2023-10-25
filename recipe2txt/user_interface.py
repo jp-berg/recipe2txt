@@ -27,7 +27,7 @@ import os
 import sys
 from functools import cache
 from pathlib import Path
-from typing import Final, Tuple, get_args
+from typing import Tuple, get_args
 
 from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import (

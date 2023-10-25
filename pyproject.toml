@@ -106,3 +106,21 @@ preview = true
 [tool.isort]
 profile = "black"
 
+[tool.autoflake]
+recursive = true
+in-place = true
+imports = [
+  "recipe-scrapers",
+  "xdg-base-dirs",
+  "validators",
+  "importlib-metadata",
+  "backports.strenum",
+  "typing_extensions",
+  "tomli",
+  "aiohttp"
+]
+exclude = ["*conditional_imports.py"]
+remove-all-unused-imports = true
+remove-unused-variables = true
+
+

@@ -143,6 +143,7 @@ def check(session: nox.Session) -> None:
 def tidy(session: nox.Session) -> None:
     run(session, "isort", "recipe2txt", "test")
     run(session, "black", "recipe2txt", "test", "noxfile.py")
+    run(session, "autoflake", "recipe2txt", "test", "noxfile.py")
     session.notify("check")
 
 

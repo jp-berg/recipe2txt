@@ -19,7 +19,7 @@ import shutil
 import unittest
 from test.test_helpers import TEST_PROJECT_TMPDIR, assertFilesEqual
 from test.testfiles.permanent.gen_log import gen_logs, log_paths
-from typing import Any, Final, Optional, TypeVar
+from typing import Any, Final, TypeVar
 
 import recipe2txt.utils.ContextLogger as CTXL
 from recipe2txt.utils.conditional_imports import LiteralString

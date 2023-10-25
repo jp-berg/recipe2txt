@@ -17,7 +17,6 @@ import os
 import traceback
 from copy import deepcopy
 from os import linesep
-from typing import Optional
 
 
 def shorten_paths(

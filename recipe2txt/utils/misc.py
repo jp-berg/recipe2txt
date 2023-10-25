@@ -19,7 +19,7 @@ import urllib.parse
 from os import linesep
 from pathlib import Path
 from time import localtime, strftime
-from typing import Any, NewType, Optional, TypeGuard
+from typing import Any, NewType, TypeGuard
 
 import validators
 

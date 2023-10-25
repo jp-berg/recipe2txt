@@ -40,7 +40,7 @@ import traceback
 import urllib
 from enum import IntEnum
 from os import linesep
-from typing import Any, Callable, Final, NamedTuple, NewType, Optional
+from typing import Any, Callable, Final, NamedTuple, NewType
 
 import recipe_scrapers
 from importlib_metadata import version
