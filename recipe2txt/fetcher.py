@@ -56,7 +56,10 @@ class Fetcher:
     is_async: bool = False
     connections: int = 1
     timeout: float = 10.0
-    user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0"
+    user_agent: str = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101"
+        " Firefox/115.0"
+    )
 
     def __init__(
         self,
@@ -206,7 +209,8 @@ class Fetcher:
             titles_raw = self.db.get_titles()
             if self.markdown:
                 titles_md_fmt = [
-                    f"{section_link(esc(name), fragmentified=True)} - {esc(host)}{linesep}"
+                    f"{section_link(esc(name), fragmentified=True)} -"
+                    f" {esc(host)}{linesep}"
                     for name, host in titles_raw
                 ]
                 titles = ordered(*titles_md_fmt)

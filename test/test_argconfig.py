@@ -63,28 +63,23 @@ class TestFunctions(unittest.TestCase):
         assertEval(self, argconfig.obj2toml, params)
 
 
-valid_string_1 = textwrap.dedent(
-    """
+valid_string_1 = textwrap.dedent("""
 
 
     # This is a helptext
 
     #test = 'yes'
-     """
-)
+     """)
 params_1 = {"option_name": "--test", "help_str": "This is a helptext", "default": "yes"}
 
-valid_string_2 = textwrap.dedent(
-    """
+valid_string_2 = textwrap.dedent("""
     
     
     #flag = 3
-    """
-)
+    """)
 params_2 = {"option_name": "--flag", "help_str": "", "default": 3}
 
-valid_string_3 = textwrap.dedent(
-    """
+valid_string_3 = textwrap.dedent("""
     
     
     # This is a multiline help-text, providing far more information. But in
@@ -92,11 +87,11 @@ valid_string_3 = textwrap.dedent(
     # information more easily digestible.
     
     #option = true
-    """
-)
+    """)
 help_txt_3 = (
-    "This is a multiline help-text, providing far more information. But in contrast to the other examples,"
-    " this has to be wrapped. This makes the information more easily digestible."
+    "This is a multiline help-text, providing far more information. But in contrast to"
+    " the other examples, this has to be wrapped. This makes the information more"
+    " easily digestible."
 )
 params_3 = {"option_name": "--option", "help_str": help_txt_3, "default": True}
 
@@ -196,16 +191,14 @@ class TestBasicOption(TestInit):
                 self.assertEqual(b.arguments["default"], init_params["default"])
 
 
-co_valid_string_1 = textwrap.dedent(
-    """
+co_valid_string_1 = textwrap.dedent("""
     
     
     # Adjust the speed
     
     #speed = 'slow' # Possible values: 'slow' | 'normal' | 'fast'
     
-    """
-)
+    """)
 co_params_1 = {
     "option_name": "--speed",
     "help_str": "Adjust the speed",
@@ -213,16 +206,14 @@ co_params_1 = {
     "choices": ["slow", "normal", "fast"],
 }
 
-co_valid_string_2 = textwrap.dedent(
-    """
+co_valid_string_2 = textwrap.dedent("""
     
     
     # Set the coin-denomination
     
     #cents = 50 # Possible values: 1 | 2 | 5 | 10 | 20 | 50
     
-    """
-)
+    """)
 co_params_2 = {
     "option_name": "--cents",
     "help_str": "Set the coin-denomination",
@@ -263,15 +254,13 @@ class TestChoiceOption(TestInitOption):
                 self.assertFalse(c.toml_valid("WRONG VALUE THAT DOES NOT MAKE SENSE"))
 
 
-t_valid_string_1 = textwrap.dedent(
-    """
+t_valid_string_1 = textwrap.dedent("""
     
     
     # Sets the delay between application call and execution (in seconds)
     
     #delay = 0.5
-    """
-)
+    """)
 t_params_1 = {
     "option_name": "delay",
     "help_str": "Sets the delay between application call and execution (in seconds)",
@@ -279,19 +268,19 @@ t_params_1 = {
     "t": float,
 }
 
-t_valid_string_2 = textwrap.dedent(
-    """
+t_valid_string_2 = textwrap.dedent("""
     
     
     # How many times should the program retry to fetch the resource on
     # failure
     
     #retries = 3
-    """
-)
+    """)
 t_params_2 = {
     "option_name": "--retries",
-    "help_str": "How many times should the program retry to fetch the resource on failure",
+    "help_str": (
+        "How many times should the program retry to fetch the resource on failure"
+    ),
     "default": 3,
     "t": int,
 }
@@ -323,15 +312,13 @@ class TestTypeOption(TestInitType):
                     t = argconfig.TypeOption(**p_invalid)
 
 
-b_valid_string_1 = textwrap.dedent(
-    """
+b_valid_string_1 = textwrap.dedent("""
 
         
     # Whether the inputs should be validated before processing
     
     #validate-input = true # Possible values: true | false
-    """
-)
+    """)
 b_params_1 = {
     "option_name": "--validate-input",
     "help_str": "Whether the inputs should be validated before processing",
@@ -339,15 +326,13 @@ b_params_1 = {
     "short": "-v",
 }
 
-b_valid_string_2 = textwrap.dedent(
-    """
+b_valid_string_2 = textwrap.dedent("""
     
     
     # Toggles debug-mode
     
     #debug = false # Possible values: true | false
-    """
-)
+    """)
 
 b_params_2 = {
     "option_name": "debug",
@@ -374,45 +359,39 @@ class BoolOption(TestInitBool):
                 self.assertValidInit(b, init_params)
 
 
-n_valid_string_1 = textwrap.dedent(
-    """
+n_valid_string_1 = textwrap.dedent("""
     
     
     # List of the ignored directories
     
     #ignored-directories = []
-    """
-)
+    """)
 n_params_1 = {
     "option_name": "--ignored-directories",
     "help_str": "List of the ignored directories",
     "short": "-i",
 }
 
-n_valid_string_2 = textwrap.dedent(
-    """
+n_valid_string_2 = textwrap.dedent("""
     
     
     # Values used as test-inputs
     
     #testvalues = [37, 29, 54, 66, 19, 59, 32]
-    """
-)
+    """)
 n_params_2 = {
     "option_name": "testvalues",
     "help_str": "Values used as test-inputs",
     "default": [37, 29, 54, 66, 19, 59, 32],
 }
 
-n_valid_string_3 = textwrap.dedent(
-    """
+n_valid_string_3 = textwrap.dedent("""
     
     
     # Phrases that will be blocked
     
     #banned = ['duck you', 'heck', 'darn']
-    """
-)
+    """)
 n_params_3 = {
     "option_name": "--banned",
     "help_str": "Phrases that will be blocked",
@@ -477,8 +456,7 @@ standard_params = {
     "erase_appdata": None,
 }
 
-app_valid_string_1 = textwrap.dedent(
-    """
+app_valid_string_1 = textwrap.dedent("""
     #file = ['/home/user/files/file.txt']
     output = '/home/pc/recipes.txt'
     connections = 3
@@ -486,8 +464,7 @@ app_valid_string_1 = textwrap.dedent(
     debug = true
     markdown = true
     
-    """
-)
+    """)
 app_params_1 = {
     "url": ["www.test.com"],
     "output": "/home/pc/recipes.txt",
@@ -497,15 +474,13 @@ app_params_1 = {
     "markdown": True,
 }
 
-app_valid_string_2 = textwrap.dedent(
-    """
+app_valid_string_2 = textwrap.dedent("""
     timeout = 9.3
     
     #This comment should not matter
     user-agent = "popular-browser on popular-platform"
     markdown = false
-    """
-)
+    """)
 
 app_params_2 = {
     "url": ["www.test.com"],
@@ -547,13 +522,15 @@ class TestArgConfig(unittest.TestCase):
                 if diff1 := d_parsed.keys() - d_valid.keys():
                     diff_vals = {key: d_parsed.get(key) for key in diff1}
                     self.fail(
-                        f"There are more values in the parsed data than in the validation data: {diff_vals}"
+                        "There are more values in the parsed data than in the"
+                        f" validation data: {diff_vals}"
                     )
 
                 if diff2 := d_valid.keys() - d_parsed.keys():
                     diff_vals = {key: d_valid.get(key) for key in diff2}
                     self.fail(
-                        f"There are more values in the validation data than in the parsed data: {diff_vals}"
+                        "There are more values in the validation data than in the"
+                        f" parsed data: {diff_vals}"
                     )
 
                 for key in d_valid.keys():

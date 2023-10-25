@@ -281,7 +281,8 @@ class QueueContextManager:
             self.logger.debug(DO_NOT_LOG, extra=END_CONTEXT)
         else:
             self.logger.error(
-                f"Leaving context '{self.msg % self.args}' because of exception {exc_type}: {exc_value}",
+                f"Leaving context '{self.msg % self.args}' because of exception"
+                f" {exc_type}: {exc_value}",
                 extra=END_CONTEXT,
             )
         return False

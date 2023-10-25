@@ -75,7 +75,8 @@ class TracebackTests(unittest.TestCase):
 
         if equal_frames:
             self.fail(
-                f"get_shared_frames()-cutoff to early: all stacks still have a common frame (Failed for frames {equal_frames})"
+                "get_shared_frames()-cutoff to early: all stacks still have a common"
+                f" frame (Failed for frames {equal_frames})"
             )
 
     def test_format_stacks(self):

@@ -87,8 +87,10 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
     parser = FileListingArgParse(
         prog=PROGRAM_NAME,
         description="Scrapes URLs of recipes into text files",
-        epilog=f"Change the default-values for these options by modifying the '{PROGRAM_NAME}.toml'"
-        f"file mentioned below.",
+        epilog=(
+            "Change the default-values for these options by modifying the"
+            f" '{PROGRAM_NAME}.toml'file mentioned below."
+        ),
     )
 
     arg_config = ArgConfig(parser, config_file)
@@ -117,22 +119,28 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
         help_str="{}Sets the number of simultaneous connections".format(
             ""
             if Fetcher.is_async
-            else "Since the package 'aiohttp' is not installed the number of simultaneous connections"
-            " will always be 1. Thus this flag and its parameters will not be evaluated. "
+            else (
+                "Since the package 'aiohttp' is not installed the number of"
+                " simultaneous connections will always be 1. Thus this flag and its"
+                " parameters will not be evaluated. "
+            )
         ),
     )
     arg_config.add_choice(
         "--cache",
         choices=["only", "new", "default"],
         default="default",
-        help_str="Controls how the program should handle its cache: With 'only' no new data will be"
-        " downloaded, the recipes will be generated from data that has been downloaded"
-        " previously. If a recipe is not in the cache, it will not be written into the final"
-        " output. 'new' will make the program ignore any saved data and download the"
-        " requested recipes even if they have already been downloaded. Old data will be"
-        " replaced by the new version, if it is available. The 'default' will fetch and"
-        " merge missing data with the data already saved, only inserting new data into the"
-        " cache where there was none previously.",
+        help_str=(
+            "Controls how the program should handle its cache: With 'only' no new data"
+            " will be downloaded, the recipes will be generated from data that has been"
+            " downloaded previously. If a recipe is not in the cache, it will not be"
+            " written into the final output. 'new' will make the program ignore any"
+            " saved data and download the requested recipes even if they have already"
+            " been downloaded. Old data will be replaced by the new version, if it is"
+            " available. The 'default' will fetch and merge missing data with the data"
+            " already saved, only inserting new data into the cache where there was"
+            " none previously."
+        ),
     )
     arg_config.add_bool(
         "--debug", "Activates debug-mode: Changes the directory for application data"
@@ -140,11 +148,13 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
     arg_config.add_type(
         "--timeout",
         default=Fetcher.timeout,
-        help_str="Sets the number of seconds the program waits for an individual website to respond,"
-        " eg. {}.".format(
-            "sets the connect-value of aiohttp.ClientTimeout"
-            if Fetcher.is_async
-            else "sets the timeout-argument of urllib.request.urlopen"
+        help_str=(
+            "Sets the number of seconds the program waits for an individual website to"
+            " respond, eg. {}.".format(
+                "sets the connect-value of aiohttp.ClientTimeout"
+                if Fetcher.is_async
+                else "sets the timeout-argument of urllib.request.urlopen"
+            )
         ),
     )
     arg_config.add_bool("--markdown", "Generates markdown-output instead of '.txt'")
@@ -209,15 +219,15 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
     if a.markdown:
         if ext != ".md":
             logger.warning(
-                "The application is instructed to output a markdown file, but the filename extension"
-                " indicates otherwise:'%s'",
+                "The application is instructed to output a markdown file, but the"
+                " filename extension indicates otherwise:'%s'",
                 ext,
             )
     else:
         if ext not in ("", ".txt"):
             logger.warning(
-                "The application is instructed to output a text file, but the filename extension"
-                " indicates otherwise:'%s'",
+                "The application is instructed to output a text file, but the filename"
+                " extension indicates otherwise:'%s'",
                 ext,
             )
 

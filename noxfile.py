@@ -112,7 +112,7 @@ def is_applicable(session: nox.Session, constraints: str) -> bool:
     for con in constraints_list:
         if not con:
             continue
-        if con[0] == ("python_version"):
+        if con[0] == "python_version":
             if con[1] in "=>=<=":
                 return bool(eval(f"'{py_vers}' {con[1]} {con[2]}"))
             else:

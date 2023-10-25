@@ -156,7 +156,8 @@ class LoggerTester(unittest.TestCase):
         if not is_context:
             if deferred is not None:
                 raise ValueError(
-                    "The context cannot have deferred records if there is no active context."
+                    "The context cannot have deferred records if there is no active"
+                    " context."
                 )
             return c
 

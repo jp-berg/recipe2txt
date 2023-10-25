@@ -133,7 +133,8 @@ class BasicOption:
         is_optional = option_name.startswith("--")
         if option_name.startswith("-") and not is_optional:
             raise ValueError(
-                "'option_name' should be the long version of the optional argument. Use '--'."
+                "'option_name' should be the long version of the optional argument. Use"
+                " '--'."
             )
         self.name = option_name[2:] if is_optional else option_name
         self.option_names = [option_name]
@@ -143,7 +144,8 @@ class BasicOption:
             if short:
                 if not is_optional:
                     raise ValueError(
-                        f"Positional arguments ('{option_name}') cannot have a short version!"
+                        f"Positional arguments ('{option_name}') cannot have a short"
+                        " version!"
                     )
                 if not short.startswith("-"):
                     raise ValueError(
@@ -160,9 +162,10 @@ class BasicOption:
     def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
         help_tmp = self.arguments[ArgKey.help]
         if self.arguments[ArgKey.default] is not None:
-            self.arguments[
-                ArgKey.help
-            ] = f"{self.arguments[ArgKey.help]} (default: '{self.arguments[ArgKey.default]}')"
+            self.arguments[ArgKey.help] = (
+                f"{self.arguments[ArgKey.help]} (default:"
+                f" '{self.arguments[ArgKey.default]}')"
+            )
         parser.add_argument(*self.option_names, **self.arguments)  # type: ignore[misc]
         self.arguments[ArgKey.help] = help_tmp
 
@@ -173,7 +176,10 @@ class BasicOption:
     def to_toml_str_intern(self, value_comment: str) -> str:
         default_str = obj2toml(self.arguments[ArgKey.default])
         help_str = BasicOption.help_wrapper.fill(self.arguments[ArgKey.help])
-        return f"\n\n\n{help_str + os.linesep*2 if help_str else ''}#{self.name} = {default_str}{value_comment}\n"
+        return (
+            f"\n\n\n{help_str + os.linesep*2 if help_str else ''}#{self.name} ="
+            f" {default_str}{value_comment}\n"
+        )
 
     def to_toml(self, file: File | None = None) -> None:
         """Appends this Option and its default-value to a TOML-file"""
@@ -325,8 +331,7 @@ class NArgOption(BasicOption):
         return isinstance(value, list)
 
 
-CFG_PREAMBLE: Final = textwrap.dedent(
-    """
+CFG_PREAMBLE: Final = textwrap.dedent("""
     #*****************************************************************************
     # Configuration file for the program %s
     #
@@ -347,8 +352,7 @@ CFG_PREAMBLE: Final = textwrap.dedent(
     #*****************************************************************************
     
     
-    """
-)
+    """)
 """
 Help text explaining how the config-file works.
 
@@ -379,9 +383,10 @@ class ArgConfig:
                     self.toml = tomllib.load(cfg)
                 except tomllib.TOMLDecodeError as e:
                     msg = (
-                        f"The config-file ({config_file}) seems to be misconfigured ({e})."
-                        " Fix the error or delete the file and generate a new one by running"
-                        " the program with any argument (eg. 'recipe2txt --help')"
+                        f"The config-file ({config_file}) seems to be misconfigured"
+                        f" ({e}). Fix the error or delete the file and generate a new"
+                        " one by running the program with any argument (eg."
+                        " 'recipe2txt --help')"
                     )
                     print(msg, file=sys.stderr)
                     sys.exit(os.EX_DATAERR)

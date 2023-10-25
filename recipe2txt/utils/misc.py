@@ -113,7 +113,10 @@ def _ensure_existence_dir(
     try:
         if path.is_file():
             return None, (
-                "%s is already a file, thus a directory with the same name cannot exist",
+                (
+                    "%s is already a file, thus a directory with the same name cannot"
+                    " exist"
+                ),
                 path,
             )
         exists = is_dir(path)
@@ -176,7 +179,10 @@ def _ensure_accessible_file(
     try:
         if path.is_dir():
             return None, (
-                "%s is already a directory, thus a file with the same name cannot exist",
+                (
+                    "%s is already a directory, thus a file with the same name cannot"
+                    " exist"
+                ),
                 path,
             )
         exists = path.is_file()

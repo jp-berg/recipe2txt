@@ -80,8 +80,9 @@ def copy_testrun_data(origin: Path, dest: Directory, min_time: float) -> None:
         return
     elif min_time > (mt := os.path.getmtime(origin)):
         print(
-            f"{origin} is probably too old to originate from this testrun "
-            f"(execution started {time2str(min_time)}, but time of last modification is {time2str(mt)}",
+            f"{origin} is probably too old to originate from this testrun (execution"
+            f" started {time2str(min_time)}, but time of last modification is"
+            f" {time2str(mt)}",
             file=sys.stderr,
         )
     else:
@@ -126,16 +127,20 @@ parser.add_argument(
     "--number-of-urls",
     type=int,
     default=5,
-    help="Set the number of urls to test. Default is 5, using a number outside of the number "
-    "of available urls will run a test with all urls.",
+    help=(
+        "Set the number of urls to test. Default is 5, using a number outside of the"
+        " number of available urls will run a test with all urls."
+    ),
 )
 parser.add_argument(
     "-con",
     "--connections",
     type=int,
     default=0,
-    help="Set the number of connections to be used. 1 will run the test in synchronous mode,"
-    " 0 or less will use one connection per url (default is 0)",
+    help=(
+        "Set the number of connections to be used. 1 will run the test in synchronous"
+        " mode, 0 or less will use one connection per url (default is 0)"
+    ),
 )
 parser.add_argument(
     "-dd",
@@ -238,8 +243,8 @@ def main(
 
     if result.returncode != 0:
         print(
-            f"Return code not 0 ('{result.returncode}' -> '{os.strerror(result.returncode)}')while executing"
-            f"{os.linesep}{command}",
+            f"Return code not 0 ('{result.returncode}' ->"
+            f" '{os.strerror(result.returncode)}')while executing{os.linesep}{command}",
             file=sys.stderr,
         )
         sys.exit(os.EX_USAGE)

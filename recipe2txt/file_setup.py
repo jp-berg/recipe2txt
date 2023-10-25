@@ -234,7 +234,8 @@ def write_errors(debug: bool = False) -> int:
     current_error_dir = create_timestamped_dir(error_dir)
     if not current_error_dir:
         logger.error(
-            "Could not create directory for error reporting, no reports will be written."
+            "Could not create directory for error reporting, no reports will be"
+            " written."
         )
         return 0
 
@@ -243,7 +244,7 @@ def write_errors(debug: bool = False) -> int:
         filename.write_text(msg)
 
     warn_msg = (
-        f"During its execution the program encountered recipes "
+        "During its execution the program encountered recipes "
         f"that could not be (completely) scraped.{os.linesep}"
         f"Please see {os.linesep}%s{os.linesep}if you want to help fix this."
     )

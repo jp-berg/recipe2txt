@@ -44,8 +44,7 @@ from .utils.misc import *
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from :py:mod:`recipe2txt.utils.ContextLogger`"""
 
-_CREATE_TABLES: Final = textwrap.dedent(
-    """
+_CREATE_TABLES: Final = textwrap.dedent("""
         CREATE TABLE IF NOT EXISTS recipes(
             recipeID        INTEGER NOT NULL,
             url             TEXT NOT NULL UNIQUE,
@@ -75,8 +74,7 @@ _CREATE_TABLES: Final = textwrap.dedent(
             FOREIGN KEY(recipeID) REFERENCES recipes(recipeID) ON UPDATE CASCADE ON DELETE CASCADE
             UNIQUE(fileID, recipeID) ON CONFLICT IGNORE
         ) STRICT;
-    """
-)
+    """)
 RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
     "recipeID",
     "last_fetched",
@@ -325,7 +323,8 @@ class Database:
             if url in wanted and not fetch_again(status, version):
                 if status == RS.UNKNOWN:
                     logger.info(
-                        "Not refetching %s, scraper-version (%s) since last fetch has not changed.",
+                        "Not refetching %s, scraper-version (%s) since last fetch has"
+                        " not changed.",
                         url,
                         version,
                     )
