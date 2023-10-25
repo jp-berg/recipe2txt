@@ -11,6 +11,7 @@ root = Path(__file__).parent
 root_env = {"PYTHONPATH": str(root)}
 
 nox.options.envdir = "/tmp/nox"
+nox.options.sessions = ["check", "tidy"]
 
 pyproject_toml = "pyproject.toml"
 VENV_DIR = Path("./.venv").resolve()
@@ -150,7 +151,8 @@ def tidy(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def short(session: nox.Session) -> None:
     """System-testing: A short run of the entire program."""
-    # session.notify("check")
+    session.notify("check")
+    session.notify("tidy")
     install_deps(session)
     session.run("python", "-m", "unittest", "discover", "-s", "test")
     session.run("python", "-m", "test.test4recipe2txt", env=root_env)
@@ -160,13 +162,15 @@ def short(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def medium(session: nox.Session) -> None:
     """System-testing: Test different CLI-configurations with short runs of the program."""
+    session.notify("short")
     session.notify("check")
+    session.notify("tidy")
     install_deps(session)
     args = ["--delete-database", "--long-timeout"]
     args_md = args + ["--file-format", "md"]
     args_from_file = args + ["--input-format", "file"]
     args_serial = args + ["--connections", "1"]
-    arg_permutations = [args, args_md, args_from_file, args_serial]
+    arg_permutations = [args_md, args_from_file, args_serial]
     for arg in arg_permutations:
         session.run("python", "-m", "test.test4recipe2txt", *arg, env=root_env)
 
@@ -175,6 +179,7 @@ def medium(session: nox.Session) -> None:
 def all(session: nox.Session) -> None:
     """System-testing: Scrape all URLs at once."""
     session.notify("check")
+    session.notify("tidy")
     install_deps(session)
     session.run(
         "python",
