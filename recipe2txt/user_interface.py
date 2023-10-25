@@ -15,14 +15,11 @@
 """
 Module for processing commandline-arguments.
 
-Responsible for extracting relevant parameters from the command line arguments, doing basic checking for correctness and
-constructing a :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher` from them.
+Responsible for extracting relevant parameters from the command line parameters, doing basic checking for correctness
+and constructing a :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher` from them.
     Attributes:
         logger (logging.Logger): The logger for the module. Receives the constructed logger from
             :py:mod:`recipe2txt.utils.ContextLogger`
-        ARGNAMES (Final[list[LiteralString]]): The names of all CLI-flags :py:data:`parser` is configured to check.
-        parser (argparse.ArgumentParser): The argument parser used by this program
-
 """
 import argparse
 import logging
@@ -84,6 +81,7 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
         config_file (): The path to this programs config file (will be created if it does not exist)
 
     Returns:
+        The :py:class:`argparse.ArgumentParser` for this program
 
     """
     parser = FileListingArgParse(
@@ -171,7 +169,12 @@ def get_parser() -> argparse.ArgumentParser:
 
 def mutex_args(a: argparse.Namespace) -> None:
     """
-    Processes the mutual exclusive flags (see :py:func:`mutex_args_check`)
+    Responsible for handling '--erase-appdata'.
+
+    Raises:
+        SystemExit:
+            with error code: when another parameter was passed with '--erase-appdata'
+            without error code: when the program-data was erased successfully
 
     Args:
         a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
@@ -186,7 +189,7 @@ def mutex_args(a: argparse.Namespace) -> None:
 
 def sancheck_args(a: argparse.Namespace, output: File) -> None:
     """
-    Responsible for quickly verifying that certain flags contain valid values.
+    Responsible for quickly verifying certain parameters.
 
     Args:
         a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`

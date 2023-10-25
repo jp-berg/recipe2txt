@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along with recipe2txt.
 # If not, see <https://www.gnu.org/licenses/>.
 """
-Module that provides a common interface for CLI-arguments and config files.
+Module that provides a common interface for CLI-arguments /-options and config files.
 
 Since most parameters provided by the command line rarely change between program uses it makes sense to provide a
 config-file to the user, so that tedious retyping of favored options can be avoided. And since most parameters a
