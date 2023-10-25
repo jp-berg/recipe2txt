@@ -118,6 +118,13 @@ def check(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
+def tidy(session: nox.Session) -> None:
+    run(session, "isort", "recipe2txt", "test")
+    run(session, "black", "recipe2txt", "test", "noxfile.py")
+    session.notify("check")
+
+
+@nox.session(reuse_venv=True)
 def short(session: nox.Session) -> None:
     """System-testing: A short run of the entire program."""
     #session.notify("check")

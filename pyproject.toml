@@ -102,3 +102,6 @@ sort = "Cover"
 [tool.black]
 workers = 2
 
+[tool.isort]
+profile = "black"
+
