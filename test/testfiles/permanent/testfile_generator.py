@@ -45,7 +45,7 @@ from recipe2txt.utils.misc import (
 )
 
 __all__ = [
-    "html",
+    "HTML_LIST",
     "HTML_BAD",
     "RECIPE_LIST",
     "MD_LIST",

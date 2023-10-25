@@ -354,15 +354,15 @@ def get_logger(name: str) -> logging.Logger:
 def root_log_setup(
         level: int, file: str | None = None, no_parallel: bool = True
 ) -> None:
-    l = logging.getLogger()
+    logger = logging.getLogger()
 
-    l.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
     if file:
         f = get_file_handler(file)
-        l.addHandler(f)
+        logger.addHandler(f)
     s = get_stream_handler(level)
-    l.addHandler(s)
-    logger_list.append(l)
+    logger.addHandler(s)
+    logger_list.append(logger)
 
     if no_parallel:
         logging.logThreads = False

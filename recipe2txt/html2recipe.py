@@ -374,7 +374,7 @@ def errors2str() -> list[tuple[str, str]]:
 
                 urls = [parsing_error.url for parsing_error in parsing_error_list]
                 triggered_by = (
-                    f"scrape_html()"
+                    "scrape_html()"
                     if method == "general parsing error"
                     else f".{method}()"
                 )

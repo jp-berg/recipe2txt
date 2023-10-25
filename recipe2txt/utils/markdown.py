@@ -150,8 +150,8 @@ def ordered(*items: str, level: int = 0, start: int = 1) -> list[str]:
     ]
 
 
-def _construct_row(l: list[str]) -> str:
-    return "|" + "|".join(l) + "|" + linesep
+def _construct_row(cells: list[str]) -> str:
+    return "|" + "|".join(cells) + "|" + linesep
 
 
 def table(lists: list[list[str]]) -> list[str]:
