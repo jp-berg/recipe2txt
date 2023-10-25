@@ -24,7 +24,7 @@ import recipe_scrapers
 
 import recipe2txt.html2recipe as h2r
 import test.testfiles.permanent.testfile_generator as file_gen
-from test.test_helpers import *
+from test.test_helpers import test_recipes
 
 
 class Test(unittest.TestCase):

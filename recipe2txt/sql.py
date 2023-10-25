@@ -45,7 +45,7 @@ from recipe2txt.utils.conditional_imports import LiteralString
 from .html2recipe import METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, Recipe
 from .html2recipe import RecipeStatus as RS
 from .html2recipe import gen_status, int2status, none2na
-from .utils.misc import *
+from .utils.misc import full_path, ensure_existence_dir_critical, URL, head_str, File
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -422,8 +422,8 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                if not old_row[-2] <= RS.UNKNOWN and new_row[
-                    -2] < RS.UNKNOWN:  # type: ignore[operator]
+                if not old_row[-2] <= RS.UNKNOWN \
+                        and new_row[-2] < RS.UNKNOWN:  # type: ignore[operator]
                     merged_row[-2] = gen_status(
                         merged_row[: len(METHODS)])  # type: ignore[arg-type]
                 else:

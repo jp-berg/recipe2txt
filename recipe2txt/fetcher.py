@@ -33,7 +33,7 @@ import recipe2txt.sql as sql
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import StrEnum
-from recipe2txt.utils.markdown import *
+from recipe2txt.utils.markdown import section_link, esc, ordered, paragraph
 from recipe2txt.utils.misc import URL, Counts, File
 
 logger = get_logger(__name__)
