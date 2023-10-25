@@ -27,7 +27,7 @@ from recipe2txt.utils.misc import File
 
 level = logging.WARNING
 test_msg = "THIS IS A TESTMESSAGE"
-context_msg = "CONTEXT_MSG: %s %s %s"
+context_msg = "context_msg: %s %s %s"
 context_args = ("This", "is", "a message")
 
 
@@ -367,7 +367,10 @@ class TestQueueContextFormatter(LoggerTester):
                 ("doing %s and %s and also %s", ("thing1", "thing2", "thing3")),
                 f"While doing thing1 and thing2 and also thing3:{os.linesep}\t",
             ),
-            # ((context_msg, context_args), f"While {context_msg % context_args}:{os.linesep}\t")
+            (
+                (context_msg, context_args),
+                f"While {context_msg % context_args}:{os.linesep}\t",
+            ),
         ]
 
     def test_format_context(self):
