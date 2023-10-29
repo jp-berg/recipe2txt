@@ -211,30 +211,25 @@ def erase_files(debug: bool = False) -> None:
             rmtree(directory)
 
 
-HOW_TO_REPORT_TXT: Final = textwrap.dedent(
-    """During its execution the program encountered errors while trying to scrape 
-    recipes.
-    In cases where the error seems to originate from the underlying library 
-    'recipe-scrapers' an error-report per error
-    has been generated and saved to a file.
+HOW_TO_REPORT_TXT: Final = textwrap.dedent("""
+    During its execution the program encountered errors while trying to scrape 
+    recipes. In cases where the error seems to originate from the underlying library 
+    'recipe-scrapers' an error-report per error has been generated and saved to a file.
     You find those files in the folders adjacent to this file. There is one folder 
-    per error-encountering excecution of
-    the program (naming format: 'Year-Month-Day_Hour-Minute-Second' when finishing 
-    execution). If you want those errors
-    fixed, go to 'https://github.com/hhursev/recipe-scrapers/issues' and search for 
-    each filename (without the 
-    '.md'-extension). If you cannot find a matching report for a filename, 
-    please click 'New Issue' and select 'Scraper 
-    Bug Report'. Paste the filename (without the '.md'-extension) into the 
-    'Title'-Field and the contents of the file
+    per error-encountering execution of the program (named with the timestamp of the
+    moment the execution finished: 'Year-Month-Day_Hour-Minute-Second').
+    If you want those errors fixed, go to 
+    'https://github.com/hhursev/recipe-scrapers/issues' and search for each filename
+    (without the '.md'-extension). If you cannot find a matching report for a filename, 
+    please click 'New Issue' and select 'Scraper Bug Report'. Paste the filename
+    (without the '.md'-extension) into the 'Title'-Field and the contents of the file
     into the 'Write'-field. Check the 'Pre-filling  checks'-boxes ONLY if you made 
-    sure to follow their instructions. 
-    After that click 'Submit new issue'. The maintainers of the library will have a 
-    look at your problem and try to fix
-    it. Please note that they are volunteers and under no obligation to help you. Be 
-    kind to them.
-    """
-)
+    sure to follow their instructions. After that click 'Submit new issue'. 
+    The maintainers of the library will have a look at your problem and try to fix
+    it. 
+    Please note that they are volunteers and under no obligation to help you. Be kind
+    to them.
+    """)
 """Text describing how to report errors originating from the 
 :py:mod:`recipe-scrapers`-library."""
 
