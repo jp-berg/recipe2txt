@@ -14,34 +14,28 @@
 # You should have received a copy of the GNU General Public License along with
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
 """
-Handles all file- and data-operations of the program aside from writing the recipes
+Handles most file- and data-operations of the program aside from writing the recipes
 to the output-file.
 
 Attributes:
     logger (logging.Logger): The logger for the module. Receives the constructed
-    logger from
-        :py:mod:`recipe2txt.utils.ContextLogger`
+        logger from :py:mod:`recipe2txt.utils.ContextLogger`
     DEFAULT_DIRS (Final[ProgramDirectories]): Specifies the paths the program will
     use during normal operation for
         storage of data, configuration-files and state. The specified paths try to
-        adhere to the XDG Base Directory
-        Specification
+        adhere to the XDG Base Directory Specification
     DEBUG_DIRECTORY_BASE (Final[Path]): Specifies the root directory for all files
     used by this program when the
         '--debug'-flag is set.
     DEBUG_DIRS (Final[ProgramDirectories]): Specifies the paths the program will use
-    when the '--debug'-flag is set.
-    The directories (data, config, state) mirror their :py:data:`default-dirs`
-    counterparts in function.
+        when the '--debug'-flag is set. The directories (data, config, state) mirror
+        their :py:data:`default-dirs` counterparts in function.
     LOG_NAME (Final[LiteralString]): name of the log-file the loggers of this program
-    will write to
+        will write to
     DB_NAME (Final[LiteralString]): name of the sqlite-database-file used by this
-    program
+        program
     RECIPES_NAME (Final[LiteralString]): name of the default output-file all the
     collected recipes will be written to
-    HOW_TO_REPORT_TXT (Final[LiteralString]): help-text describing how to report
-    errors arising from the external
-        :py:mod:`recipe-scrapers`
 """
 import os
 import textwrap

@@ -22,11 +22,11 @@ Attributes:
             :py:mod:`recipe2txt.utils.ContextLogger`
     Parsed (NewType): Data :py:mod:`recipe_scrapers` extracted from the HTML-file
     NA (LiteralString): Sentinel indicating that the data for this attribute is not
-    available
+        available
     SCRAPER_VERSION (str): Contains the version of :py:mod:`recipe_scrapers`
     currently loaded
     UNINIT_RECIPE (Recipe): A :py:class:`Recipe` containing only default values for
-    attributes
+        attributes
     Recipe-Attribute-Lists: These lists contain the names of :py:class:`Recipe` as
     string. Every attribute-list contains
     all strings of the attribute-list defined before.
@@ -89,16 +89,16 @@ class RecipeStatus(IntEnum):
     of one or more attributes. Possible states are:
         NOT_INITIALIZED (-1) -> The :py:class:`Recipe` has not been initialized
         UNREACHABLE (0) -> The website corresponding to the URL of the recipe was not
-        reachable at the time of creation.
+            reachable at the time of creation.
         UNKNOWN (1) -> py:mod:`recipe_scrapers` does not recognize the website of
-        this recipe
+            this recipe
         INCOMPLETE_ESSENTIAL (2) -> does not contain all attributes named in
-        :py:data:`ESSENTIAL`
+            :py:data:`ESSENTIAL`
         INCOMPLETE_ON_DISPLAY (3) -> does not contain all attributes named in
-        :py:data:`ON_DISPLAY` but contains
+            :py:data:`ON_DISPLAY` but contains
             all attributes listed in :py:data:`ESSENTIAL`
         COMPLETE_ON_DISPLAY (4) -> does not contain all attributes in
-        :py:data:`METHODS` but contains all attributes in
+            :py:data:`METHODS` but contains all attributes in
             :py:data:`ON_DISPLAY`
         COMPLETE (5) -> does contain all attributes listed in :py:data:`METHODS`
     """
