@@ -21,8 +21,7 @@ from test.test_helpers import TEST_PROJECT_TMPDIR, create_tmpdirs, delete_tmpdir
 from test.test_sql import db_path, out_name_md, out_name_txt, out_path_md, out_path_txt
 
 from recipe2txt.fetcher import Cache
-from recipe2txt.sql import is_accessible_db
-from recipe2txt.utils.misc import ensure_accessible_file
+from recipe2txt.utils.misc import ensure_accessible_file, is_accessible_db
 
 
 class Test(unittest.TestCase):

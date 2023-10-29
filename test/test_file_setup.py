@@ -26,9 +26,8 @@ from test.test_helpers import (
 )
 
 import recipe2txt.file_setup as fs
-from recipe2txt.sql import is_accessible_db
 from recipe2txt.utils.ContextLogger import disable_loggers
-from recipe2txt.utils.misc import ensure_existence_dir
+from recipe2txt.utils.misc import ensure_existence_dir, is_accessible_db
 
 copy_debug_dirs = fs.DEBUG_DIRS
 tmp_data_dir = TEST_PROJECT_TMPDIR / "test-xdg-dirs"

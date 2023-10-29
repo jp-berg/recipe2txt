@@ -27,6 +27,7 @@ from os import linesep
 
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
+import recipe2txt.utils.misc
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
@@ -69,7 +70,7 @@ class Fetcher:
     def __init__(
         self,
         output: File,
-        database: sql.AccessibleDatabase,
+        database: recipe2txt.utils.misc.AccessibleDatabase,
         counts: Counts = Counts(),
         timeout: float | None = None,
         connections: int | None = None,

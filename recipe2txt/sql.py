@@ -30,12 +30,9 @@ Attributes:
 """
 
 import logging
-import os
 import sqlite3
-import sys
 import textwrap
-from pathlib import Path
-from typing import Any, Final, NewType, Tuple, TypeGuard
+from typing import Any, Final, Tuple
 
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
@@ -43,7 +40,7 @@ from recipe2txt.utils.ContextLogger import get_logger
 from .html2recipe import METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, Recipe
 from .html2recipe import RecipeStatus as RS
 from .html2recipe import gen_status, int2status, none2na
-from .utils.misc import URL, File, ensure_existence_dir_critical, full_path, head_str
+from .utils.misc import URL, AccessibleDatabase, File, head_str
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -145,53 +142,6 @@ _DROP_ALL: Final = (
     "DROP TABLE IF EXISTS recipes; DROP TABLE IF EXISTS files; "
     "DROP TABLE IF EXISTS contents"
 )
-
-AccessibleDatabase = NewType("AccessibleDatabase", Path)
-"""Type representing a database file, that was (at one point during program 
-execution) a valid and accessible
-Sqlite3-database"""
-
-
-def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
-    """Checks if the file 'path' points to is an :py:data:`AccessibleDatabase`"""
-    try:
-        con = sqlite3.connect(path)
-    except sqlite3.OperationalError:
-        return False
-    cur = con.cursor()
-
-    try:
-        cur.execute("PRAGMA SCHEMA_VERSION")
-    except sqlite3.DatabaseError:
-        return False
-    finally:
-        cur.close()
-        con.close()
-    return True
-
-
-def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
-    """
-    Tries to find (or create if not existing) a valid database file from the path
-    elements provided.
-
-    Works like :py:function:`recipe2txt.utils.misc.ensure_accessible_file_critical`.
-    Args:
-        *path_elem: The elements from which a path should be constructed
-    Returns:
-        A path to a valid Sqlite3-database-file, which is accessible by this program
-    Raises:
-        SystemExit: If the database-file cannot be created.
-
-    """
-    db_path = full_path(*path_elem)
-    ensure_existence_dir_critical(db_path.parent)
-    if is_accessible_db(db_path):
-        db_file = db_path
-    else:
-        logger.critical("Database not accessible: %s", db_path)
-        sys.exit(os.EX_IOERR)
-    return db_file
 
 
 def fetch_again(status: RS, scraper_version: str) -> bool:

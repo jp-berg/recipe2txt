@@ -13,8 +13,9 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
-
+import os
 import os.path
+import sqlite3
 import sys
 import urllib.parse
 from os import linesep
@@ -34,12 +35,15 @@ __all__ = [
     "is_file",
     "Directory",
     "is_dir",
+    "AccessibleDatabase",
+    "is_accessible_db",
     "full_path",
     "ensure_existence_dir",
     "ensure_existence_dir_critical",
     "create_timestamped_dir",
     "ensure_accessible_file",
     "ensure_accessible_file_critical",
+    "ensure_accessible_db_critical",
     "read_files",
     "Counts",
     "dict2str",
@@ -95,6 +99,30 @@ Directory = NewType("Directory", Path)
 
 def is_dir(value: Path) -> TypeGuard[Directory]:
     return value.is_dir()
+
+
+AccessibleDatabase = NewType("AccessibleDatabase", Path)
+"""Type representing a database file, that was (at one point during program 
+execution) a valid and accessible
+Sqlite3-database"""
+
+
+def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
+    """Checks if the file 'path' points to is an :py:data:`AccessibleDatabase`"""
+    try:
+        con = sqlite3.connect(path)
+    except sqlite3.OperationalError:
+        return False
+    cur = con.cursor()
+
+    try:
+        cur.execute("PRAGMA SCHEMA_VERSION")
+    except sqlite3.DatabaseError:
+        return False
+    finally:
+        cur.close()
+        con.close()
+    return True
 
 
 def full_path(*pathelements: str | Path) -> Path:
@@ -231,6 +259,30 @@ def ensure_accessible_file_critical(*path_elem: str | Path) -> File:
         logger.critical(*msg)
         sys.exit(os.EX_IOERR)
     return file
+
+
+def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
+    """
+    Tries to find (or create if not existing) a valid database file from the path
+    elements provided.
+
+    Works like :py:function:`recipe2txt.utils.misc.ensure_accessible_file_critical`.
+    Args:
+        *path_elem: The elements from which a path should be constructed
+    Returns:
+        A path to a valid Sqlite3-database-file, which is accessible by this program
+    Raises:
+        SystemExit: If the database-file cannot be created.
+
+    """
+    db_path = full_path(*path_elem)
+    ensure_existence_dir_critical(db_path.parent)
+    if is_accessible_db(db_path):
+        db_file = db_path
+    else:
+        logger.critical("Database not accessible: %s", db_path)
+        sys.exit(os.EX_IOERR)
+    return db_file
 
 
 def read_files(*possible_paths: str | Path) -> list[str]:
