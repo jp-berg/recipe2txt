@@ -126,6 +126,8 @@ RECIPES_NAME_TXT: Final = RECIPES_NAME + ".txt"
 RECIPES_NAME_MD: Final = RECIPES_NAME + ".md"
 CONFIG_FILE: Final = DEFAULT_DIRS.config / CONFIG_NAME
 """path to the config-file"""
+HOW_TO_REPORT_NAME: Final = "how_to_report_errors.txt"
+"""Name of the file containing instructions on how to report recipe_scrapers-errors"""
 
 
 def get_default_output() -> str:
@@ -237,32 +239,16 @@ HOW_TO_REPORT_TXT: Final = textwrap.dedent(
 :py:mod:`recipe-scrapers`-library."""
 
 
-def write_errors(debug: bool = False) -> int:
-    """
-    Writes the error reports from :py:func:`recipe2txt.html2recipe.errors2str` to a
-    timestamped directory.
-
-    Args:
-        debug: Whether the reports should be written into the normal- or into the
-        debug-state-directory
-
-    Returns:
-        Number of errors written
-
-    """
-    if not (errors := errors2str()):
-        return 0
-
-    logger.info("---Writing error reports---")
-
+def get_parsing_error_dir(debug: bool = False) -> Directory | None:
     data_path = DEBUG_DIRS.state if debug else DEFAULT_DIRS.state
     if not (error_dir := ensure_existence_dir(data_path, "error_reports")):
         logger.error(
             "Could not create %s, no reports will be written",
             data_path / "error_reports",
         )
-        return 0
-    how_to_report_file = error_dir / "how_to_report_errors.txt"
+        return None
+
+    how_to_report_file = error_dir / HOW_TO_REPORT_NAME
     if not how_to_report_file.is_file():
         how_to_report_file.write_text(HOW_TO_REPORT_TXT)
 
@@ -272,17 +258,6 @@ def write_errors(debug: bool = False) -> int:
             "Could not create directory for error reporting, no reports will be"
             " written."
         )
-        return 0
+        return None
 
-    for title, msg in errors:
-        filename = (current_error_dir / title).with_suffix(".md")
-        filename.write_text(msg)
-
-    warn_msg = (
-        "During its execution the program encountered recipes "
-        f"that could not be (completely) scraped.{os.linesep}"
-        f"Please see {os.linesep}%s{os.linesep}if you want to help fix this."
-    )
-    logger.warning(warn_msg, how_to_report_file)
-
-    return len(errors)
+    return current_error_dir
