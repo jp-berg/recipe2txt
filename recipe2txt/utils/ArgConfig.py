@@ -131,11 +131,11 @@ class BasicOption:
     """textwrap-instance for the help-strings in the TOML-file"""
 
     def __init__(
-            self,
-            option_name: str,
-            help_str: str,
-            default: Any = None,
-            short: str | None = "",
+        self,
+        option_name: str,
+        help_str: str,
+        default: Any = None,
+        short: str | None = "",
     ):
         option_name = option_name.strip()
         is_optional = option_name.startswith("--")
@@ -236,12 +236,12 @@ class ChoiceOption(BasicOption, Generic[T]):
     """
 
     def __init__(
-            self,
-            option_name: str,
-            help_str: str,
-            default: T,
-            choices: Iterable[T],
-            short: str | None = "",
+        self,
+        option_name: str,
+        help_str: str,
+        default: T,
+        choices: Iterable[T],
+        short: str | None = "",
     ):
         if default not in choices:
             raise ValueError(f"Parameter {default=} not in {choices=}")
@@ -272,12 +272,12 @@ class TypeOption(BasicOption):
     """
 
     def __init__(
-            self,
-            option_name: str,
-            help_str: str,
-            default: Any,
-            t: type | None = None,
-            short: str | None = "",
+        self,
+        option_name: str,
+        help_str: str,
+        default: Any,
+        t: type | None = None,
+        short: str | None = "",
     ):
         if t is None:
             if default is None:
@@ -306,11 +306,11 @@ class BoolOption(BasicOption):
     """
 
     def __init__(
-            self,
-            option_name: str,
-            help_str: str,
-            default: bool = False,
-            short: str | None = "",
+        self,
+        option_name: str,
+        help_str: str,
+        default: bool = False,
+        short: str | None = "",
     ):
         super().__init__(option_name, help_str, default, short)
         self.arguments[ArgKey.action] = "store_true"
@@ -336,12 +336,12 @@ class NArgOption(BasicOption):
     """
 
     def __init__(
-            self,
-            option_name: str,
-            help_str: str,
-            default: list[Any] | None = None,
-            nargs: NARG = "*",
-            short: str | None = "",
+        self,
+        option_name: str,
+        help_str: str,
+        default: list[Any] | None = None,
+        nargs: NARG = "*",
+        short: str | None = "",
     ):
         d = [] if default is None else default
         super().__init__(option_name, help_str, d, short)
@@ -441,7 +441,7 @@ class ArgConfig:
             raise e
 
     def add_arg(
-            self, name: str, help_str: str, default: Any = None, short: str | None = ""
+        self, name: str, help_str: str, default: Any = None, short: str | None = ""
     ) -> None:
         """
         Register a standard argument consisting of a string name, expecting a string
@@ -468,12 +468,12 @@ class ArgConfig:
         self._add_option(BasicOption, (name, help_str, default, short))
 
     def add_choice(
-            self,
-            name: str,
-            help_str: str,
-            default: T,
-            choices: Iterable[T],
-            short: str | None = "",
+        self,
+        name: str,
+        help_str: str,
+        default: T,
+        choices: Iterable[T],
+        short: str | None = "",
     ) -> None:
         """
         Register a choice, prompting the user to select from a restricted set of values.
@@ -488,12 +488,12 @@ class ArgConfig:
         self._add_option(ChoiceOption, (name, help_str, default, choices, short))
 
     def add_type(
-            self,
-            name: str,
-            help_str: str,
-            default: Any,
-            t: type | None = None,
-            short: str | None = "",
+        self,
+        name: str,
+        help_str: str,
+        default: Any,
+        t: type | None = None,
+        short: str | None = "",
     ) -> None:
         """
         Register an argument with a certain type.
@@ -510,8 +510,7 @@ class ArgConfig:
         self._add_option(TypeOption, (name, help_str, default, t, short))
 
     def add_bool(
-            self, name: str, help_str: str, default: bool = False,
-            short: str | None = ""
+        self, name: str, help_str: str, default: bool = False, short: str | None = ""
     ) -> None:
         """
         Register a boolean argument
@@ -525,12 +524,12 @@ class ArgConfig:
         self._add_option(BoolOption, (name, help_str, default, short))
 
     def add_narg(
-            self,
-            name: str,
-            help_str: str,
-            default: list[Any] | None = None,
-            nargs: NARG = "*",
-            short: str | None = "",
+        self,
+        name: str,
+        help_str: str,
+        default: list[Any] | None = None,
+        nargs: NARG = "*",
+        short: str | None = "",
     ) -> None:
         """
         Register an argument taking one or more elements.

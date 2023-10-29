@@ -64,10 +64,21 @@ from recipe_scrapers._exceptions import (
     WebsiteNotImplementedError,
 )
 
-from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import LiteralString
-from recipe2txt.utils.markdown import unordered, code, italic, bold, codeblock, esc, \
-    ordered, header, paragraph, EMPTY_COMMENT, link
+from recipe2txt.utils.ContextLogger import get_logger
+from recipe2txt.utils.markdown import (
+    EMPTY_COMMENT,
+    bold,
+    code,
+    codeblock,
+    esc,
+    header,
+    italic,
+    link,
+    ordered,
+    paragraph,
+    unordered,
+)
 from recipe2txt.utils.misc import URL, Counts, dict2str, is_url
 from recipe2txt.utils.traceback_utils import format_stacks, get_shared_frames
 
@@ -269,11 +280,11 @@ issue.
 
 
 def handle_parsing_error(
-        url: URL,
-        exception: Exception,
-        method: str | None = None,
-        log: Callable[..., None] | None = None,
-        save_error: bool = True,
+    url: URL,
+    exception: Exception,
+    method: str | None = None,
+    log: Callable[..., None] | None = None,
+    save_error: bool = True,
 ) -> ParsingError | None:
     """
     Logs and categorizes exceptions occurring during parsing of recipes.
@@ -394,11 +405,11 @@ def errors2str() -> list[tuple[str, str]]:
 
                 if len(urls) > 1:
                     dot_explanation = (
-                            italic(
-                                "'...' indicates frames present in all traces"
-                                "(but only shown in the first)"
-                            )
-                            + linesep * 2
+                        italic(
+                            "'...' indicates frames present in all traces"
+                            "(but only shown in the first)"
+                        )
+                        + linesep * 2
                     )
                 else:
                     dot_explanation = ""
@@ -474,7 +485,7 @@ def info2str(method: str, info: Any) -> str:
         if method == "ingredients":
             if isinstance(info, list):
                 if (
-                        len(info[0]) < 2
+                    len(info[0]) < 2
                 ):  # Every item in the list is probably just one character
                     for i in range(len(info)):
                         if not info[i]:
@@ -524,11 +535,11 @@ def get_info(method: str, parsed: Parsed) -> Any:
     try:
         info = getattr(parsed, method)()
     except (
-            SchemaOrgException,
-            ElementNotFoundInHtml,
-            TypeError,
-            AttributeError,
-            KeyError,
+        SchemaOrgException,
+        ElementNotFoundInHtml,
+        TypeError,
+        AttributeError,
+        KeyError,
     ) as e:
         handle_parsing_error(get_url(parsed), e, method_name, log)
     except NotImplementedError:
@@ -621,16 +632,16 @@ def _re2md(recipe: Recipe) -> list[str]:
     instructions = ordered(*escaped)
 
     md = (
-            [
-                header(title, 2, True),
-                paragraph(),
-                recipe.total_time + " min | " + recipe.yields,
-                paragraph(),
-            ]
-            + ingredients
-            + [EMPTY_COMMENT]
-            + instructions
-            + [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
+        [
+            header(title, 2, True),
+            paragraph(),
+            recipe.total_time + " min | " + recipe.yields,
+            paragraph(),
+        ]
+        + ingredients
+        + [EMPTY_COMMENT]
+        + instructions
+        + [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
     )
 
     return md
@@ -653,7 +664,7 @@ def _re2txt(recipe: Recipe) -> list[str]:
 
 
 def recipe2out(
-        recipe: Recipe, counts: Counts | None = None, md: bool = False
+    recipe: Recipe, counts: Counts | None = None, md: bool = False
 ) -> list[str] | None:
     """
     Formats a recipe for to be written to a file

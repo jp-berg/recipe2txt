@@ -30,10 +30,10 @@ from os import linesep
 
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
+from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.conditional_imports import StrEnum
-from recipe2txt.utils.markdown import section_link, esc, ordered, paragraph
+from recipe2txt.utils.markdown import esc, ordered, paragraph, section_link
 from recipe2txt.utils.misc import URL, Counts, File
 
 logger = get_logger(__name__)
@@ -70,15 +70,15 @@ class Fetcher:
     )
 
     def __init__(
-            self,
-            output: File,
-            database: sql.AccessibleDatabase,
-            counts: Counts = Counts(),
-            timeout: float | None = None,
-            connections: int | None = None,
-            markdown: bool = False,
-            cache: Cache = Cache.default,
-            user_agent: str | None = None,
+        self,
+        output: File,
+        database: sql.AccessibleDatabase,
+        counts: Counts = Counts(),
+        timeout: float | None = None,
+        connections: int | None = None,
+        markdown: bool = False,
+        cache: Cache = Cache.default,
+        user_agent: str | None = None,
     ) -> None:
         """
         Initializes the Fetcher-class.

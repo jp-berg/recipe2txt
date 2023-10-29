@@ -99,7 +99,7 @@ The specified paths try to adhere to the XDG Base Directory Specification.
 """
 
 DEBUG_DIRECTORY_BASE: Final = (
-        Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
+    Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
 )
 """Specifies the root directory for all files used by this program when the 
 '--debug'-flag is set."""
@@ -142,7 +142,7 @@ def get_default_output() -> str:
 
 
 def file_setup(
-        output: str, debug: bool = False
+    output: str, debug: bool = False
 ) -> Tuple[AccessibleDatabase, File, File]:
     """
     Initializes all files that the program will need to read from and write to.

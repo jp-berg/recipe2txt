@@ -20,11 +20,6 @@
 import unittest
 from pathlib import Path
 from shutil import rmtree
-
-import recipe2txt.file_setup as fs
-from recipe2txt.sql import is_accessible_db
-from recipe2txt.utils.ContextLogger import disable_loggers
-from recipe2txt.utils.misc import ensure_existence_dir
 from test.test_helpers import (
     NONE_DIRS,
     NORMAL_DIRS,
@@ -32,6 +27,11 @@ from test.test_helpers import (
     TESTFILE,
     assertAccessibleFile,
 )
+
+import recipe2txt.file_setup as fs
+from recipe2txt.sql import is_accessible_db
+from recipe2txt.utils.ContextLogger import disable_loggers
+from recipe2txt.utils.misc import ensure_existence_dir
 
 copy_debug_dirs = fs.DEBUG_DIRS
 tmp_data_dir = TEST_PROJECT_TMPDIR / "test-xdg-dirs"

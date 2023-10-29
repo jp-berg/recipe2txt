@@ -66,7 +66,7 @@ def esc(string: str) -> str:
 
 
 def header(
-        string: str, level: int = 1, fragmentified_section_link: bool = False
+    string: str, level: int = 1, fragmentified_section_link: bool = False
 ) -> str:
     if level < 1:
         level = 1
@@ -119,7 +119,7 @@ def link(url: str, description: str | None = None) -> str:
 
 
 def section_link(
-        header: str, description: str | None = None, fragmentified: bool = False
+    header: str, description: str | None = None, fragmentified: bool = False
 ) -> str:
     if fragmentified:
         ref = "#" + fragmentify(header)

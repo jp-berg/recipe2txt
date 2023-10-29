@@ -24,9 +24,9 @@ from os import linesep
 
 
 def shorten_paths(
-        stack: traceback.StackSummary,
-        first_visible_dir: str | None = None,
-        skip_first: bool = False,
+    stack: traceback.StackSummary,
+    first_visible_dir: str | None = None,
+    skip_first: bool = False,
 ) -> traceback.StackSummary:
     if first_visible_dir is None:
         paths = [frame.filename for frame in stack]
@@ -48,7 +48,7 @@ def shorten_paths(
 
 
 def get_shared_frames(
-        tb_exes: list[traceback.TracebackException],
+    tb_exes: list[traceback.TracebackException],
 ) -> traceback.StackSummary:
     stacks = [tb_ex.stack for tb_ex in tb_exes]
     shortest = deepcopy(min(stacks, key=len))
@@ -71,9 +71,9 @@ def get_shared_frames(
 
 
 def format_stacks(
-        tb_exes: list[traceback.TracebackException],
-        shared_stack: traceback.StackSummary,
-        first_visible_dir: str | None = None,
+    tb_exes: list[traceback.TracebackException],
+    shared_stack: traceback.StackSummary,
+    first_visible_dir: str | None = None,
 ) -> list[list[str]]:
     shared_stack_len = len(shared_stack)
     tb_exes_copy = deepcopy(tb_exes)

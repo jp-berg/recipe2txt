@@ -19,9 +19,9 @@
 
 import os
 import unittest
+from test.testfiles.permanent.gen_stack import GenTraces
 
 import recipe2txt.utils.traceback_utils as tb_u
-from test.testfiles.permanent.gen_stack import GenTraces
 
 
 class TracebackTests(unittest.TestCase):
@@ -34,13 +34,13 @@ class TracebackTests(unittest.TestCase):
             anon_stack = tb_u.shorten_paths(trace.stack, "test")
             for frame in anon_stack:
                 with self.subTest(
-                        msg=f"partial anonymization | Number = {val} | Frame = {frame}"
+                    msg=f"partial anonymization | Number = {val} | Frame = {frame}"
                 ):
                     self.assertTrue(frame.filename.startswith(path_start))
             anon_stack = tb_u.shorten_paths(trace.stack, "tests")
             for frame in anon_stack:
                 with self.subTest(
-                        msg=f"full anonymization | Number = {val} | Frame = {frame}"
+                    msg=f"full anonymization | Number = {val} | Frame = {frame}"
                 ):
                     self.assertEqual(frame.filename, ".../gen_stack.py")
 
@@ -51,7 +51,7 @@ class TracebackTests(unittest.TestCase):
         for shared_frame in shared:
             for tb in self.gen_tbs.tb_ex_list:
                 with self.subTest(
-                        shared_frame=shared_frame, frame=tb.stack[i], frame_number=i
+                    shared_frame=shared_frame, frame=tb.stack[i], frame_number=i
                 ):
                     self.assertEqual(tb.stack[i], shared_frame)
             i += 1

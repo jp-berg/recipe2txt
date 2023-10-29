@@ -21,11 +21,19 @@ import os
 import shutil
 import unittest
 from pathlib import Path
+from test.test_helpers import (
+    NONE_DIRS,
+    NORMAL_DIRS,
+    TEST_FILEDIR,
+    TEST_PROJECT_TMPDIR,
+    TESTFILE,
+    XDG_TMPDIR,
+    assertAccessibleFile,
+    create_tmpdirs,
+    delete_tmpdirs,
+)
 
 import recipe2txt.utils.misc as misc
-from test.test_helpers import create_tmpdirs, TEST_FILEDIR, delete_tmpdirs, \
-    TEST_PROJECT_TMPDIR, XDG_TMPDIR, assertAccessibleFile
-from test.test_helpers import NONE_DIRS, NORMAL_DIRS, TESTFILE
 
 
 class FileTests(unittest.TestCase):

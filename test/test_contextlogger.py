@@ -17,13 +17,13 @@ import logging
 import os
 import shutil
 import unittest
+from test.test_helpers import TEST_PROJECT_TMPDIR, assertFilesEqual
+from test.testfiles.permanent.gen_log import gen_logs, log_paths
 from typing import Any, Final, TypeVar
 
 import recipe2txt.utils.ContextLogger as CTXL
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.misc import File
-from test.test_helpers import TEST_PROJECT_TMPDIR, assertFilesEqual
-from test.testfiles.permanent.gen_log import gen_logs, log_paths
 
 level = logging.WARNING
 test_msg = "THIS IS A TESTMESSAGE"
@@ -44,7 +44,7 @@ class TestStreamHandler(logging.StreamHandler):
             super().emit(record)
 
     def get_formatted_records(self):
-        for record in self.seenRecords[len(self.formattedRecords):]:
+        for record in self.seenRecords[len(self.formattedRecords) :]:
             self.formattedRecords.append(self.format(record))
         return self.formattedRecords
 
@@ -63,15 +63,15 @@ T = TypeVar("T")
 
 
 def record_factory(
-        should_trigger: bool,
-        exc_info=None,
-        context: tuple[str, tuple[Any, ...]] | None = None,
-        ctx: str = None,
-        defer: bool = False,
-        is_context: bool | None = None,
-        full_trace: bool = False,
-        msg=None,
-        *args: Any,
+    should_trigger: bool,
+    exc_info=None,
+    context: tuple[str, tuple[Any, ...]] | None = None,
+    ctx: str = None,
+    defer: bool = False,
+    is_context: bool | None = None,
+    full_trace: bool = False,
+    msg=None,
+    *args: Any,
 ) -> logging.LogRecord:
     global level
     if should_trigger:
@@ -147,10 +147,10 @@ class LoggerTester(unittest.TestCase):
         self.logger.addHandler(self.stream_handler)
 
     def get_context(
-            self,
-            is_context: bool = False,
-            is_emittable: bool = False,
-            deferred: int | None = None,
+        self,
+        is_context: bool = False,
+        is_emittable: bool = False,
+        deferred: int | None = None,
     ) -> CTXL.Context:
         c = CTXL.Context(self.stream_handler)
         if not is_context:
@@ -199,7 +199,7 @@ class LoggerTester(unittest.TestCase):
         return attr1 == attr2
 
     def assertRecordEqual(
-            self, record1: logging.LogRecord, record2: logging.LogRecord
+        self, record1: logging.LogRecord, record2: logging.LogRecord
     ) -> None:
         if not isinstance(record1, logging.LogRecord):
             self.fail("record1 is not of the class LogRecord")
@@ -209,7 +209,7 @@ class LoggerTester(unittest.TestCase):
             self.assertAttributeEqual(record1, record2, attribute)
 
     def assertRecordListsEqual(
-            self, records1: list[logging.LogRecord], records2: logging.LogRecord
+        self, records1: list[logging.LogRecord], records2: logging.LogRecord
     ) -> None:
         if not len(records1) == len(records2):
             self.fail("Length of LogRecord-lists do not match.")
@@ -218,7 +218,7 @@ class LoggerTester(unittest.TestCase):
                 self.assertRecordEqual(record1, record2)
 
     def assertContextEqual(
-            self, context1: CTXL.Context, context2: CTXL.Context
+        self, context1: CTXL.Context, context2: CTXL.Context
     ) -> None:
         if not isinstance(context1, CTXL.Context):
             raise ValueError("context1 is not of the class Context")

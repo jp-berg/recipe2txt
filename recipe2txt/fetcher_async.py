@@ -64,12 +64,12 @@ class AsyncFetcher(Fetcher):
         await asyncio.gather(*tasks)
 
     async def _fetch_task(
-            self,
-            url_queue: asyncio.queues.Queue[URL],
-            timeout: aiohttp.client.ClientTimeout,
+        self,
+        url_queue: asyncio.queues.Queue[URL],
+        timeout: aiohttp.client.ClientTimeout,
     ) -> None:
         async with aiohttp.ClientSession(
-                timeout=timeout, headers={"User-Agent": self.user_agent}
+            timeout=timeout, headers={"User-Agent": self.user_agent}
         ) as session:
             while not url_queue.empty():
                 url = await url_queue.get()
@@ -80,8 +80,8 @@ class AsyncFetcher(Fetcher):
                             html = await response.text()
                         self.counts.reached += 1
                     except (
-                            aiohttp.client_exceptions.TooManyRedirects,
-                            asyncio.TimeoutError,
+                        aiohttp.client_exceptions.TooManyRedirects,
+                        asyncio.TimeoutError,
                     ) as e:
                         logger.error("Unable to reach website: ", exc_info=e)
                     except Exception as e:

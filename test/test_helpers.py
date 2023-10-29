@@ -138,7 +138,7 @@ def delete_tmpdirs() -> bool:
 
 
 def assertAccessibleFile(
-        testcase: unittest.TestCase, file: Path, not_empty: bool = False
+    testcase: unittest.TestCase, file: Path, not_empty: bool = False
 ) -> None:
     if not file.is_file():
         testcase.fail(f"{file} is not a file")
@@ -156,13 +156,13 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
     with test.open("r") as test_file:
         with validation.open("r") as validation_file:
             for idx, (test_line, validation_line) in enumerate(
-                    zip(test_file.readlines(), validation_file.readlines())
+                zip(test_file.readlines(), validation_file.readlines())
             ):
                 with testcase.subTest(
-                        test_file=test, validation_file=validation, line=idx
+                    test_file=test, validation_file=validation, line=idx
                 ):
                     if test_line.startswith("Creating") and validation_line.startswith(
-                            "Creating"
+                        "Creating"
                     ):
                         prefix_test, path_test = test_line.split(": ", 1)
                         prefix_validation, path_validation = validation_line.split(
@@ -178,12 +178,12 @@ def assertFilesEqual(testcase: unittest.TestCase, test: Path, validation: Path) 
 
 
 def assertEval(
-        testcase: unittest.TestCase,
-        func: Callable[..., Any],
-        data: list[tuple[tuple[Any, ...] | Any, tuple[Any, ...] | Any]],
+    testcase: unittest.TestCase,
+    func: Callable[..., Any],
+    data: list[tuple[tuple[Any, ...] | Any, tuple[Any, ...] | Any]],
 ) -> None:
     for idx, (test, validation) in enumerate(data):
         with testcase.subTest(
-                iteration=idx, test_data=test, validation_data=validation
+            iteration=idx, test_data=test, validation_data=validation
         ):
             testcase.assertEqual(func(test), validation)

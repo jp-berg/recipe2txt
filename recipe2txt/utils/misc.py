@@ -112,7 +112,7 @@ def full_path(*pathelements: str | Path) -> Path:
 
 
 def _ensure_existence_dir(
-        path: Path,
+    path: Path,
 ) -> tuple[Directory | None, tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_file():
@@ -178,7 +178,7 @@ def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Directory 
 
 
 def _ensure_accessible_file(
-        path: Path,
+    path: Path,
 ) -> tuple[File | None, tuple[str, Any] | tuple[str, Any, Any]]:
     try:
         if path.is_dir():

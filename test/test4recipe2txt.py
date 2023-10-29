@@ -26,6 +26,7 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
+from test.test_helpers import TEST_PROJECT_TMPDIR
 from typing import Final, Literal, TypeAlias, get_args
 
 from recipe2txt.file_setup import DB_NAME, DEBUG_DIRS, LOG_NAME
@@ -35,7 +36,6 @@ from recipe2txt.utils.misc import (
     create_timestamped_dir,
     ensure_accessible_file_critical,
 )
-from test.test_helpers import TEST_PROJECT_TMPDIR
 
 
 def escape_whitespace(element: str) -> str:
@@ -182,13 +182,13 @@ parser.add_argument(
 
 
 def main(
-        number_of_urls: int = 5,
-        connections: int = 0,
-        delete_database: bool = False,
-        verbosity: LOG_LEVEL_NAMES = "info",
-        file_format: FileFormatValues = "txt",
-        input_format: InputFormatValues = "url",
-        long_timeout: bool = False,
+    number_of_urls: int = 5,
+    connections: int = 0,
+    delete_database: bool = False,
+    verbosity: LOG_LEVEL_NAMES = "info",
+    file_format: FileFormatValues = "txt",
+    input_format: InputFormatValues = "url",
+    long_timeout: bool = False,
 ) -> None:
     os.chdir(WORK_DIR)
     check_existence(PYTHON_PATH)

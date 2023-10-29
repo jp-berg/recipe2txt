@@ -40,12 +40,13 @@ import textwrap
 from pathlib import Path
 from typing import Any, Final, NewType, Tuple, TypeGuard
 
-from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.conditional_imports import LiteralString
+from recipe2txt.utils.ContextLogger import get_logger
+
 from .html2recipe import METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, Recipe
 from .html2recipe import RecipeStatus as RS
 from .html2recipe import gen_status, int2status, none2na
-from .utils.misc import full_path, ensure_existence_dir_critical, URL, head_str, File
+from .utils.misc import URL, File, ensure_existence_dir_critical, full_path, head_str
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -91,23 +92,23 @@ RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
 """Contains the names of all rows in the table 'recipes'."""
 
 _INSERT_RECIPE: Final = (
-        "INSERT OR IGNORE INTO recipes"
-        + " ("
-        + ", ".join(RECIPE_ATTRIBUTES)
-        + ")"
-        + " VALUES ("
-        + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
-        + ")"
+    "INSERT OR IGNORE INTO recipes"
+    + " ("
+    + ", ".join(RECIPE_ATTRIBUTES)
+    + ")"
+    + " VALUES ("
+    + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
+    + ")"
 )
 
 _INSERT_OR_REPLACE_RECIPE: Final = (
-        "INSERT OR REPLACE INTO recipes"
-        + " ("
-        + ", ".join(RECIPE_ATTRIBUTES)
-        + ")"
-        + " VALUES ("
-        + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
-        + ")"
+    "INSERT OR REPLACE INTO recipes"
+    + " ("
+    + ", ".join(RECIPE_ATTRIBUTES)
+    + ")"
+    + " VALUES ("
+    + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
+    + ")"
 )
 
 _INSERT_FILE: Final = "INSERT OR IGNORE INTO files ( filepath ) VALUES ( ? )"
@@ -123,24 +124,24 @@ _FILEPATHS_JOIN_RECIPES: Final = (
     " NATURAL JOIN contents NATURAL JOIN recipes) "
 )
 _GET_RECIPE: Final = (
-        "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+    "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
 )
 _GET_RECIPES: Final = (
-        "SELECT "
-        + ", ".join(RECIPE_ATTRIBUTES)
-        + " FROM"
-        + _FILEPATHS_JOIN_RECIPES
-        + "WHERE status >= "
-        + str(int(RS.INCOMPLETE_ON_DISPLAY))
+    "SELECT "
+    + ", ".join(RECIPE_ATTRIBUTES)
+    + " FROM"
+    + _FILEPATHS_JOIN_RECIPES
+    + "WHERE status >= "
+    + str(int(RS.INCOMPLETE_ON_DISPLAY))
 )
 _GET_URLS_STATUS_VERSION: Final = "SELECT url, status, scraper_version FROM recipes"
 _GET_CONTENT: Final = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
 _GET_TITLES_HOSTS: Final = (
-        "SELECT title, host FROM"
-        + _FILEPATHS_JOIN_RECIPES
-        + " WHERE status >= "
-        + str(int(RS.INCOMPLETE_ON_DISPLAY))
+    "SELECT title, host FROM"
+    + _FILEPATHS_JOIN_RECIPES
+    + " WHERE status >= "
+    + str(int(RS.INCOMPLETE_ON_DISPLAY))
 )
 
 _DROP_ALL: Final = (
@@ -223,14 +224,14 @@ def fetch_again(status: RS, scraper_version: str) -> bool:
         return True
 
     if (
-            status
-            in (
+        status
+        in (
             RS.INCOMPLETE_ESSENTIAL,
             RS.UNKNOWN,
             RS.INCOMPLETE_ON_DISPLAY,
             RS.COMPLETE_ON_DISPLAY,
-    )
-            and scraper_version < SCRAPER_VERSION
+        )
+        and scraper_version < SCRAPER_VERSION
     ):
         return True
 
@@ -412,7 +413,7 @@ class Database:
         if old_row:
             for old_val, new_val in zip(old_row, new_row):
                 if (new_val and new_val != NA) and (
-                        prefer_new or not (old_val and old_val != NA)
+                    prefer_new or not (old_val and old_val != NA)
                 ):
                     merged_row.append(new_val)
                     updated.append(True)
@@ -422,16 +423,18 @@ class Database:
 
             merged_row[-1] = SCRAPER_VERSION
             if True in updated:
-                if not old_row[-2] <= RS.UNKNOWN \
-                        and new_row[-2] < RS.UNKNOWN:  # type: ignore[operator]
+                if (
+                    not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN  # type: ignore[operator]
+                ):
                     merged_row[-2] = gen_status(
-                        merged_row[: len(METHODS)])  # type: ignore[arg-type]
+                        merged_row[: len(METHODS)]  # type: ignore[arg-type]
+                    )
                 else:
                     merged_row[-2] = max(old_row[-2], new_row[-2])
                 r = Recipe(*merged_row)  # type: ignore[arg-type]
                 if logger.isEnabledFor(logging.INFO):
                     for attr, old_val, new_val, is_replaced in zip(
-                            RECIPE_ATTRIBUTES, old_row, new_row, updated
+                        RECIPE_ATTRIBUTES, old_row, new_row, updated
                     ):
                         if is_replaced:
                             logger.info(

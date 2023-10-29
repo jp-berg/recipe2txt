@@ -20,18 +20,18 @@
 import contextlib
 import logging
 import shutil
+import test.testfiles.permanent.gen_stack as gen_stack
 from pathlib import Path
 from typing import Final, Generator
 
 import recipe2txt.utils.misc as misc
-import test.testfiles.permanent.gen_stack as gen_stack
-from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import (
     _LOG_FORMAT_STREAM,
     STRING2LEVEL,
     QueueContextFilter,
     QueueContextFormatter,
 )
+from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import (
     Directory,
@@ -62,13 +62,13 @@ dir_fail = Path("/root/test")
 
 
 def queue_processor(
-        nums: list[int], directory_normal: Path, directory_fail: Path
+    nums: list[int], directory_normal: Path, directory_fail: Path
 ) -> int:
     minimum = 1000
     total = 0
     for idx, num in enumerate(nums):
         with QCM(
-                write_logger, write_logger.info, "Processing %s", num
+            write_logger, write_logger.info, "Processing %s", num
         ):  # Check indentation, string formatting
             try:
                 res = int(gen_stack.fun5(num))
