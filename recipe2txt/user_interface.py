@@ -31,9 +31,10 @@ import argparse
 import logging
 import os
 import sys
+import textwrap
 from functools import cache
 from pathlib import Path
-from typing import Tuple, get_args
+from typing import Final, Tuple, get_args
 
 from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import (
@@ -56,8 +57,9 @@ from recipe2txt.utils.misc import URL, Counts, File, dict2str, extract_urls, rea
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
 except ImportError:
-    from recipe2txt.fetcher import \
-        Fetcher as Fetcher  # type: ignore[assignment] # isort: skip
+    from recipe2txt.fetcher import (
+        Fetcher as Fetcher,  # type: ignore[assignment] # isort: skip
+    )
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -73,12 +75,25 @@ class FileListingArgParse(argparse.ArgumentParser):
             os.linesep + "  " + (os.linesep + "  ").join(files) if files else " none"
         )
         help_msg += (
-                os.linesep
-                + "files created or used by this program:"
-                + files_str
-                + os.linesep
+            os.linesep
+            + "files created or used by this program:"
+            + files_str
+            + os.linesep
         )
         return help_msg
+
+
+AIOHTTP_NOT_AVAILABLE_MSG: Final = textwrap.dedent("""
+    Since the package 'aiohttp' is not installed the number of
+    simultaneous connections will always be 1. Thus this flag and its
+    parameters will not be evaluated. 
+    """) if not Fetcher.is_async else ""
+
+WHICH_VALUE_SET_MSG: Final = (
+    "sets the connect-value of aiohttp.ClientTimeout"
+    if Fetcher.is_async
+    else "sets the timeout-argument of urllib.request.urlopen"
+)
 
 
 def config_args(config_file: Path) -> argparse.ArgumentParser:
@@ -125,14 +140,8 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
         "--connections",
         default=Fetcher.connections,
         short="-con",
-        help_str="{}Sets the number of simultaneous connections".format(
-            ""
-            if Fetcher.is_async
-            else (
-                "Since the package 'aiohttp' is not installed the number of"
-                " simultaneous connections will always be 1. Thus this flag and its"
-                " parameters will not be evaluated. "
-            )
+        help_str=(
+            f"{AIOHTTP_NOT_AVAILABLE_MSG}Sets the number of simultaneous connections"
         ),
     )
     arg_config.add_choice(
@@ -159,11 +168,7 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
         default=Fetcher.timeout,
         help_str=(
             "Sets the number of seconds the program waits for an individual website to"
-            " respond, eg. {}.".format(
-                "sets the connect-value of aiohttp.ClientTimeout"
-                if Fetcher.is_async
-                else "sets the timeout-argument of urllib.request.urlopen"
-            )
+            f" respond, eg. {WHICH_VALUE_SET_MSG}"
         ),
     )
     arg_config.add_bool("--markdown", "Generates markdown-output instead of '.txt'")
