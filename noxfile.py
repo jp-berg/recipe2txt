@@ -11,7 +11,7 @@ root = Path(__file__).parent
 root_env = {"PYTHONPATH": str(root)}
 
 nox.options.envdir = "/tmp/nox"
-nox.options.sessions = ["check", "tidy"]
+nox.options.sessions = ["tidy", "check"]
 
 pyproject_toml = "pyproject.toml"
 VENV_DIR = Path("./.venv").resolve()
