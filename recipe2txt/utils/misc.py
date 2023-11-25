@@ -20,13 +20,14 @@ import urllib.parse
 from os import linesep
 from pathlib import Path
 from time import localtime, strftime
-from typing import Any, NewType, TypeGuard
+from typing import Any, Final, NewType, TypeGuard
 
 import validators
 
 from recipe2txt.utils.ContextLogger import DO_NOT_LOG, get_logger
 
 __all__ = [
+    "NEVER_CATCH",
     "URL",
     "is_url",
     "extract_urls",
@@ -47,6 +48,8 @@ __all__ = [
 ]
 
 logger = get_logger(__name__)
+
+NEVER_CATCH: Final = (SystemExit, MemoryError, KeyboardInterrupt)
 
 URL = NewType("URL", str)
 

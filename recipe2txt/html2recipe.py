@@ -76,7 +76,7 @@ from recipe2txt.utils.markdown import (
     paragraph,
     unordered,
 )
-from recipe2txt.utils.misc import URL, Counts, dict2str, is_url
+from recipe2txt.utils.misc import NEVER_CATCH, URL, Counts, dict2str, is_url
 from recipe2txt.utils.traceback_utils import format_stacks, get_shared_frames
 
 logger = get_logger(__name__)
@@ -541,9 +541,9 @@ def get_info(method: str, parsed: Parsed) -> Any:
         handle_parsing_error(get_url(parsed), e, method_name, log)
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
+    except NEVER_CATCH:
+        raise
     except Exception as e:
-        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
-            raise e
         log("Extraction error for attribute %s:", method_name, exc_info=e)
 
     return info
@@ -715,9 +715,9 @@ def html2parsed(url: URL, html: str) -> Parsed | None:
     except (AttributeError, TypeError) as e:
         handle_parsing_error(url, e)
         return None
+    except NEVER_CATCH:
+        raise
     except Exception as e:
-        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
-            raise e
         logger.error("Parsing error: ", exc_info=e)
         return None
 

@@ -34,6 +34,7 @@ from recipe2txt.utils.ContextLogger import (
     suppress_logging,
 )
 from recipe2txt.utils.misc import (
+    NEVER_CATCH,
     URL,
     Directory,
     File,
@@ -119,6 +120,8 @@ def parse_html(filename: File, filename_parsed: File, url: URL) -> h2r.Recipe:
             a = None
             try:
                 a = getattr(r, method)()
+            except NEVER_CATCH:
+                raise
             except Exception:
                 logger.error("%s not found", method)
             a = h2r.info2str(method, a)
