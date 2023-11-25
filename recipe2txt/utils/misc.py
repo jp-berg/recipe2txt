@@ -260,19 +260,17 @@ class Counts:
         self.parsed_partially: int = 0
 
     def __str__(self) -> str:
-        s = linesep.join(
-            [
-                "[Absolute|Percentage of count above]",
-                "",
-                "Total number of strings: {}",
-                "Identified as URLs: [{}|{:.2f}%]",
-                "URLs not yet (fully) saved: [{}|{:.2f}%]",
-                "URLs reached: [{}|{:.2f}%]",
-                "Recipes parsed partially: [{}|{:.2f}%]",
-                "Recipes parsed fully: [{}|{:.2f}%]",
-                "",
-            ]
-        ).format(
+        s = linesep.join([
+            "[Absolute|Percentage of count above]",
+            "",
+            "Total number of strings: {}",
+            "Identified as URLs: [{}|{:.2f}%]",
+            "URLs not yet (fully) saved: [{}|{:.2f}%]",
+            "URLs reached: [{}|{:.2f}%]",
+            "Recipes parsed partially: [{}|{:.2f}%]",
+            "Recipes parsed fully: [{}|{:.2f}%]",
+            "",
+        ]).format(
             self.strings,
             self.urls,
             (self.urls / self.strings) * 100,

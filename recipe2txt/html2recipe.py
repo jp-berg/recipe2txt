@@ -177,12 +177,10 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
         )
     if None in t:
         tmp = list(t)
-        t = tuple(
-            [
-                tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i])
-                for i in range(len(tmp))
-            ]
-        )
+        t = tuple([
+            tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i])
+            for i in range(len(tmp))
+        ])
     return t
 
 

@@ -86,9 +86,9 @@ test_recipes: list[h2r.Recipe] = [
         scraper_version=h2r.SCRAPER_VERSION,
     ),
     h2r.Recipe(
-        ingredients=os.linesep.join(
-            ["1 pinch of salt", "2 spoons of love", "1l water"]
-        ),
+        ingredients=os.linesep.join([
+            "1 pinch of salt", "2 spoons of love", "1l water"
+        ]),
         instructions=os.linesep.join(["Gather", "Prepare", "Enjoy"]),
         title="Simple",
         yields="3 portions",

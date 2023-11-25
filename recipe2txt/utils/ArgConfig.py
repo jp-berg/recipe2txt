@@ -246,9 +246,9 @@ class ChoiceOption(BasicOption, Generic[T]):
         self.arguments[ArgKey.choices] = choices
 
     def to_toml_str(self) -> str:
-        choice_str = " | ".join(
-            [obj2toml(choice) for choice in self.arguments[ArgKey.choices]]
-        )
+        choice_str = " | ".join([
+            obj2toml(choice) for choice in self.arguments[ArgKey.choices]
+        ])
         return super().to_toml_str_intern(f" # Possible values: {choice_str}\n")
 
     def toml_valid(self, value: Any) -> bool:

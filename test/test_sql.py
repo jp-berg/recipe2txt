@@ -169,9 +169,9 @@ class TestDatabase(unittest.TestCase):
             title=test_recipes[2].title,
             url=test_recipes[2].url,
             status=h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,
-            ingredients=os.linesep.join(
-                ["Something starchy", "Some spices", "Something crunchy"]
-            ),
+            ingredients=os.linesep.join([
+                "Something starchy", "Some spices", "Something crunchy"
+            ]),
             instructions=os.linesep.join(["Dice", "Mix", "Fry", "Eat"]),
             total_time="30",
         )
@@ -220,9 +220,9 @@ class TestDatabase(unittest.TestCase):
             title="Testrecipe",
             host="testurl.com",
             ingredients=os.linesep.join(["ham", "spam"]),
-            instructions=os.linesep.join(
-                ["Clean data", "Classify data", "Label data", "train model"]
-            ),
+            instructions=os.linesep.join([
+                "Clean data", "Classify data", "Label data", "train model"
+            ]),
             total_time="120",
             yields="1",
             status=h2r.RecipeStatus.COMPLETE_ON_DISPLAY,
