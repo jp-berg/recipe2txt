@@ -233,7 +233,11 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
     """
     if len(t) != len(RECIPE_ATTRIBUTES):
         raise ValueError(f"Wanted length of {len(RECIPE_ATTRIBUTES)}, got {len(t)}")
-    assert RECIPE_ATTRIBUTES[-2] == "status"
+    if RECIPE_ATTRIBUTES[-2] != "status":
+        raise AttributeError(
+            f"'status' is not at position {len(RECIPE_ATTRIBUTES) -1 -2}"
+            " in RECIPE_ATTRIBUTES"
+        )
     try:
         status = RecipeStatus(int(t[-2]))
     except ValueError:
@@ -249,7 +253,7 @@ class ParsingError(NamedTuple):
     traceback: traceback.TracebackException
 
 
-categorized_errors: dict[str, dict[str, dict[str, list[ParsingError]]]] = dict()
+categorized_errors: dict[str, dict[str, dict[str, list[ParsingError]]]] = {}
 """
 A dictionary for categorizing :py:class:`ParsingErrors` based on metadata.
 
@@ -435,8 +439,7 @@ def get_url(parsed: Parsed) -> URL:
     if parsed.url:
         if is_url(parsed.url):
             return parsed.url
-        else:
-            logger.error("Not an URL: %s", parsed.url)
+        logger.error("Not an URL: %s", parsed.url)
     else:
         logger.error("No URL for parsed data")
     return DUMMY_URL
@@ -471,7 +474,7 @@ def info2str(method: str, info: Any) -> str:
 
     if info is NA:
         return NA
-    elif isinstance(info, (int, float)):
+    if isinstance(info, (int, float)):
         info = None if info == 0 else str(info)
         unexpected_type = False
     elif info:
@@ -482,10 +485,10 @@ def info2str(method: str, info: Any) -> str:
                 if (
                     len(info[0]) < 2
                 ):  # Every item in the list is probably just one character
-                    for i in range(len(info)):
-                        if not info[i]:
+                    for i, c in enumerate(info):
+                        if not c:
                             info[i] = " "
-                        elif info[i] == ",":
+                        elif c == ",":
                             info[i] = linesep
                     info = "".join(info)
                 else:
@@ -687,8 +690,7 @@ def recipe2out(
 
     if md:
         return _re2md(recipe)
-    else:
-        return _re2txt(recipe)
+    return _re2txt(recipe)
 
 
 def html2parsed(url: URL, html: str) -> Parsed | None:

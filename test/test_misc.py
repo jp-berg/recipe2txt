@@ -30,7 +30,7 @@ from test.test_helpers import (
     delete_tmpdirs,
 )
 
-import recipe2txt.utils.misc as misc
+from recipe2txt.utils import misc
 
 
 class FileTests(unittest.TestCase):
@@ -115,7 +115,7 @@ class FileTests(unittest.TestCase):
                     )
                 )
                 if not os.path.isfile(validation):
-                    self.fail("File", validation, "was not created")
+                    self.fail(f"File {validation} was not created")
                 try:
                     with open(validation, "w") as file:
                         file.write("TEST")

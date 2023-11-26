@@ -34,19 +34,19 @@ context_args = ("This", "is", "a message")
 class TestStreamHandler(logging.StreamHandler):
     def __init__(self, stream=None):
         super().__init__(stream)
-        self.seenRecords: list[logging.LogRecord] = []
-        self.formattedRecords = []
+        self.seen_records: list[logging.LogRecord] = []
+        self.formatted_records = []
         self.does_output: bool = False
 
     def emit(self, record):
-        self.seenRecords.append(record)
+        self.seen_records.append(record)
         if self.does_output:
             super().emit(record)
 
     def get_formatted_records(self):
-        for record in self.seenRecords[len(self.formattedRecords) :]:
-            self.formattedRecords.append(self.format(record))
-        return self.formattedRecords
+        for record in self.seen_records[len(self.formatted_records) :]:
+            self.formatted_records.append(self.format(record))
+        return self.formatted_records
 
 
 def get_exc_info(exception: BaseException | None = None):
@@ -63,7 +63,7 @@ T = TypeVar("T")
 
 
 def record_factory(
-    should_trigger: bool,
+    should_trigger: bool = True,
     exc_info=None,
     context: tuple[str, tuple[Any, ...]] | None = None,
     ctx: str = None,
@@ -187,7 +187,7 @@ class LoggerTester(unittest.TestCase):
                 c.context_msg = ""
                 c.triggered = True
                 c.deferred_records.append(first_in_context)
-                for i in range(1, deferred):
+                for _ in range(1, deferred):
                     c.deferred_records.append(record_factory(True))
         return c
 
@@ -245,7 +245,7 @@ class TestContext(LoggerTester):
     def tearDown(self) -> None:
         global level
         level = logging.WARNING
-        self.stream_handler.seenRecords.clear()
+        self.stream_handler.seen_records.clear()
 
     def test_dispatch(self):
         context_defer = self.get_context(True, True, 3)
@@ -290,7 +290,7 @@ class TestContext(LoggerTester):
 
         context.close_context()
         self.assertRecordListsEqual(
-            self.stream_handler.seenRecords, validation.deferred_records
+            self.stream_handler.seen_records, validation.deferred_records
         )
 
 
@@ -310,8 +310,8 @@ class TestContextProcess(LoggerTester):
         self.validation_triggered = self.get_context(True, True)
 
     def tearDown(self) -> None:
-        self.stream_handler.seenRecords.clear()
-        self.stream_handler.formattedRecords.clear()
+        self.stream_handler.seen_records.clear()
+        self.stream_handler.formatted_records.clear()
 
     def test_basecase(self):
         self.assertTrue(self.context.process(self.record_normal, level))
@@ -354,7 +354,8 @@ class TestContextProcess(LoggerTester):
 
         self.assertFalse(self.context.process(self.record_close_context, level))
         self.assertRecordListsEqual(
-            self.stream_handler.seenRecords, validation_triggered_defer.deferred_records
+            self.stream_handler.seen_records,
+            validation_triggered_defer.deferred_records,
         )
 
 

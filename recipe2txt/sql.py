@@ -407,46 +407,49 @@ class Database:
         new_row = tuple(recipe)
         merged_row = []
         updated = []
-        if old_row:
-            for old_val, new_val in zip(old_row, new_row):
-                if (new_val and new_val != NA) and (
-                    prefer_new or not (old_val and old_val != NA)
-                ):
-                    merged_row.append(new_val)
-                    updated.append(True)
-                else:
-                    merged_row.append(old_val)
-                    updated.append(False)
 
-            merged_row[-1] = SCRAPER_VERSION
-            if True in updated:
-                if (
-                    not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN  # type: ignore[operator]
-                ):
-                    merged_row[-2] = gen_status(
-                        merged_row[: len(METHODS)]  # type: ignore[arg-type]
-                    )
-                else:
-                    merged_row[-2] = max(old_row[-2], new_row[-2])
-                r = Recipe(*merged_row)  # type: ignore[arg-type]
-                if logger.isEnabledFor(logging.INFO):
-                    for attr, old_val, new_val, is_replaced in zip(
-                        RECIPE_ATTRIBUTES, old_row, new_row, updated
-                    ):
-                        if is_replaced:
-                            logger.info(
-                                "%s: %s => %s",
-                                attr,
-                                head_str(old_val),
-                                head_str(new_val),
-                            )
-                self.replace_recipe(r)
-            else:
-                r = Recipe(*merged_row)  # type: ignore[arg-type]
-            return r
-        else:
+        if not old_row:
             self.new_recipe(recipe)
             return recipe
+
+        for old_val, new_val in zip(old_row, new_row):
+            if (new_val and new_val != NA) and (
+                prefer_new or not (old_val and old_val != NA)
+            ):
+                merged_row.append(new_val)
+                updated.append(True)
+            else:
+                merged_row.append(old_val)
+                updated.append(False)
+
+        merged_row[-1] = SCRAPER_VERSION
+
+        if True in updated:
+            if (
+                not old_row[-2] <= RS.UNKNOWN
+                and new_row[-2] < RS.UNKNOWN  # type: ignore[operator]
+            ):
+                merged_row[-2] = gen_status(
+                    merged_row[: len(METHODS)]  # type: ignore[arg-type]
+                )
+            else:
+                merged_row[-2] = max(old_row[-2], new_row[-2])
+            r = Recipe(*merged_row)  # type: ignore[arg-type]
+            if logger.isEnabledFor(logging.INFO):
+                for attr, old_val, new_val, is_replaced in zip(
+                    RECIPE_ATTRIBUTES, old_row, new_row, updated
+                ):
+                    if is_replaced:
+                        logger.info(
+                            "%s: %s => %s",
+                            attr,
+                            head_str(old_val),
+                            head_str(new_val),
+                        )
+            self.replace_recipe(r)
+        else:
+            r = Recipe(*merged_row)  # type: ignore[arg-type]
+        return r
 
     def get_contents(self) -> list[URL]:
         """Get all URLs associated with this :py:attr:`filepath`."""

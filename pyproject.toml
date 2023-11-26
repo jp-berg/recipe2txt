@@ -86,7 +86,7 @@ max-line-length = 88
 single-line-if-stmt = true
 ext-import-graph = true
 logging-modules = ["logging", "ContextLogger"]
-disable = ["C0115", "C0116", "useless-import-alias"]
+disable = ["C0115", "C0116", "useless-import-alias", "unspecified-encoding", "import-error", "no-else-return"]
 init-hook = """
 from pylint.config.find_default_config_files import find_default_config_files
 from pathlib import Path

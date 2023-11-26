@@ -287,7 +287,7 @@ class Counts:
 
 
 def dict2str(dictionary: dict[Any, Any], sep: str = linesep) -> str:
-    items = ["{}: {}".format(*item) for item in dictionary.items()]
+    items = [f"{item[0]}: {item[1]}" for item in dictionary.items()]
     return sep.join(items)
 
 

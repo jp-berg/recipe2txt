@@ -27,8 +27,8 @@ from test.test_helpers import (
 )
 
 import recipe2txt.html2recipe as h2r
-import recipe2txt.sql as sql
-import recipe2txt.utils.misc as misc
+from recipe2txt import sql
+from recipe2txt.utils import misc
 
 db_name = "db_test.sqlite3"
 out_name = "out"
@@ -39,8 +39,6 @@ db_path = TEST_PROJECT_TMPDIR / db_name
 db_paths = [folder / db_name for folder in TMPDIRS]
 out_path_txt = TEST_PROJECT_TMPDIR / out_name_txt
 out_path_md = TEST_PROJECT_TMPDIR / out_name_md
-
-db: sql.Database
 
 
 def compare_for(
@@ -114,30 +112,33 @@ class TestDatabase(unittest.TestCase):
         if not delete_tmpdirs():
             print("Could not delete tmpdirs:", TMPDIRS, file=sys.stderr)
 
+    def __init__(self, methodName="runTest"):
+        super().__init__(methodName)
+        self.db = None
+
     def setUp(self) -> None:
         if sql.is_accessible_db(db_path):
-            global db
-            db = sql.Database(db_path, misc.File(out_path_txt))
+            self.db = sql.Database(db_path, misc.File(out_path_txt))
             for recipe in test_recipes:
                 with self.subTest(recipe=recipe.url):
                     try:
-                        db.new_recipe(recipe)
+                        self.db.new_recipe(recipe)
                     except sqlite3.OperationalError:
                         self.fail("ERROR")
         else:
             self.fail(f"Database {db_path} not accessible")
 
     def tearDown(self) -> None:
-        db.empty_db()
+        self.db.empty_db()
 
     def test_basic_IO(self):
         for recipe in test_recipes:
             with self.subTest(status=recipe.status):
-                from_db = db.get_recipe(recipe.url)
+                from_db = self.db.get_recipe(recipe.url)
                 self.assertEqual(recipe, from_db)
 
     def test_get_titles(self):
-        titles, hosts = zip(*db.get_titles())
+        titles, hosts = zip(*self.db.get_titles())
         self.assertEqual(len(titles), len(test_recipes[3:]))
         for recipe, title, host in zip(test_recipes[3:], titles, hosts):
             with self.subTest(recipe=recipe.url):
@@ -145,8 +146,8 @@ class TestDatabase(unittest.TestCase):
                 self.assertEqual(recipe.host, host)
 
     def test_urls_to_fetch(self):
-        urls = set([recipe.url for recipe in test_recipes])
-        to_fetch = db.urls_to_fetch(urls)
+        urls = {recipe.url for recipe in test_recipes}
+        to_fetch = self.db.urls_to_fetch(urls)
         for recipe in test_recipes:
             with self.subTest(recipe=recipe.url):
                 if recipe.status in (
@@ -176,7 +177,7 @@ class TestDatabase(unittest.TestCase):
             total_time="30",
         )
 
-        on_disk = db.get_recipe(updated.url)
+        on_disk = self.db.get_recipe(updated.url)
         if failed := compare_for(
             on_disk,
             updated,
@@ -188,8 +189,8 @@ class TestDatabase(unittest.TestCase):
         ):
             self.fail("Recipe comparison (inequality) failed on attribute " + failed)
 
-        tmp = db.insert_recipe(updated)
-        on_disk = db.get_recipe(updated.url)
+        tmp = self.db.insert_recipe(updated)
+        on_disk = self.db.get_recipe(updated.url)
         self.assertIsNotNone(on_disk)
         self.assertEqual(tmp, on_disk)
 
@@ -209,10 +210,9 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(test_recipes[2].host, on_disk.host)
 
     def test_get_contents(self):
-        global db
-        db.close()
+        self.db.close()
         out_path2 = os.path.join(TEST_PROJECT_TMPDIR, "out_test2.txt")
-        db = sql.Database(db_path, out_path2)
+        self.db = sql.Database(db_path, out_path2)
 
         testrecipe = h2r.Recipe(
             url="https://www.testurl.com/testrecipe",
@@ -227,29 +227,29 @@ class TestDatabase(unittest.TestCase):
             yields="1",
             status=h2r.RecipeStatus.COMPLETE_ON_DISPLAY,
         )
-        db.new_recipe(testrecipe)
-        db.close()
+        self.db.new_recipe(testrecipe)
+        self.db.close()
 
-        db = sql.Database(db_path, out_path_txt)
-        contents = db.get_contents()
+        self.db = sql.Database(db_path, out_path_txt)
+        contents = self.db.get_contents()
         self.assertEqual(len(contents), len(test_recipes))
         for recipe in test_recipes:
             with self.subTest(recipe=recipe.url):
                 self.assertTrue(recipe.url in contents)
-        db.close()
+        self.db.close()
 
-        db = sql.Database(db_path, out_path2)
-        contents = db.get_contents()
+        self.db = sql.Database(db_path, out_path2)
+        contents = self.db.get_contents()
         self.assertEqual(len(contents), 1)
         self.assertEqual(testrecipe.url, contents[0])
 
     def test_empty_db(self):
-        recipes = db.get_recipes()
+        recipes = self.db.get_recipes()
 
         for recipe, validation in zip(recipes, test_recipes[3:]):
             with self.subTest(recipe=recipe.url):
                 self.assertEqual(recipe, validation)
 
-        db.empty_db()
+        self.db.empty_db()
         with self.assertRaises(sqlite3.OperationalError):
-            db.get_recipes()
+            self.db.get_recipes()
