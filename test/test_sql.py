@@ -100,6 +100,32 @@ class TestHelpers(unittest.TestCase):
         db_path_nonexistent = os.path.join(TEST_PROJECT_TMPDIR, "NOT_A_FOLDER", db_name)
         self.assertFalse(sql.is_accessible_db(db_path_nonexistent))
 
+    def test_sql_sanitize(self):
+        params = [(('STRING',), '"STRING"'),
+                  (('STRING_2',), '"STRING_2"'),
+                  ((13, ), '"13"'),
+                  ((189.421, ), '"189.421"'),
+                  ((True, ), '"True"'),
+                  ((h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY,),
+                   '"' + str(int(h2r.RecipeStatus.INCOMPLETE_ON_DISPLAY)) + '"'),
+                   (('STRING_1', 'STRING_2', 'STRING_3'),
+                    '"STRING_1", "STRING_2", "STRING_3"')]
+
+        for testvalues, validation in params:
+            with self.subTest(testvalues=testvalues, validation=validation):
+                self.assertEqual(sql.obj2sql_str(*testvalues), validation)
+
+        params_error = [('String 1',),
+                        ('String1?',),
+                        ('"String_1',),
+                        ('String_1', 'String_2', '); DROP TABLE students;'),
+                        ([1, 2, 3],)]
+
+        for wrong_values in params_error:
+            with self.subTest(wrong_values=wrong_values):
+                with self.assertRaises(ValueError):
+                    sql.obj2sql_str(*wrong_values)
+
 
 class TestDatabase(unittest.TestCase):
     @classmethod
