@@ -57,8 +57,6 @@ _ONLY_ALPHANUM_DOT_UNDERSCORE: Final = re.compile("^[\w_\.]+$")
 def _sanitize(value: object) -> str:
     string = str(value)
     matches = _ONLY_ALPHANUM_DOT_UNDERSCORE.findall(string)
-    if len(matches) == 1:
-        return f'"{string}"'
     if len(matches) == 0:
         raise ValueError(
             "Strings used as identifiers in SQL-statements for this application"
@@ -67,6 +65,7 @@ def _sanitize(value: object) -> str:
         )
     if len(matches) > 1:
         raise RuntimeError("This should not be possible")
+    return f'"{string}"'
 
 
 def obj2sql_str(*values: object) -> str:

@@ -26,7 +26,7 @@ import urllib.request
 from os import linesep
 
 import recipe2txt.html2recipe as h2r
-import recipe2txt.sql as sql
+from recipe2txt import sql
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger

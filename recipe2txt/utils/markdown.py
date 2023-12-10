@@ -116,14 +116,14 @@ def link(url: str, description: str | None = None) -> str:
 
 
 def section_link(
-    header: str, description: str | None = None, fragmentified: bool = False
+    header_str: str, description: str | None = None, fragmentified: bool = False
 ) -> str:
     if fragmentified:
-        ref = "#" + fragmentify(header)
+        ref = "#" + fragmentify(header_str)
     else:
-        ref = "#" + header.replace(" ", "-")
+        ref = "#" + header_str.replace(" ", "-")
     if not description:
-        description = header
+        description = header_str
     return link(ref, description)
 
 
