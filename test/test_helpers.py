@@ -25,7 +25,7 @@ from typing import Any, Callable, Final
 from xdg_base_dirs import xdg_data_home
 
 import recipe2txt.html2recipe as h2r
-import recipe2txt.utils.misc as misc
+from recipe2txt.utils import misc
 from recipe2txt.utils.ContextLogger import disable_loggers
 
 disable_loggers()
@@ -114,10 +114,10 @@ test_recipes: list[h2r.Recipe] = [
 
 def create_tmpdirs() -> bool:
     res = True
-    for directory in TMPDIRS:
-        if not directory.is_dir():
+    for path in TMPDIRS:
+        if not path.is_dir():
             try:
-                directory.mkdir(parents=True, exist_ok=True)
+                path.mkdir(parents=True, exist_ok=True)
             except OSError:
                 res = res and False
     return res
@@ -125,10 +125,10 @@ def create_tmpdirs() -> bool:
 
 def delete_tmpdirs() -> bool:
     res = True
-    for directory in TMPDIRS:
-        if directory.is_dir():
+    for path in TMPDIRS:
+        if path.is_dir():
             try:
-                rmtree(directory)
+                rmtree(path)
             except OSError:
                 res = res and False
     return res

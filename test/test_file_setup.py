@@ -102,7 +102,7 @@ class Test(unittest.TestCase):
             ((str(file), True), (db_path, file, log_path)) for file in failfiles
         ]
 
-        for idx, (test, validation) in enumerate(fail_params):
+        for idx, (test, _) in enumerate(fail_params):
             with self.subTest(i=idx):
                 with self.assertRaises(SystemExit):
                     fs.file_setup(*test)

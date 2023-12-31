@@ -65,9 +65,7 @@ class Test(unittest.TestCase):
             p = recipe_scrapers.scrape_html(html=html, org_url=url)
             for method in h2r.METHODS:
                 with self.subTest(url=url, method=method):
-                    self.assertEqual(
-                        h2r.get_info(method, p, url), getattr(recipe, method)
-                    )
+                    self.assertEqual(h2r.get_info(method, p), getattr(recipe, method))
 
         bad_info = [
             ("total_time", 0),
@@ -90,7 +88,7 @@ class Test(unittest.TestCase):
             with self.subTest(url=url):
                 if not (p := h2r.html2parsed(url, html)):
                     self.fail("Failed to parse")
-                if not (recipe := h2r.parsed2recipe(url, p)):
+                if not (recipe := h2r.parsed2recipe(p)):
                     self.fail("Failed to convert to recipe")
                 for a in h2r.RECIPE_ATTRIBUTES[
                     :-1
@@ -117,7 +115,6 @@ class Test(unittest.TestCase):
         for recipe, md_valid, txt_valid in zip(
             file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST
         ):
-            self.maxDiff = None
             with self.subTest(recipe=recipe.url, mode="txt"):
                 out_txt = h2r.recipe2out(recipe, counts=None, md=False)
                 txt_test = "".join(out_txt)

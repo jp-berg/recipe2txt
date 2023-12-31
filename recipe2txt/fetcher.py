@@ -26,13 +26,12 @@ import urllib.request
 from os import linesep
 
 import recipe2txt.html2recipe as h2r
-import recipe2txt.sql as sql
-import recipe2txt.utils.misc
+from recipe2txt import sql
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.markdown import esc, ordered, paragraph, section_link
-from recipe2txt.utils.misc import URL, Counts, File
+from recipe2txt.utils.misc import NEVER_CATCH, URL, AccessibleDatabase, Counts, File
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -70,7 +69,7 @@ class Fetcher:
     def __init__(
         self,
         output: File,
-        database: recipe2txt.utils.misc.AccessibleDatabase,
+        database: AccessibleDatabase,
         counts: Counts = Counts(),
         timeout: float | None = None,
         connections: int | None = None,
@@ -148,7 +147,6 @@ class Fetcher:
         elif self.cache is Cache.default:
             urls = self.db.urls_to_fetch(urls)
         elif self.cache is Cache.new:
-            urls = urls
             self.db.set_contents(urls)
         self.counts.require_fetching += len(urls)
         return urls
@@ -178,9 +176,9 @@ class Fetcher:
                     logger.error("Connection Error: ", exc_info=e)
                 except (TimeoutError, urllib.error.URLError) as e:
                     logger.error("Unable to reach Website: ", exc_info=e)
+                except NEVER_CATCH:
+                    raise
                 except Exception as e:
-                    if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
-                        raise e
                     logger.error("Error: ", exc_info=e)
 
                 if html:

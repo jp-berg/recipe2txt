@@ -66,7 +66,7 @@ from recipe2txt.utils.markdown import (
     paragraph,
     unordered,
 )
-from recipe2txt.utils.misc import URL, Counts, dict2str, is_url
+from recipe2txt.utils.misc import NEVER_CATCH, URL, Counts, dict2str, is_url
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -166,12 +166,10 @@ def none2na(t: tuple[Any, ...]) -> tuple[Any, ...]:
         )
     if None in t:
         tmp = list(t)
-        t = tuple(
-            [
-                tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i])
-                for i in range(len(tmp))
-            ]
-        )
+        t = tuple([
+            tmp[i] if tmp[i] else getattr(UNINIT_RECIPE, RECIPE_ATTRIBUTES[i])
+            for i in range(len(tmp))
+        ])
     return t
 
 
@@ -224,7 +222,11 @@ def int2status(t: tuple[Any, ...]) -> tuple[Any, ...]:
     """
     if len(t) != len(RECIPE_ATTRIBUTES):
         raise ValueError(f"Wanted length of {len(RECIPE_ATTRIBUTES)}, got {len(t)}")
-    assert RECIPE_ATTRIBUTES[-2] == "status"
+    if RECIPE_ATTRIBUTES[-2] != "status":
+        raise AttributeError(
+            f"'status' is not at position {len(RECIPE_ATTRIBUTES) -1 -2}"
+            " in RECIPE_ATTRIBUTES"
+        )
     try:
         status = RecipeStatus(int(t[-2]))
     except ValueError:
@@ -245,8 +247,7 @@ def get_url(parsed: Parsed) -> URL:
     if parsed.url:
         if is_url(parsed.url):
             return parsed.url
-        else:
-            logger.error("Not an URL: %s", parsed.url)
+        logger.error("Not an URL: %s", parsed.url)
     else:
         logger.error("No URL for parsed data")
     return DUMMY_URL
@@ -281,7 +282,7 @@ def info2str(method: str, info: Any) -> str:
 
     if info is NA:
         return NA
-    elif isinstance(info, (int, float)):
+    if isinstance(info, (int, float)):
         info = None if info == 0 else str(info)
         unexpected_type = False
     elif info:
@@ -292,10 +293,10 @@ def info2str(method: str, info: Any) -> str:
                 if (
                     len(info[0]) < 2
                 ):  # Every item in the list is probably just one character
-                    for i in range(len(info)):
-                        if not info[i]:
+                    for i, c in enumerate(info):
+                        if not c:
                             info[i] = " "
-                        elif info[i] == ",":
+                        elif c == ",":
                             info[i] = linesep
                     info = "".join(info)
                 else:
@@ -349,9 +350,9 @@ def get_info(method: str, parsed: Parsed) -> Any:
         handle_parsing_error(get_url(parsed), e, method_name, log)
     except NotImplementedError:
         log("%s not implemented for this website", method_name.capitalize())
+    except NEVER_CATCH:
+        raise
     except Exception as e:
-        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
-            raise e
         log("Extraction error for attribute %s:", method_name, exc_info=e)
 
     return info
@@ -497,8 +498,7 @@ def recipe2out(
 
     if md:
         return _re2md(recipe)
-    else:
-        return _re2txt(recipe)
+    return _re2txt(recipe)
 
 
 def html2parsed(url: URL, html: str) -> Parsed | None:
@@ -523,9 +523,9 @@ def html2parsed(url: URL, html: str) -> Parsed | None:
     except (AttributeError, TypeError) as e:
         handle_parsing_error(url, e)
         return None
+    except NEVER_CATCH:
+        raise
     except Exception as e:
-        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
-            raise e
         logger.error("Parsing error: ", exc_info=e)
         return None
 

@@ -433,9 +433,9 @@ class ArgConfig:
             print(f"{args=}")
             self.error_exit()
             raise ValueError(e) from None
-        except Exception as e:
+        except Exception:
             self.error_exit()
-            raise e
+            raise
 
     def add_arg(
         self, name: str, help_str: str, default: Any = None, short: str | None = ""

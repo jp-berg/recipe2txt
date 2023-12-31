@@ -30,6 +30,7 @@ Attributes:
 """
 
 import logging
+import re
 import sqlite3
 import textwrap
 from typing import Any, Final, Tuple
@@ -45,6 +46,55 @@ from .utils.misc import URL, AccessibleDatabase, File, head_str
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
 :py:mod:`recipe2txt.utils.ContextLogger`"""
+
+
+_ONLY_ALPHANUM_DOT_UNDERSCORE: Final = re.compile("^[\w_\.]+$")
+
+
+def _sanitize(value: object) -> str:
+    string = str(value)
+    matches = _ONLY_ALPHANUM_DOT_UNDERSCORE.findall(string)
+    if len(matches) == 0:
+        raise ValueError(
+            "Strings used as identifiers in SQL-statements for this application"
+            " are only allowed to contain alphanumeric characters, dots and underscores"
+            f" (offending string : '{string}')"
+        )
+    if len(matches) > 1:
+        raise RuntimeError("This should not be possible")
+    return f'"{string}"'
+
+
+def obj2sql_str(*values: object) -> str:
+    """
+    Function preventing SQL-injection attacks from arbitrary values.
+
+    Since inserting arbitrary values into SQL-queries can lead to a SQL-injection
+    attack, this function disallows anything but alphanumeric characters, dots and
+    underscores.
+
+    Additionally, it wraps each string into double-quotes. This prevents SQLite
+    from executing any SQL-statement hidden inside the quotes, since the contained
+    characters can only be treated as strings and never as part of the statement.
+
+    Args:
+        *values (): One or more values
+
+    Returns:
+        'STRING' -> '"STRING"'
+        'STRING1', 'STRING2', 'STRING3' -> '"STRING1", "STRING2", "STRING3"'
+        'String_2' -> '"String_2"'
+        'String 2' -> RuntimeError
+        '); DROP TABLE recipes' -> RuntimeError
+
+    Raises:
+        RuntimeError: If characters other than alphanumeric ASCII-characters and
+            underscores are detected in strings.
+
+    """
+    sanitized = [_sanitize(value) for value in values]
+    return ", ".join(sanitized)
+
 
 _CREATE_TABLES: Final = textwrap.dedent("""
         CREATE TABLE IF NOT EXISTS recipes(
@@ -88,7 +138,7 @@ RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
 _INSERT_RECIPE: Final = (
     "INSERT OR IGNORE INTO recipes"
     + " ("
-    + ", ".join(RECIPE_ATTRIBUTES)
+    + obj2sql_str(*RECIPE_ATTRIBUTES)
     + ")"
     + " VALUES ("
     + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
@@ -98,7 +148,7 @@ _INSERT_RECIPE: Final = (
 _INSERT_OR_REPLACE_RECIPE: Final = (
     "INSERT OR REPLACE INTO recipes"
     + " ("
-    + ", ".join(RECIPE_ATTRIBUTES)
+    + obj2sql_str(*RECIPE_ATTRIBUTES)
     + ")"
     + " VALUES ("
     + ("?," * len(RECIPE_ATTRIBUTES))[:-1]
@@ -118,24 +168,26 @@ _FILEPATHS_JOIN_RECIPES: Final = (
     " NATURAL JOIN contents NATURAL JOIN recipes) "
 )
 _GET_RECIPE: Final = (
-    "SELECT " + ", ".join(RECIPE_ATTRIBUTES) + " FROM recipes WHERE url = ?"
+    "SELECT "  # nosec B608
+    + obj2sql_str(*RECIPE_ATTRIBUTES)
+    + " FROM recipes WHERE url = ?"
 )
 _GET_RECIPES: Final = (
-    "SELECT "
-    + ", ".join(RECIPE_ATTRIBUTES)
+    "SELECT "  # nosec B608
+    + obj2sql_str(*RECIPE_ATTRIBUTES)
     + " FROM"
     + _FILEPATHS_JOIN_RECIPES
     + "WHERE status >= "
-    + str(int(RS.INCOMPLETE_ON_DISPLAY))
+    + obj2sql_str(RS.INCOMPLETE_ON_DISPLAY)
 )
 _GET_URLS_STATUS_VERSION: Final = "SELECT url, status, scraper_version FROM recipes"
 _GET_CONTENT: Final = "SELECT url FROM" + _FILEPATHS_JOIN_RECIPES
 
 _GET_TITLES_HOSTS: Final = (
-    "SELECT title, host FROM"
+    "SELECT title, host FROM"  # nosec B608
     + _FILEPATHS_JOIN_RECIPES
     + " WHERE status >= "
-    + str(int(RS.INCOMPLETE_ON_DISPLAY))
+    + obj2sql_str(RS.INCOMPLETE_ON_DISPLAY)
 )
 
 _DROP_ALL: Final = (
@@ -357,46 +409,49 @@ class Database:
         new_row = tuple(recipe)
         merged_row = []
         updated = []
-        if old_row:
-            for old_val, new_val in zip(old_row, new_row):
-                if (new_val and new_val != NA) and (
-                    prefer_new or not (old_val and old_val != NA)
-                ):
-                    merged_row.append(new_val)
-                    updated.append(True)
-                else:
-                    merged_row.append(old_val)
-                    updated.append(False)
 
-            merged_row[-1] = SCRAPER_VERSION
-            if True in updated:
-                if (
-                    not old_row[-2] <= RS.UNKNOWN and new_row[-2] < RS.UNKNOWN  # type: ignore[operator]
-                ):
-                    merged_row[-2] = gen_status(
-                        merged_row[: len(METHODS)]  # type: ignore[arg-type]
-                    )
-                else:
-                    merged_row[-2] = max(old_row[-2], new_row[-2])
-                r = Recipe(*merged_row)  # type: ignore[arg-type]
-                if logger.isEnabledFor(logging.INFO):
-                    for attr, old_val, new_val, is_replaced in zip(
-                        RECIPE_ATTRIBUTES, old_row, new_row, updated
-                    ):
-                        if is_replaced:
-                            logger.info(
-                                "%s: %s => %s",
-                                attr,
-                                head_str(old_val),
-                                head_str(new_val),
-                            )
-                self.replace_recipe(r)
-            else:
-                r = Recipe(*merged_row)  # type: ignore[arg-type]
-            return r
-        else:
+        if not old_row:
             self.new_recipe(recipe)
             return recipe
+
+        for old_val, new_val in zip(old_row, new_row):
+            if (new_val and new_val != NA) and (
+                prefer_new or not (old_val and old_val != NA)
+            ):
+                merged_row.append(new_val)
+                updated.append(True)
+            else:
+                merged_row.append(old_val)
+                updated.append(False)
+
+        merged_row[-1] = SCRAPER_VERSION
+
+        if True in updated:
+            if (
+                not old_row[-2] <= RS.UNKNOWN
+                and new_row[-2] < RS.UNKNOWN  # type: ignore[operator]
+            ):
+                merged_row[-2] = gen_status(
+                    merged_row[: len(METHODS)]  # type: ignore[arg-type]
+                )
+            else:
+                merged_row[-2] = max(old_row[-2], new_row[-2])
+            r = Recipe(*merged_row)  # type: ignore[arg-type]
+            if logger.isEnabledFor(logging.INFO):
+                for attr, old_val, new_val, is_replaced in zip(
+                    RECIPE_ATTRIBUTES, old_row, new_row, updated
+                ):
+                    if is_replaced:
+                        logger.info(
+                            "%s: %s => %s",
+                            attr,
+                            head_str(old_val),
+                            head_str(new_val),
+                        )
+            self.replace_recipe(r)
+        else:
+            r = Recipe(*merged_row)  # type: ignore[arg-type]
+        return r
 
     def get_contents(self) -> list[URL]:
         """Get all URLs associated with this :py:attr:`filepath`."""

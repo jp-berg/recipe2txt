@@ -91,8 +91,7 @@ class Context:
         if self.defer_emit:
             self.deferred_records.append(record)
             return False
-        else:
-            return True
+        return True
 
     def set_context(self, record: logging.LogRecord, log_level: int) -> bool:
         self.defer_emit = bool(getattr(record, DEFER_EMIT, False))
@@ -117,7 +116,7 @@ class Context:
         is_context = getattr(record, CTX_ATTR, None)
         if is_context:
             return self.set_context(record, log_level)
-        elif is_context is False:
+        if is_context is False:
             self.close_context()
 
         if record.msg == DO_NOT_LOG:
@@ -146,6 +145,7 @@ class QueueContextFilter(logging.Filter):
     def __init__(
         self, log_level: int = logging.NOTSET, handler: logging.Handler | None = None
     ) -> None:
+        super().__init__()
         self.log_level = log_level
         # TODO: Add reset
         self.handler = handler if handler else logging.NullHandler()
@@ -192,7 +192,7 @@ def format_exception(
     indent_for_context: bool = False,
     full: bool = False,
 ) -> str:
-    ex_class, exception, trace = exc_info
+    ex_class, exception, _ = exc_info
     if full:
         tb_ex = traceback.TracebackException.from_exception(exception)
         tb_ex.stack = shorten_paths(tb_ex.stack, first_visible_dir="Rezepte")
@@ -276,9 +276,9 @@ class QueueContextManager:
         self.logging_fun(self.msg, *self.args, stacklevel=2, extra=extra, **self.kwargs)
 
     def __exit__(
-        self, exc_type: type, exc_value: BaseException, traceback: TracebackType
+        self, exc_type: type, exc_value: BaseException, trace: TracebackType
     ) -> Literal[False]:
-        if not (exc_type or exc_value or traceback):
+        if not (exc_type or exc_value):
             self.logger.debug(DO_NOT_LOG, extra=END_CONTEXT)
         else:
             self.logger.error(
