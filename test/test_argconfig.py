@@ -36,19 +36,19 @@ from recipe2txt.utils.misc import ensure_accessible_file, ensure_existence_dir
 
 class TestFunctions(unittest.TestCase):
     def test_short_flag(self):
-        params = [
+        parameter = [
             ("--verbose", "-v"),
             ("--file", "-f"),
             ("--set-location", "-sl"),
             ("--no-overwrite-files", "-nof"),
         ]
 
-        assertEval(self, argconfig.short_flag, params)
+        assertEval(self, argconfig.short_flag, parameter)
         with self.assertRaises(ValueError):
             argconfig.short_flag("file-types")
 
     def test_obj2toml(self):
-        params = [
+        parameter = [
             (True, "true"),
             ("test", "'test'"),
             ([1, 2, 3], "[1, 2, 3]"),
@@ -61,7 +61,7 @@ class TestFunctions(unittest.TestCase):
             ({}, "{}"),
         ]
 
-        assertEval(self, argconfig.obj2toml, params)
+        assertEval(self, argconfig.obj2toml, parameter)
 
 
 valid_string_1 = textwrap.dedent("""
@@ -179,10 +179,7 @@ class TestBasicOption(TestInit):
 
         emptystuff = ["", {}, []]
         random.shuffle(emptystuff)
-        tomldict_invalid = {
-            key: empty
-            for key, empty in zip(tomldict.keys(), itertools.cycle(emptystuff))
-        }
+        tomldict_invalid = dict(zip(tomldict.keys(), itertools.cycle(emptystuff)))
 
         for idx, (init_params, _) in enumerate(params):
             with self.subTest(i=idx, parameter=init_params):
@@ -539,7 +536,7 @@ class TestArgConfig(unittest.TestCase):
                         self.assertEqual(d_parsed.get(key), d_valid.get(key))
 
     def test_app_argconfig_failure(self):
-        for idx, malformed_string in enumerate(app_wrong_values):
+        for malformed_string in app_wrong_values:
             with self.subTest(malformed_string=malformed_string):
                 f = ensure_accessible_file(DEBUG_DIRS.config, CONFIG_NAME)
                 f.write_text(malformed_string + os.linesep)

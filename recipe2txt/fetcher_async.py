@@ -28,7 +28,7 @@ import aiohttp
 
 from recipe2txt.fetcher import Fetcher, logger
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
-from recipe2txt.utils.misc import URL
+from recipe2txt.utils.misc import NEVER_CATCH, URL
 
 
 class AsyncFetcher(Fetcher):
@@ -81,9 +81,9 @@ class AsyncFetcher(Fetcher):
                         asyncio.TimeoutError,
                     ) as e:
                         logger.error("Unable to reach website: ", exc_info=e)
+                    except NEVER_CATCH:
+                        raise
                     except Exception as e:
-                        if type(e) in (KeyboardInterrupt, SystemExit, MemoryError):
-                            raise e
                         logger.error("Error while connecting to website: ", exc_info=e)
                     if html:
                         self.html2db(url, html)

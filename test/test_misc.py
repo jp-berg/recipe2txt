@@ -16,7 +16,6 @@
 
 import os
 import shutil
-import sys
 import unittest
 from pathlib import Path
 from test.test_helpers import (
@@ -25,7 +24,6 @@ from test.test_helpers import (
     TEST_FILEDIR,
     TEST_PROJECT_TMPDIR,
     TESTFILE,
-    TMPDIRS,
     XDG_TMPDIR,
     assertAccessibleFile,
     create_tmpdirs,
@@ -33,10 +31,7 @@ from test.test_helpers import (
 )
 from test.test_sql import db_name, db_paths
 
-import recipe2txt.utils
-import recipe2txt.utils.misc as misc
-from recipe2txt import html2recipe as h2r
-from recipe2txt import sql as sql
+from recipe2txt.utils import misc
 
 
 class FileTests(unittest.TestCase):
@@ -47,6 +42,17 @@ class FileTests(unittest.TestCase):
     def tearDown(self) -> None:
         if not delete_tmpdirs():
             self.fail()
+
+    def test_is_accessible_db(self):
+        for path in db_paths:
+            with self.subTest(path=path):
+                self.assertTrue(misc.is_accessible_db(path))
+
+        db_path_inaccessible = os.path.join("/root", db_name)
+        self.assertFalse(misc.is_accessible_db(db_path_inaccessible))
+
+        db_path_nonexistent = os.path.join(TEST_PROJECT_TMPDIR, "NOT_A_FOLDER", db_name)
+        self.assertFalse(misc.is_accessible_db(db_path_nonexistent))
 
     def test_extract_urls(self):
         obscured_urls = TEST_FILEDIR / "permanent" / "obscured_urls.txt"
@@ -121,7 +127,7 @@ class FileTests(unittest.TestCase):
                     )
                 )
                 if not os.path.isfile(validation):
-                    self.fail("File", validation, "was not created")
+                    self.fail(f"File {validation} was not created")
                 try:
                     with open(validation, "w") as file:
                         file.write("TEST")
@@ -210,46 +216,3 @@ class StrTests(unittest.TestCase):
         for obj, validation in objects:
             with self.subTest(testobj=obj):
                 self.assertEqual(misc.head_str(obj, 10), validation)
-
-
-class TestHelpers(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        if not create_tmpdirs():
-            print("Could not create tmpdirs:", TMPDIRS, file=sys.stderr)
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        if not delete_tmpdirs():
-            print("Could not delete tmpdirs:", TMPDIRS, file=sys.stderr)
-
-    def test_fetch_again(self):
-        truth_up_to_date = [True, True, False, False, False, False, False]
-        truth_out_of_date = [True, True, True, True, True, True, False]
-        version_up_to_date = h2r.SCRAPER_VERSION
-        version_out_of_date = "-1"
-
-        self.assertEqual(len(truth_up_to_date), len(h2r.RecipeStatus))
-        self.assertEqual(len(truth_out_of_date), len(h2r.RecipeStatus))
-
-        for status, up_to_date, out_of_date in zip(
-            h2r.RecipeStatus, truth_up_to_date, truth_out_of_date
-        ):
-            with self.subTest(status=status):
-                self.assertEqual(
-                    sql.fetch_again(status, version_up_to_date), up_to_date
-                )
-                self.assertEqual(
-                    sql.fetch_again(status, version_out_of_date), out_of_date
-                )
-
-    def test_is_accessible_db(self):
-        for path in db_paths:
-            with self.subTest(path=path):
-                self.assertTrue(recipe2txt.utils.misc.is_accessible_db(path))
-
-        db_path_inaccessible = os.path.join("/root", db_name)
-        self.assertFalse(recipe2txt.utils.misc.is_accessible_db(db_path_inaccessible))
-
-        db_path_nonexistent = os.path.join(TEST_PROJECT_TMPDIR, "NOT_A_FOLDER", db_name)
-        self.assertFalse(recipe2txt.utils.misc.is_accessible_db(db_path_nonexistent))

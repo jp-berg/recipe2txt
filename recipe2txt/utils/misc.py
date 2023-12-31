@@ -15,19 +15,21 @@
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
 import os
 import os.path
+import re
 import sqlite3
 import sys
 import urllib.parse
 from os import linesep
 from pathlib import Path
 from time import localtime, strftime
-from typing import Any, NewType, TypeGuard
+from typing import Any, Final, NewType, TypeGuard
 
 import validators
 
 from recipe2txt.utils.ContextLogger import DO_NOT_LOG, get_logger
 
 __all__ = [
+    "NEVER_CATCH",
     "URL",
     "is_url",
     "extract_urls",
@@ -48,9 +50,12 @@ __all__ = [
     "Counts",
     "dict2str",
     "head_str",
+    "obj2sql_str",
 ]
 
 logger = get_logger(__name__)
+
+NEVER_CATCH: Final = (SystemExit, MemoryError, KeyboardInterrupt)
 
 URL = NewType("URL", str)
 
@@ -309,19 +314,17 @@ class Counts:
         self.parsed_partially: int = 0
 
     def __str__(self) -> str:
-        s = linesep.join(
-            [
-                "[Absolute|Percentage of count above]",
-                "",
-                "Total number of strings: {}",
-                "Identified as URLs: [{}|{:.2f}%]",
-                "URLs not yet (fully) saved: [{}|{:.2f}%]",
-                "URLs reached: [{}|{:.2f}%]",
-                "Recipes parsed partially: [{}|{:.2f}%]",
-                "Recipes parsed fully: [{}|{:.2f}%]",
-                "",
-            ]
-        ).format(
+        s = linesep.join([
+            "[Absolute|Percentage of count above]",
+            "",
+            "Total number of strings: {}",
+            "Identified as URLs: [{}|{:.2f}%]",
+            "URLs not yet (fully) saved: [{}|{:.2f}%]",
+            "URLs reached: [{}|{:.2f}%]",
+            "Recipes parsed partially: [{}|{:.2f}%]",
+            "Recipes parsed fully: [{}|{:.2f}%]",
+            "",
+        ]).format(
             self.strings,
             self.urls,
             (self.urls / self.strings) * 100,
@@ -338,7 +341,7 @@ class Counts:
 
 
 def dict2str(dictionary: dict[Any, Any], sep: str = linesep) -> str:
-    items = ["{}: {}".format(*item) for item in dictionary.items()]
+    items = [f"{item[0]}: {item[1]}" for item in dictionary.items()]
     return sep.join(items)
 
 
@@ -347,3 +350,51 @@ def head_str(o: Any, max_length: int = 50) -> str:
     if len(s) > max_length:
         s = s[: max_length - 3].rstrip() + "..."
     return s.replace(linesep, " ")
+
+
+_ONLY_ALPHANUM_DOT_UNDERSCORE: Final = re.compile("^[\w_\.]+$")
+
+
+def _sanitize(value: object) -> str:
+    string = str(value)
+    matches = _ONLY_ALPHANUM_DOT_UNDERSCORE.findall(string)
+    if len(matches) == 0:
+        raise ValueError(
+            "Strings used as identifiers in SQL-statements for this application"
+            " are only allowed to contain alphanumeric characters, dots and underscores"
+            f" (offending string : '{string}')"
+        )
+    if len(matches) > 1:
+        raise RuntimeError("This should not be possible")
+    return f'"{string}"'
+
+
+def obj2sql_str(*values: object) -> str:
+    """
+    Function preventing SQL-injection attacks from arbitrary values.
+
+    Since inserting arbitrary values into SQL-queries can lead to a SQL-injection
+    attack, this function disallows anything but alphanumeric characters, dots and
+    underscores.
+
+    Additionally, it wraps each string into double-quotes. This prevents SQLite
+    from executing any SQL-statement hidden inside the quotes, since the contained
+    characters can only be treated as strings and never as part of the statement.
+
+    Args:
+        *values (): One or more values
+
+    Returns:
+        'STRING' -> '"STRING"'
+        'STRING1', 'STRING2', 'STRING3' -> '"STRING1", "STRING2", "STRING3"'
+        'String_2' -> '"String_2"'
+        'String 2' -> RuntimeError
+        '); DROP TABLE recipes' -> RuntimeError
+
+    Raises:
+        RuntimeError: If characters other than alphanumeric ASCII-characters and
+            underscores are detected in strings.
+
+    """
+    sanitized = [_sanitize(value) for value in values]
+    return ", ".join(sanitized)
