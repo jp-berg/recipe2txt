@@ -15,7 +15,8 @@
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
 
 """
-Module for logging and recording errors occurring during the usage of the :py:mod:`recipe_scrapers`.
+Module for logging and recording errors occurring during the usage of the
+:py:mod:`recipe_scrapers`.
 """
 import os
 import textwrap
