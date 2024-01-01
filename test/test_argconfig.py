@@ -115,10 +115,10 @@ class TestInit(unittest.TestCase):
             self.assertEqual(option.option_names, [v_name])
 
         self.assertEqual(
-            option.arguments[argconfig.ArgKey.help], validation["help_str"]
+            option.arguments[argconfig.ArgKey.HELP], validation["help_str"]
         )
         self.assertEqual(
-            option.arguments[argconfig.ArgKey.default], validation["default"]
+            option.arguments[argconfig.ArgKey.DEFAULT], validation["default"]
         )
 
 
@@ -228,7 +228,7 @@ class TestInitOption(TestInit):
     ):
         super().assertValidInit(option, validation)
         self.assertEqual(
-            option.arguments[argconfig.ArgKey.choices], validation["choices"]
+            option.arguments[argconfig.ArgKey.CHOICES], validation["choices"]
         )
 
 
@@ -291,7 +291,7 @@ class TestInitType(TestInit):
         self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         super().assertValidInit(option, validation)
-        self.assertEqual(option.arguments[argconfig.ArgKey.type], validation["t"])
+        self.assertEqual(option.arguments[argconfig.ArgKey.TYPE], validation["t"])
 
 
 class TestTypeOption(TestInitType):
@@ -346,7 +346,7 @@ class TestInitBool(TestInit):
         self, option: argconfig.BasicOption, validation: dict[str, Any]
     ):
         super().assertValidInit(option, validation)
-        self.assertEqual(option.arguments[argconfig.ArgKey.action], "store_true")
+        self.assertEqual(option.arguments[argconfig.ArgKey.ACTION], "store_true")
 
 
 class BoolOption(TestInitBool):
@@ -409,7 +409,7 @@ class TestInitNArg(TestInit):
     ):
         super().assertValidInit(option, validation)
         self.assertEqual(
-            option.arguments[argconfig.ArgKey.nargs], validation.get("narg", "*")
+            option.arguments[argconfig.ArgKey.NARGS], validation.get("narg", "*")
         )
 
 

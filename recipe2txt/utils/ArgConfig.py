@@ -103,12 +103,12 @@ class ArgKey(StrEnum):
     `-parameters addressed by
     :py:class:`BasicOption` and its subclasses."""
 
-    help = "help"
-    default = "default"
-    choices = "choices"
-    type = "type"
-    action = "action"
-    nargs = "nargs"
+    HELP = "help"
+    DEFAULT = "default"
+    CHOICES = "choices"
+    TYPE = "type"
+    ACTION = "action"
+    NARGS = "nargs"
 
 
 class BasicOption:
@@ -162,17 +162,17 @@ class BasicOption:
             else:
                 if is_optional:
                     self.option_names.append(short_flag(option_name))
-        self.arguments = {ArgKey.help: help_str, ArgKey.default: default}
+        self.arguments = {ArgKey.HELP: help_str, ArgKey.DEFAULT: default}
 
     def add_to_parser(self, parser: argparse.ArgumentParser) -> None:
-        help_tmp = self.arguments[ArgKey.help]
-        if self.arguments[ArgKey.default] is not None:
-            self.arguments[ArgKey.help] = (
-                f"{self.arguments[ArgKey.help]} (default:"
-                f" '{self.arguments[ArgKey.default]}')"
+        help_tmp = self.arguments[ArgKey.HELP]
+        if self.arguments[ArgKey.DEFAULT] is not None:
+            self.arguments[ArgKey.HELP] = (
+                f"{self.arguments[ArgKey.HELP]} (default:"
+                f" '{self.arguments[ArgKey.DEFAULT]}')"
             )
         parser.add_argument(*self.option_names, **self.arguments)  # type: ignore[misc]
-        self.arguments[ArgKey.help] = help_tmp
+        self.arguments[ArgKey.HELP] = help_tmp
 
     def to_toml_str(self) -> str:
         """Generates a string representation of this option that also represents a
@@ -180,8 +180,8 @@ class BasicOption:
         return self.to_toml_str_intern("")
 
     def to_toml_str_intern(self, value_comment: str) -> str:
-        default_str = obj2toml(self.arguments[ArgKey.default])
-        help_str = BasicOption.help_wrapper.fill(self.arguments[ArgKey.help])
+        default_str = obj2toml(self.arguments[ArgKey.DEFAULT])
+        help_str = BasicOption.help_wrapper.fill(self.arguments[ArgKey.HELP])
         return (
             f"\n\n\n{help_str + os.linesep * 2 if help_str else ''}#{self.name} ="
             f" {default_str}{value_comment}\n"
@@ -214,7 +214,7 @@ class BasicOption:
         """
         value = toml.get(self.name)
         if self.toml_valid(value):
-            self.arguments[ArgKey.default] = value
+            self.arguments[ArgKey.DEFAULT] = value
             return True
         return False
 
@@ -243,16 +243,16 @@ class ChoiceOption(BasicOption, Generic[T]):
         if default not in choices:
             raise ValueError(f"Parameter {default=} not in {choices=}")
         super().__init__(option_name, help_str, default, short)
-        self.arguments[ArgKey.choices] = choices
+        self.arguments[ArgKey.CHOICES] = choices
 
     def to_toml_str(self) -> str:
         choice_str = " | ".join(
-            [obj2toml(choice) for choice in self.arguments[ArgKey.choices]]
+            [obj2toml(choice) for choice in self.arguments[ArgKey.CHOICES]]
         )
         return super().to_toml_str_intern(f" # Possible values: {choice_str}\n")
 
     def toml_valid(self, value: Any) -> bool:
-        return value in self.arguments[ArgKey.choices]
+        return value in self.arguments[ArgKey.CHOICES]
 
 
 class TypeOption(BasicOption):
@@ -285,10 +285,10 @@ class TypeOption(BasicOption):
         elif not isinstance(default, t):
             raise ValueError(f"Parameter {default=} does not match type {t=}")
         super().__init__(option_name, help_str, default, short)
-        self.arguments[ArgKey.type] = t
+        self.arguments[ArgKey.TYPE] = t
 
     def toml_valid(self, value: Any) -> bool:
-        if not (t := self.arguments.get(ArgKey.type)):
+        if not (t := self.arguments.get(ArgKey.TYPE)):
             raise RuntimeError(
                 "'argument_args' does not contain 'type' (but it should)"
             )
@@ -310,7 +310,7 @@ class BoolOption(BasicOption):
         short: str | None = "",
     ):
         super().__init__(option_name, help_str, default, short)
-        self.arguments[ArgKey.action] = "store_true"
+        self.arguments[ArgKey.ACTION] = "store_true"
 
     def to_toml_str(self) -> str:
         return super().to_toml_str_intern(" # Possible values: true | false")
@@ -342,7 +342,7 @@ class NArgOption(BasicOption):
     ):
         d = [] if default is None else default
         super().__init__(option_name, help_str, d, short)
-        self.arguments[ArgKey.nargs] = nargs
+        self.arguments[ArgKey.NARGS] = nargs
 
     def toml_valid(self, value: Any) -> bool:
         return isinstance(value, list)

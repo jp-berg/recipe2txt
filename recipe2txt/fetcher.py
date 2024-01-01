@@ -44,9 +44,9 @@ class Cache(StrEnum):
     :py:class:`AbstractFetcher`
     """
 
-    default = "default"
-    only = "only"
-    new = "new"
+    DEFAULT = "default"
+    ONLY = "only"
+    NEW = "new"
 
 
 class Fetcher:
@@ -74,7 +74,7 @@ class Fetcher:
         timeout: float | None = None,
         connections: int | None = None,
         markdown: bool = False,
-        cache: Cache = Cache.default,
+        cache: Cache = Cache.DEFAULT,
         user_agent: str | None = None,
     ) -> None:
         """
@@ -115,7 +115,7 @@ class Fetcher:
         """
         if p := h2r.html2parsed(url, html):
             r = h2r.parsed2recipe(p)
-            self.db.insert_recipe(r, self.cache == Cache.new)
+            self.db.insert_recipe(r, self.cache == Cache.NEW)
         else:
             self.db.insert_recipe_unknown(url)
 
@@ -141,12 +141,12 @@ class Fetcher:
             cache-usage-strategy
         """
         self.counts.urls += len(urls)
-        if self.cache is Cache.only:
+        if self.cache is Cache.ONLY:
             self.db.set_contents(urls)
             urls.clear()
-        elif self.cache is Cache.default:
+        elif self.cache is Cache.DEFAULT:
             urls = self.db.urls_to_fetch(urls)
-        elif self.cache is Cache.new:
+        elif self.cache is Cache.NEW:
             self.db.set_contents(urls)
         self.counts.require_fetching += len(urls)
         return urls

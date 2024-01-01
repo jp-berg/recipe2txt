@@ -226,7 +226,7 @@ def gen_formatted_full(urls: set[URL], file_extension: FileExtension) -> list[st
     file = gen_full_path(name, file_extension)
 
     if not file.stat().st_size > 0:
-        f = TestFileFetcher(output=file, database=db, cache=Cache.new)
+        f = TestFileFetcher(output=file, database=db, cache=Cache.NEW)
         f.markdown = file_extension is FileExtension.md
         logger.info("Generating %s", file)
         with suppress_logging():

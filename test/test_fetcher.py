@@ -47,18 +47,18 @@ class Test(unittest.TestCase):
 
         err_msg = "require_fetching() does not filter adequately with setting %s"
 
-        tf.cache = Cache.default
+        tf.cache = Cache.DEFAULT
         to_fetch = tf.require_fetching(urls)
 
         if to_fetch == urls[2:]:
             self.fail(err_msg % f"{tf.cache=} | Got {to_fetch}, expected {urls[:2]} ")
 
-        tf.cache = Cache.only
+        tf.cache = Cache.ONLY
         to_fetch = tf.require_fetching(urls)
         if to_fetch:
             self.fail(err_msg % f"{tf.cache=} | Got {to_fetch}, expected empty set")
 
-        tf.cache = Cache.new
+        tf.cache = Cache.NEW
         to_fetch = tf.require_fetching(urls)
         if len(urls) != len(to_fetch):
             self.fail(err_msg % f"{tf.cache=} | Got {to_fetch}, expected {urls}")
