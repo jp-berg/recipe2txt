@@ -352,7 +352,7 @@ def head_str(o: Any, max_length: int = 50) -> str:
     return s.replace(linesep, " ")
 
 
-_ONLY_ALPHANUM_DOT_UNDERSCORE: Final = re.compile("^[\w_\.]+$")
+_ONLY_ALPHANUM_DOT_UNDERSCORE: Final = re.compile(r"^[\w_\.]+$")
 
 
 def _sanitize(value: object) -> str:

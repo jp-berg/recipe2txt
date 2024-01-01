@@ -253,7 +253,7 @@ def get_url(parsed: Parsed) -> URL:
     return DUMMY_URL
 
 
-_contains_alphanumeric = re.compile("\w")
+_contains_alphanumeric = re.compile(r"\w")
 
 
 def info2str(method: str, info: Any) -> str:
