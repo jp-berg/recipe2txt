@@ -60,12 +60,11 @@ def handle_parsing_error(
 
     Args:
         url: The URL corresponding to the recipe that was not parsed correctly
-        exception: The exception that occured during parsing of the recipe
+        exception: The exception that occurred during parsing of the recipe
         method: On which of :py:data:`METHODS` did the exception occur ('None' if the
-        error did not occur through
-        calling a method on a :py:data:`Parsed`-object
+            error did not occur through calling a method on a :py:data:`Parsed`-object)
         log: a logging method (e.g. logger.info, logger.critical...) to report the
-        occurence of an error
+            occurrence of an error
         save_error: Whether the error should be stored in :py:data:`categorized_errors`
 
     Returns:
@@ -111,7 +110,7 @@ def errors2str() -> list[tuple[str, str]]:
     These markdown-formatted representations are intended to be copy&pasted into the
     text-field of a Github-issue, thus
     reducing friction for reporting errors. If there are multiple occurrences of an
-    error¹ () all occurences are grouped
+    error¹ () all occurrences are grouped
     into the same text. One stack-trace is shown fully, all other traces will have
     all shared² frames except one
     removed.
@@ -194,7 +193,7 @@ the name of the exception from :py:attr:`ParsingError.traceback` to lists contai
 parsing errors.
 Overview:
     outer dictionary (host of url -> middle dictionaries)
-    middle dictionary (method where the traceback occured -> inner dictionaries)
+    middle dictionary (method where the traceback occurred -> inner dictionaries)
     inner dictionary(name of the exception that caused the traceback -> list of 
     parsing errors)
 
