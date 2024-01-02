@@ -41,7 +41,7 @@ import os
 import textwrap
 from pathlib import Path
 from shutil import rmtree
-from typing import Final, NamedTuple, Tuple
+from typing import Final, NamedTuple
 
 from xdg_base_dirs import xdg_config_home, xdg_data_home, xdg_state_home
 
@@ -93,6 +93,7 @@ The specified paths try to adhere to the XDG Base Directory Specification.
 DEBUG_DIRECTORY_BASE: Final = (
     Path(__file__).parents[1] / "test" / "testfiles" / "debug-dirs"
 )
+
 """Specifies the root directory for all files used by this program when the 
 '--debug'-flag is set."""
 
@@ -136,44 +137,42 @@ def get_default_output() -> str:
 
 
 def get_db(debug: bool = False) -> AccessibleDatabase:
+    """
+    Returns the default database
+
+    Creates the database-file, if none is found
+
+    Args:
+        debug (): Whether the standard- or the debug-folders should be used.
+
+    Returns:
+        The database
+
+    Raises:
+        SystemExit: When the database cannot be created/accessed
+    """
     directory = DEBUG_DIRS.data if debug else DEFAULT_DIRS.data
     return ensure_accessible_db_critical(directory, DB_NAME)
 
 
 def get_log(debug: bool = False) -> File:
-    directory = DEBUG_DIRS.state if debug else DEFAULT_DIRS.state
-    return ensure_accessible_file_critical(directory, LOG_NAME)
-
-
-def file_setup(
-    output: str, debug: bool = False
-) -> Tuple[AccessibleDatabase, File, File]:
     """
-    Initializes all files that the program will need to read from and write to.
+    Returns the default log-file
+
+    Creates the log-file, if none is found
 
     Args:
-        debug: Whether the default- or the debug-directories should be used
-        output: Where the recipes should be written to (will use the location
-        provided by
-            :py:data:`DEFAULT_OUTPUT_LOCATION_NAME' if not set or fallback to the
-            current working directory if nothing
-            is configured)
+        debug (): Whether the standard- or the debug-folders should be used.
 
     Returns:
-        A tuple consisting of the path to (1) the database, (2) the output-file and (
-        3) the log-file the program will
-        use.
+        The log-file
 
     Raises:
-        SystemExit: When one of the files cannot be created/accessed by the program.
+        SystemExit: When the log-file cannot be created/accessed
+
     """
-
-    output_file = ensure_accessible_file_critical(output)
-
-    db_file = get_db(debug)
-    log_file = get_log(debug)
-
-    return db_file, output_file, log_file
+    directory = DEBUG_DIRS.state if debug else DEFAULT_DIRS.state
+    return ensure_accessible_file_critical(directory, LOG_NAME)
 
 
 def get_files(debug: bool = False) -> list[str]:

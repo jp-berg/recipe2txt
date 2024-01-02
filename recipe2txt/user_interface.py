@@ -38,9 +38,10 @@ from recipe2txt.file_setup import (
     CONFIG_FILE,
     PROGRAM_NAME,
     erase_files,
-    file_setup,
+    get_db,
     get_default_output,
     get_files,
+    get_log,
 )
 from recipe2txt.utils.ArgConfig import ArgConfig
 from recipe2txt.utils.ContextLogger import (
@@ -49,7 +50,15 @@ from recipe2txt.utils.ContextLogger import (
     get_logger,
     root_log_setup,
 )
-from recipe2txt.utils.misc import URL, Counts, File, dict2str, extract_urls, read_files
+from recipe2txt.utils.misc import (
+    URL,
+    Counts,
+    File,
+    dict2str,
+    ensure_accessible_file_critical,
+    extract_urls,
+    read_files,
+)
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
@@ -228,6 +237,7 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
     if a.timeout <= 0.0:
         logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
+
     ext = output.suffix
     if a.markdown:
         if ext != ".md":
@@ -243,6 +253,8 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
                 " extension indicates otherwise:'%s'",
                 ext,
             )
+    if output.stat().st_size > 0:
+        logger.warning("The output-file already exists. It will be overwritten.")
 
     if CONFIG_FILE.stat().st_size == 0:
         logger.warning("The config-file %s is empty", CONFIG_FILE)
@@ -264,26 +276,29 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
             gathered from :py:mod:`argparse`
 
     """
-    db_file, recipe_file, log_file = file_setup(a.output, a.debug)
+    log_file = get_log(a.debug)
     root_log_setup(STRING2LEVEL[a.verbosity], str(log_file))
+
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug(
             "CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + "\t")
         )
+
     logger.info("--- Preparing arguments ---")
+
+    db_file = get_db(a.debug)
+    recipe_file = ensure_accessible_file_critical(a.output)
+    logger.info("Output set to: %s", recipe_file)
+
     sancheck_args(a, recipe_file)
-    if recipe_file.stat().st_size > 0:
-        logger.warning(
-            "The output-file %s already exists. It will be overwritten.", recipe_file
-        )
-    else:
-        logger.info("Output set to: %s", recipe_file)
+
     unprocessed: list[str] = read_files(*a.file)
     unprocessed += a.url
     processed: set[URL] = extract_urls(unprocessed)
     if not processed:
         logger.critical("No valid URL passed")
         sys.exit(os.EX_DATAERR)
+
     counts = Counts()
     counts.strings = len(unprocessed)
 

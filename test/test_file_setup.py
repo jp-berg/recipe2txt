@@ -15,19 +15,16 @@
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
 import os.path
 import unittest
-from pathlib import Path
 from shutil import rmtree
-from test.test_helpers import (
-    NONE_DIRS,
-    NORMAL_DIRS,
-    TEST_PROJECT_TMPDIR,
-    TESTFILE,
-    assertAccessibleFile,
-)
+from test.test_helpers import TEST_PROJECT_TMPDIR, TESTFILE, assertAccessibleFile
 
 import recipe2txt.file_setup as fs
 from recipe2txt.utils.ContextLogger import disable_loggers
-from recipe2txt.utils.misc import ensure_existence_dir, is_accessible_db
+from recipe2txt.utils.misc import (
+    ensure_accessible_file_critical,
+    ensure_existence_dir,
+    is_accessible_db,
+)
 
 copy_debug_dirs = fs.DEBUG_DIRS
 tmp_data_dir = TEST_PROJECT_TMPDIR / "test-xdg-dirs"
@@ -93,42 +90,6 @@ class Test(unittest.TestCase):
         log = fs.get_log(True)
         self.assertEqual(log.read_text(), "TEST")
 
-    def test_file_setup(self):
-        testfiles = [Path(*testdir) / TESTFILE for testdir in NORMAL_DIRS]
-        test_params = [
-            ((str(file), True), (db_path, file, log_path)) for file in testfiles
-        ]
-
-        for idx, (test, validation) in enumerate(test_params):
-            fs.file_setup(*test)
-            with self.subTest(i=idx):
-                self.assertTrue(is_accessible_db(validation[0]))
-                assertAccessibleFile(self, validation[1])
-                assertAccessibleFile(self, validation[2])
-
-    def test_no_overwrite(self):
-        outfile = TEST_PROJECT_TMPDIR / TESTFILE
-        fs.file_setup(outfile, True)
-
-        assertAccessibleFile(self, outfile)
-        self.assertTrue(is_accessible_db(db_path))
-
-        outfile.write_text("TEST")
-
-        fs.file_setup(outfile, True)
-        self.assertEqual(outfile.read_text(), "TEST")
-
-    def test_file_setup_failure(self):
-        failfiles = [Path(*faildir) / TESTFILE for faildir in NONE_DIRS]
-        fail_params = [
-            ((str(file), True), (db_path, file, log_path)) for file in failfiles
-        ]
-
-        for idx, (test, _) in enumerate(fail_params):
-            with self.subTest(i=idx):
-                with self.assertRaises(SystemExit):
-                    fs.file_setup(*test)
-
     def test_get_files(self):
         file1 = fs.DEBUG_DIRS.config / "file1"
         file2 = fs.DEBUG_DIRS.data / "file2"
@@ -136,7 +97,10 @@ class Test(unittest.TestCase):
 
         file1.write_text("TESTFILE")
         file2.write_text("TESTFILE")
-        fs.file_setup(file3, True)
+
+        ensure_accessible_file_critical(file3)
+        fs.get_db(True)
+        fs.get_log(True)
 
         test_files = set(fs.get_files(True))
         tmp = [file1, file2, file3, db_path, log_path]
