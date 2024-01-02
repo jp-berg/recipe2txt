@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
-
+import os.path
 import unittest
 from pathlib import Path
 from shutil import rmtree
@@ -70,6 +70,28 @@ class Test(unittest.TestCase):
     def tearDown(self) -> None:
         name_back()
         remove_dir()
+
+    def test_get_db(self):
+        validation_path = test_debug_dirs.data / fs.DB_NAME
+
+        db = fs.get_db(True)
+
+        self.assertTrue(is_accessible_db(db))
+        self.assertTrue(os.path.samefile(db, validation_path))
+
+    def test_get_log(self):
+        validation_path = test_debug_dirs.state / fs.LOG_NAME
+
+        log = fs.get_log(True)
+
+        assertAccessibleFile(self, log)
+        self.assertTrue(os.path.samefile(log, validation_path))
+
+        # Testing if existing files do not get overwritten:
+        log.write_text("TEST")
+
+        log = fs.get_log(True)
+        self.assertEqual(log.read_text(), "TEST")
 
     def test_file_setup(self):
         testfiles = [Path(*testdir) / TESTFILE for testdir in NORMAL_DIRS]

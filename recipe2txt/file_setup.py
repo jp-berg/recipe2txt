@@ -135,6 +135,16 @@ def get_default_output() -> str:
     return os.path.join(os.getcwd(), RECIPES_NAME)
 
 
+def get_db(debug: bool = False) -> AccessibleDatabase:
+    directory = DEBUG_DIRS.data if debug else DEFAULT_DIRS.data
+    return ensure_accessible_db_critical(directory, DB_NAME)
+
+
+def get_log(debug: bool = False) -> File:
+    directory = DEBUG_DIRS.state if debug else DEFAULT_DIRS.state
+    return ensure_accessible_file_critical(directory, LOG_NAME)
+
+
 def file_setup(
     output: str, debug: bool = False
 ) -> Tuple[AccessibleDatabase, File, File]:
@@ -157,12 +167,11 @@ def file_setup(
     Raises:
         SystemExit: When one of the files cannot be created/accessed by the program.
     """
-    directory = DEBUG_DIRS if debug else DEFAULT_DIRS
 
     output_file = ensure_accessible_file_critical(output)
 
-    db_file = ensure_accessible_db_critical(directory.data, DB_NAME)
-    log_file = ensure_accessible_file_critical(directory.state, LOG_NAME)
+    db_file = get_db(debug)
+    log_file = get_log(debug)
 
     return db_file, output_file, log_file
 
