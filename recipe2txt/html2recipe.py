@@ -491,7 +491,7 @@ def recipe2out(
         logger.error("Nothing worthwhile could be extracted. Skipping...")
         return None
     if counts:
-        if recipe.status < RecipeStatus.INCOMPLETE_ON_DISPLAY:
+        if recipe.status == RecipeStatus.INCOMPLETE_ON_DISPLAY:
             counts.parsed_partially += 1
         else:
             counts.parsed_successfully += 1
