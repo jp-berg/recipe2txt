@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Jan Philipp Berg <git.7ksst@aleeas.com>
+# Copyright (C) 2024 Jan Philipp Berg <git.7ksst@aleeas.com>
 #
 # This file is part of recipe2txt.
 #
