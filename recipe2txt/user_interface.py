@@ -314,8 +314,8 @@ def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
         counts=counts,
         database=db_file,
         timeout=a.timeout,
-        markdown=a.markdown,
-        cache=Cache(a.cache),
+        use_markdown=a.markdown,
+        caching_strategy=Cache(a.cache),
     )
 
     return processed, f

@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
 
     def test_write_txt(self):
         tf = file_gen.TestFileFetcher(
-            output=out_path_txt, database=db_path, markdown=False
+            output=out_path_txt, database=db_path, use_markdown=False
         )
 
         urls = file_gen.URL_LIST
@@ -77,7 +77,7 @@ class Test(unittest.TestCase):
 
     def test_write_md(self):
         tf = file_gen.TestFileFetcher(
-            output=out_path_md, database=db_path, markdown=True
+            output=out_path_md, database=db_path, use_markdown=True
         )
 
         urls = file_gen.URL_LIST

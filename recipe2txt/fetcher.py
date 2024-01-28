@@ -73,8 +73,8 @@ class Fetcher:
         counts: Counts = Counts(),
         timeout: float | None = None,
         connections: int | None = None,
-        markdown: bool = False,
-        cache: Cache = Cache.DEFAULT,
+        use_markdown: bool = False,
+        caching_strategy: Cache = Cache.DEFAULT,
         user_agent: str | None = None,
     ) -> None:
         """
@@ -88,8 +88,8 @@ class Fetcher:
             timeout: Maximum waiting time for a response from a server
             connections: The maximum number of simultaneous connections the Fetcher
             is allowed to make
-            markdown: Whether the output-file is formatted in Markdown
-            cache: How the cache should be used
+            use_markdown: Whether the output-file is formatted in Markdown
+            caching_strategy: How the cache should be used
             user_agent: The user-agent for making http-requests
         """
         self.output: File = output
@@ -97,8 +97,8 @@ class Fetcher:
         self.timeout: float = timeout if timeout else self.timeout
         self.connections: int = connections if connections else self.connections
         self.db: sql.Database = sql.Database(database, output)
-        self.markdown = markdown
-        self.cache = cache
+        self.markdown = use_markdown
+        self.cache = caching_strategy
         self.user_agent = user_agent if user_agent else self.user_agent
 
     def get_counts(self) -> Counts:
