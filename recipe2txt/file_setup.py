@@ -213,7 +213,8 @@ def erase_files(debug: bool = False) -> None:
             rmtree(directory)
 
 
-HOW_TO_REPORT_TXT: Final = textwrap.dedent("""
+HOW_TO_REPORT_TXT: Final = textwrap.dedent(
+    """
     During its execution the program encountered errors while trying to scrape 
     recipes. In cases where the error seems to originate from the underlying library 
     'recipe-scrapers' an error-report per error has been generated and saved to a file.
@@ -231,7 +232,8 @@ HOW_TO_REPORT_TXT: Final = textwrap.dedent("""
     it. 
     Please note that they are volunteers and under no obligation to help you. Be kind
     to them.
-    """)
+    """
+)
 """Text describing how to report errors originating from the 
 :py:mod:`recipe-scrapers`-library."""
 

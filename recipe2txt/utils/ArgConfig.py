@@ -348,7 +348,8 @@ class NArgOption(BasicOption):
         return isinstance(value, list)
 
 
-CFG_PREAMBLE: Final = textwrap.dedent("""
+CFG_PREAMBLE: Final = textwrap.dedent(
+    """
     #*****************************************************************************
     # Configuration file for the program %s
     #
@@ -369,7 +370,8 @@ CFG_PREAMBLE: Final = textwrap.dedent("""
     #*****************************************************************************
     
     
-    """)
+    """
+)
 """
 Help text explaining how the config-file works.
 

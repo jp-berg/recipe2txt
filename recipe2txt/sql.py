@@ -44,7 +44,8 @@ logger = get_logger(__name__)
 :py:mod:`recipe2txt.utils.ContextLogger`"""
 
 
-_CREATE_TABLES: Final = textwrap.dedent("""
+_CREATE_TABLES: Final = textwrap.dedent(
+    """
         CREATE TABLE IF NOT EXISTS recipes(
             recipeID        INTEGER NOT NULL,
             url             TEXT NOT NULL UNIQUE,
@@ -76,7 +77,8 @@ _CREATE_TABLES: Final = textwrap.dedent("""
             DELETE CASCADE
             UNIQUE(fileID, recipeID) ON CONFLICT IGNORE
         ) STRICT;
-    """)
+    """
+)
 RECIPE_ROW_ATTRIBUTES: Final[list[LiteralString]] = RECIPE_ATTRIBUTES + [
     "recipeID",
     "last_fetched",

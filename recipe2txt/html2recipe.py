@@ -38,6 +38,7 @@ Attributes:
         by calling the methods with the same
             name on the :py:class:`recipe_scrapers._abstract.AbstractScraper`
         RECIPE_ATTRIBUTES (list[LiteralString]): all attributes in a :py:class:`Recipes`
+
 """
 import re
 from enum import IntEnum

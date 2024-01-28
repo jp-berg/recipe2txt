@@ -89,11 +89,17 @@ class FileListingArgParse(argparse.ArgumentParser):
         return help_msg
 
 
-AIOHTTP_NOT_AVAILABLE_MSG: Final = textwrap.dedent("""
+AIOHTTP_NOT_AVAILABLE_MSG: Final = (
+    textwrap.dedent(
+        """
     Since the package 'aiohttp' is not installed the number of
     simultaneous connections will always be 1. Thus this flag and its
     parameters will not be evaluated. 
-    """) if not Fetcher.is_async else ""
+    """
+    )
+    if not Fetcher.is_async
+    else ""
+)
 
 WHICH_VALUE_SET_MSG: Final = (
     "sets the connect-value of aiohttp.ClientTimeout"
