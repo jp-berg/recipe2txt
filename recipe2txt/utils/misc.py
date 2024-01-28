@@ -22,6 +22,7 @@ import urllib.parse
 from os import linesep
 from pathlib import Path
 from time import localtime, strftime
+from types import ModuleType
 from typing import Any, Final, NewType, TypeGuard
 
 import validators
@@ -51,6 +52,7 @@ __all__ = [
     "dict2str",
     "head_str",
     "obj2sql_str",
+    "get_all_dict",
 ]
 
 logger = get_logger(__name__)
@@ -398,3 +400,24 @@ def obj2sql_str(*values: object) -> str:
     """
     sanitized = [_sanitize(value) for value in values]
     return ", ".join(sanitized)
+
+
+def get_all_dict(mod: ModuleType) -> dict[str, Any]:
+    """
+    Builds a dictionary from the __all__-attribute of mod.
+
+    The keys are the strings in __all__ and the values are references to the
+    corresponding module-members (e.g. the functions, classes, variables declared in
+    that module)
+
+    Args:
+        mod (): A python module
+
+    Returns:
+        A dictionary filled with member-name|member-reference pairs or an empty
+        dictionary if the module does not declare __all__
+
+    """
+    if not (declared_items := mod.__dict__["__all__"]):
+        return {}
+    return {name: mod.__dict__[name] for name in declared_items}
