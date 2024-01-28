@@ -21,12 +21,14 @@ Attributes:
     logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
 """
+import sys
 import urllib.error
 import urllib.request
 from os import linesep
 
 import recipe2txt.html2recipe as h2r
 from recipe2txt import sql
+from recipe2txt.recipes2out import formatted_to_file, get_template
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
@@ -203,8 +205,16 @@ class Fetcher:
         if urls:
             logger.info("--- Fetching missing recipes ---")
             self.fetch_urls(urls)
-        lines = self.gen_lines()
-        self.write(lines)
+        if self.markdown:
+            lines = self.gen_lines()
+            self.write(lines)
+        else:
+            if not (template := get_template("txt")):
+                logger.critical("Template %s is not available", "txt")
+                sys.exit(1)
+            recipes = self.db.get_recipes()
+            self.counts = h2r.update_counts(self.counts, recipes)
+            formatted_to_file(recipes, template, self.output)
 
     def gen_lines(self) -> list[str]:
         """
