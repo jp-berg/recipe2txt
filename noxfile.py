@@ -162,7 +162,6 @@ def short(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def medium(session: nox.Session) -> None:
     """System-testing: Test different CLI-configurations with short runs of the program."""
-    session.notify("short")
     session.notify("check")
     session.notify("tidy")
     install_deps(session)
