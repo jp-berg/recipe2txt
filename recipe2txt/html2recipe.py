@@ -502,6 +502,16 @@ def recipe2out(
     return _re2txt(recipe)
 
 
+def update_counts(counts: Counts, recipes: list[Recipe]) -> Counts:
+    for recipe in recipes:
+        if recipe.status >= RecipeStatus.COMPLETE_ON_DISPLAY:
+            counts.parsed_successfully += 1
+        elif recipe.status == RecipeStatus.INCOMPLETE_ON_DISPLAY:
+            counts.parsed_partially += 1
+
+    return counts
+
+
 def html2parsed(url: URL, html: str) -> Parsed | None:
     """
     Parses the HTML of the recipe-website.
