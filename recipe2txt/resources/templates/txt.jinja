@@ -1,0 +1,31 @@
+{%- if recipes is defined and recipes|length > 3 -%}
+Index
+{% for recipe in recipes | rejectattr('status', 'lt', 3) %}
+{% if recipe.title != NA -%} {{recipe.title}} {% else -%} {{recipe.url}} {%- endif -%}
+{% endfor %}
+
+
+
+----------
+
+
+
+
+{% endif -%}
+
+{%- for recipe in recipes | rejectattr('status', 'lt', 3) -%}
+
+{% if recipe.title != NA -%} {{recipe.title}} {% else -%} {{recipe.url}} {%- endif %}
+
+{{recipe.total_time}} min | {{recipe.yields}}
+
+{{recipe.ingredients}}
+
+{{recipe.instructions.replace("\n", "\n"*2)}}
+
+{% if recipe.title != NA -%} from: {{recipe.url}} {%- endif %}
+
+
+
+
+{% endfor -%}

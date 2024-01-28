@@ -38,7 +38,9 @@ Attributes:
     collected recipes will be written to
 """
 import os
+import shutil
 import textwrap
+from functools import cache
 from pathlib import Path
 from shutil import rmtree
 from typing import Final, NamedTuple
@@ -52,6 +54,7 @@ from recipe2txt.utils.misc import (
     File,
     create_timestamped_dir,
     ensure_accessible_db_critical,
+    ensure_accessible_file,
     ensure_accessible_file_critical,
     ensure_existence_dir,
 )
@@ -121,8 +124,36 @@ RECIPES_NAME_TXT: Final = RECIPES_NAME + ".txt"
 RECIPES_NAME_MD: Final = RECIPES_NAME + ".md"
 CONFIG_FILE: Final = DEFAULT_DIRS.config / CONFIG_NAME
 """path to the config-file"""
+
+SRC_DIR: Final = Path(__file__).parent
+JINJA_TEMPLATE_DIR_NAME = "templates"
+JINJA_TEMPLATE_ORIGIN_DIR: Final = SRC_DIR / "resources" / JINJA_TEMPLATE_DIR_NAME
+JINJA_TEMPLATE_DIR: Final = DEFAULT_DIRS.config / JINJA_TEMPLATE_DIR_NAME
 HOW_TO_REPORT_NAME: Final = "how_to_report_errors.txt"
 """Name of the file containing instructions on how to report recipe_scrapers-errors"""
+
+
+@cache
+def get_template_files() -> dict[str, File]:
+    """
+    Fetches the .jinja-files
+
+    The files are fetched from the template-directory in the config-directory of this program. The directory will
+    be created if it does not exist and filled with the default-templates from resources/templates.
+
+    Returns:
+        a dict, where the stem of the file is the key and the file itself is the value
+
+    """
+    if not JINJA_TEMPLATE_DIR.is_dir():
+        shutil.copytree(
+            JINJA_TEMPLATE_ORIGIN_DIR, JINJA_TEMPLATE_DIR, dirs_exist_ok=True
+        )
+    return {
+        validated.stem: validated
+        for f in JINJA_TEMPLATE_DIR.glob("*.jinja")
+        if (validated := ensure_accessible_file(f))
+    }
 
 
 def get_default_output() -> str:
