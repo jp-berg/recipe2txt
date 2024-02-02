@@ -78,7 +78,7 @@ class FileListingArgParse(argparse.ArgumentParser):
         files = get_files()
         files.sort()
         files_str = (
-            os.linesep + "  " + (os.linesep + "  ").join(files) if files else " none"
+            os.linesep + "   " + (os.linesep + "   ").join(files) if files else " none"
         )
         help_msg += (
             os.linesep

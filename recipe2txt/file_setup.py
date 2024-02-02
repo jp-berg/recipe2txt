@@ -218,12 +218,14 @@ def get_files(debug: bool = False) -> list[str]:
     """
     directories = list(DEBUG_DIRS)
     directories = directories if debug else directories + list(DEFAULT_DIRS)
-    files = [
-        str(file)
-        for directory in directories
-        if directory.is_dir()
-        for file in directory.iterdir()
-    ]
+    files = []
+    for directory in directories:
+        if directory.is_dir():
+            for path in directory.iterdir():
+                if path.is_file():
+                    files.append(str(path))
+                elif path.is_dir():
+                    directories.append(path)
     return files
 
 
