@@ -68,6 +68,35 @@ class Test(unittest.TestCase):
         name_back()
         remove_dir()
 
+    def test_get_template_files(self):
+        valid_testfile = ensure_accessible_file_critical(
+            fs.JINJA_TEMPLATE_ORIGIN_DIR, "xyz.jinja"
+        )
+        valid_testfile.write_text("This is a testfile, please delete")
+
+        invalid_testfile = ensure_accessible_file_critical(
+            fs.JINJA_TEMPLATE_ORIGIN_DIR, TESTFILE
+        )
+        invalid_testfile.write_text("This is a testfile, please delete")
+
+        template_files = fs.get_template_files(True)
+        validation_data = {
+            name: (fs.JINJA_TEMPLATE_ORIGIN_DIR / name).with_suffix(".jinja")
+            for name in ["txt", "md", "xyz"]
+        }
+
+        if diff1 := template_files.keys() - validation_data.keys():
+            self.fail("Unexpected templates: " + diff1)
+        if diff2 := validation_data.keys() - template_files.keys():
+            self.fail("Missing templates: " + diff2)
+
+        for name, path in template_files.items():
+            with self.subTest(i=name):
+                self.assertTrue(os.path.samefile(path, validation_data.get(name)))
+
+        os.remove(valid_testfile)
+        os.remove(invalid_testfile)
+
     def test_get_db(self):
         validation_path = test_debug_dirs.data / fs.DB_NAME
 
