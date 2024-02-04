@@ -134,7 +134,7 @@ HOW_TO_REPORT_NAME: Final = "how_to_report_errors.txt"
 
 
 @cache
-def get_template_files() -> dict[str, File]:
+def get_template_files(debug: bool = False) -> dict[str, File]:
     """
     Fetches the .jinja-files
 
@@ -145,13 +145,14 @@ def get_template_files() -> dict[str, File]:
         a dict, where the stem of the file is the key and the file itself is the value
 
     """
-    if not JINJA_TEMPLATE_DIR.is_dir():
+    if debug and not JINJA_TEMPLATE_DIR.is_dir():
         shutil.copytree(
             JINJA_TEMPLATE_ORIGIN_DIR, JINJA_TEMPLATE_DIR, dirs_exist_ok=True
         )
+    template_dir = JINJA_TEMPLATE_ORIGIN_DIR if debug else JINJA_TEMPLATE_DIR
     return {
         validated.stem: validated
-        for f in JINJA_TEMPLATE_DIR.glob("*.jinja")
+        for f in template_dir.glob("*.jinja")
         if (validated := ensure_accessible_file(f))
     }
 
