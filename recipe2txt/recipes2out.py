@@ -15,6 +15,7 @@
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
 """
 Module for functions using the jinja2-package to format recipes and write them to files.
+
 """
 from functools import cache
 
