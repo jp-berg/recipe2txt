@@ -176,7 +176,16 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
             f" respond, eg. {WHICH_VALUE_SET_MSG}"
         ),
     )
-    arg_config.add_bool("--markdown", "Generates markdown-output instead of '.txt'")
+    arg_config.add_choice(
+        "--output-format",
+        choices=get_template_files().keys(),
+        default="txt",
+        help_str=(
+            "Sets the format for the output-file. The value defines which"
+            " .jinja-template will be used to format the file. The templates are"
+            f" available under '{JINJA_TEMPLATE_DIR}'."
+        ),
+    )
     arg_config.add_arg(
         "--user-agent",
         "Sets the user-agent to be used for the requests.",
