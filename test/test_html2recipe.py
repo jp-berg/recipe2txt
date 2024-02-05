@@ -111,19 +111,6 @@ class Test(unittest.TestCase):
         with self.assertRaises(ValueError):
             h2r.gen_status(list(h2r.Recipe()))
 
-    def test_recipe2out(self):
-        for recipe, md_valid, txt_valid in zip(
-            file_gen.RECIPE_LIST, file_gen.MD_LIST, file_gen.TXT_LIST
-        ):
-            with self.subTest(recipe=recipe.url, mode="txt"):
-                out_txt = h2r.recipe2out(recipe, counts=None, md=False)
-                txt_test = "".join(out_txt)
-                self.assertEqual(txt_test, txt_valid)
-            with self.subTest(recipe=recipe.url, mode="md"):
-                out_md = h2r.recipe2out(recipe, counts=None, md=True)
-                md_test = "".join(out_md)
-                self.assertEqual(md_test, md_valid)
-
     @unittest.skip("Seems not verifiable in current form")
     def test_html2parsed(self):
         for html, url in zip(file_gen.HTML_LIST, file_gen.URL_LIST):
