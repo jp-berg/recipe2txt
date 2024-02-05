@@ -21,19 +21,15 @@ Attributes:
     logger from
         :py:mod:`recipe2txt.utils.ContextLogger`
 """
-import sys
 import urllib.error
 import urllib.request
-from os import linesep
 
 import recipe2txt.html2recipe as h2r
-from recipe2txt import sql
-from recipe2txt.recipes2out import formatted_to_file, get_template
+from recipe2txt.sql import Database
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.markdown import esc, ordered, paragraph, section_link
-from recipe2txt.utils.misc import NEVER_CATCH, URL, AccessibleDatabase, Counts, File
+from recipe2txt.utils.misc import NEVER_CATCH, URL, Counts
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -56,7 +52,7 @@ class Fetcher:
     Responsible for obtaining missing urls from the web and writing them to a file.
 
     Class Variables:
-        is_async(bool): Whether the class is asynchronous regarding fetching the urls
+        is_async: Whether the class is asynchronous regarding fetching the urls
         from the internet.
     """
 
@@ -70,12 +66,10 @@ class Fetcher:
 
     def __init__(
         self,
-        output: File,
-        database: AccessibleDatabase,
+        database: Database,
         counts: Counts = Counts(),
         timeout: float | None = None,
         connections: int | None = None,
-        use_markdown: bool = False,
         caching_strategy: Cache = Cache.DEFAULT,
         user_agent: str | None = None,
     ) -> None:
@@ -83,23 +77,19 @@ class Fetcher:
         Initializes the Fetcher-class.
 
         Args:
-            output: Write-destination of the obtained recipes
             database: The database that stores the recipes and where they have been
             written to (the cache)
             counts: For gathering statistics
             timeout: Maximum waiting time for a response from a server
             connections: The maximum number of simultaneous connections the Fetcher
             is allowed to make
-            use_markdown: Whether the output-file is formatted in Markdown
             caching_strategy: How the cache should be used
             user_agent: The user-agent for making http-requests
         """
-        self.output: File = output
         self.counts: Counts = counts
         self.timeout: float = timeout if timeout else self.timeout
         self.connections: int = connections if connections else self.connections
-        self.db: sql.Database = sql.Database(database, output)
-        self.markdown = use_markdown
+        self.db: Database = database
         self.cache = caching_strategy
         self.user_agent = user_agent if user_agent else self.user_agent
 
@@ -128,8 +118,7 @@ class Fetcher:
         The result heavily depends on the cache-usage-strategy defined by
         :py:attr:`cache`:
             1.default: Recipes only need to be fetched, if the recipe is either not
-            in the database or if they are
-            incomplete.
+            in the database or if they are incomplete.
             2.only: Do not fetch any recipes, only use the information already in the
             database
             3.new: Fetch recipes from all URLs, regardless of their state in the
@@ -205,63 +194,3 @@ class Fetcher:
         if urls:
             logger.info("--- Fetching missing recipes ---")
             self.fetch_urls(urls)
-        if self.markdown:
-            lines = self.gen_lines()
-            self.write(lines)
-        else:
-            if not (template := get_template("txt")):
-                logger.critical("Template %s is not available", "txt")
-                sys.exit(1)
-            recipes = self.db.get_recipes()
-            self.counts = h2r.update_counts(self.counts, recipes)
-            formatted_to_file(recipes, template, self.output)
-
-    def gen_lines(self) -> list[str]:
-        """
-        Generates the lines that should be written to the :py:attr:`output`.
-
-        The method obtains the recipes corresponding to :py:attr:`output` from the
-        database, formats them according to
-        :py:attr:`markdown` and then concatenates the resulting lines.
-
-        Returns:
-            A list, where each item represents a line of the final recipe file
-        """
-        recipes = []
-        count = 0
-        for recipe in self.db.get_recipes():
-            if formatted := h2r.recipe2out(recipe, self.counts, md=self.markdown):
-                count += 1
-                for line in formatted:
-                    recipes.append(line)
-
-        if count > 3:
-            titles_raw = self.db.get_titles()
-            if self.markdown:
-                titles_md_fmt = [
-                    f"{section_link(esc(name), fragmentified=True)} -"
-                    f" {esc(host)}{linesep}"
-                    for name, host in titles_raw
-                ]
-                titles = ordered(*titles_md_fmt)
-            else:
-                titles = [f"{name} - {host}{linesep}" for name, host in titles_raw]
-                titles = titles + [paragraph(), ("-" * 10) + linesep * 2, paragraph()]
-        else:
-            titles = []
-
-        return titles + recipes
-
-    def write(self, lines: list[str]) -> None:
-        """
-        Writes the recipe to :py:attr`output`.
-
-        Args:
-            lines: The lines to be written
-        """
-        logger.info("--- Writing to output ---")
-        if lines:
-            logger.info("Writing to %s", self.output)
-            self.output.write_text("".join(lines))
-        else:
-            logger.warning("Nothing to write")
