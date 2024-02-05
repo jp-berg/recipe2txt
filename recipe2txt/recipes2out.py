@@ -18,12 +18,15 @@ Module for functions using the jinja2-package to format recipes and write them t
 """
 from functools import cache
 
-from jinja2 import Environment, StrictUndefined, Template
+from jinja2 import Environment, StrictUndefined
 
-from recipe2txt.file_setup import get_template_files
+from recipe2txt.file_setup import JINJA_TEMPLATE_DIR, get_template_files
 from recipe2txt.html2recipe import NA, Recipe
 from recipe2txt.utils import markdown
-from recipe2txt.utils.misc import File, get_all_dict
+from recipe2txt.utils.ContextLogger import get_logger
+from recipe2txt.utils.misc import File, ensure_accessible_file, get_all_dict
+
+logger = get_logger(__name__)
 
 
 @cache
@@ -43,45 +46,71 @@ def get_env() -> Environment:
     return env
 
 
-@cache
-def get_template(template_name: str) -> Template | None:
-    """
-    Generates a template from a config-file
-
-    The config-file must be in the config-folder 'templates'.
-
-    Args:
-        template_name (): the name of the template (without '.jinja'-extension)
-
-    Returns:
-        The jinja-Template corresponding to template_name
-
-    """
-    if not (template := get_template_files().get(template_name)):
-        return None
-
-    env = get_env()
-    template_str = template.read_text()
-    return env.from_string(template_str)
-
-
-def formatted_to_file(recipes: list[Recipe], template: Template, outfile: File) -> None:
-    """
-    Formats and writes recipes
-
-    Args:
-        recipes (): the recipes to write to outfile
-        template (): the template used to format recipes
-        outfile (): the file to write the recipes to
-    """
-    recipes_wrapper = {"recipes": recipes, "NA": NA}
-    formatted = template.render(recipes_wrapper)
-    outfile.write_text(formatted)
-
-
 def get_template_names() -> set[str]:
     """
     Returns:
         The names of all available jinja-templates
     """
     return set(get_template_files().keys())
+
+
+class RecipeWriter:
+    """
+    Associates a file and a .jinja-template that determines the format of the recipes
+    written to that file.
+    """
+
+    def __init__(self, out: File, template_name: str, debug: bool = False) -> None:
+        """
+
+        Args:
+            out (): The file to write to
+            template_name (): the name of the template (without '.jinja'-extension)
+        """
+        self.out = out
+        if not (template_files := get_template_files(debug)):
+            raise FileNotFoundError(
+                "No templates found. Empty directory: %s", JINJA_TEMPLATE_DIR
+            )
+        if not (template_path := template_files.get(template_name)):
+            raise ValueError("Template not found: %s", template_name)
+        if not (template_file := ensure_accessible_file(template_path)):
+            raise FileNotFoundError("Not an accessible File: %s", template_path)
+        if not (template_str := template_file.read_text()):
+            raise ValueError("Template file is empty: %s", template_file)
+
+        ext = self.out.suffix
+        if ext:
+            ext = ext[1:] if ext[0] == "." else ext
+            if ext != template_name:
+                logger.warning(
+                    "Out-file-ending (%s) does not match template name (%s)",
+                    ext,
+                    template_name,
+                )
+        else:
+            self.out.with_suffix("." + template_name)
+        if self.out.stat().st_size > 0:
+            logger.warning(
+                "The output-file already exists and will be overwritten:", out
+            )
+
+        logger.info("Output set to: %s", self.out)
+
+        self.template = get_env().from_string(template_str)
+
+    def write(self, recipes: list[Recipe]) -> str:
+        """
+        Formats the recipes and writes them to the file
+        Args:
+            recipes (): The list of recipes to write
+        """
+        if recipes:
+            logger.info("Writing %s recipes to %s...", len(recipes), self.out)
+            recipes_wrapper = {"recipes": recipes, "NA": NA}
+            formatted = self.template.render(recipes_wrapper)
+            self.out.write_text(formatted)
+            return formatted
+        else:
+            logger.warning("No recipes to write")
+            return ""
