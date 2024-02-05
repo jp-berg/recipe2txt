@@ -23,7 +23,6 @@ from typing import Final
 import recipe_scrapers
 
 import recipe2txt.html2recipe as h2r
-from recipe2txt.fetcher import Cache, Fetcher
 from recipe2txt.utils.conditional_imports import StrEnum
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import (
@@ -32,13 +31,12 @@ from recipe2txt.utils.ContextLogger import (
     root_log_setup,
     suppress_logging,
 )
+from recipe2txt.utils.markdown import *
 from recipe2txt.utils.misc import (
     NEVER_CATCH,
     URL,
-    AccessibleDatabase,
     Directory,
     File,
-    ensure_accessible_db_critical,
     ensure_accessible_file_critical,
     is_url,
 )
@@ -170,6 +168,50 @@ def gen_parsed(filenames: list[str]) -> list[h2r.Recipe]:
     return recipes
 
 
+def re2md(recipe: h2r.Recipe) -> list[str]:
+    title = recipe.title if recipe.title != h2r.NA else recipe.url
+    title = esc(title)
+    url = esc(recipe.url)
+    host = None if recipe.host == h2r.NA else italic(esc(recipe.host))
+
+    escaped = [esc(item) for item in recipe.ingredients.split(os.linesep)]
+    ingredients = unordered(*escaped)
+
+    escaped = [esc(step) for step in recipe.instructions.split(os.linesep)]
+    instructions = ordered(*escaped)
+
+    md = (
+        [
+            header(title, 2, True),
+            paragraph(),
+            recipe.total_time + " min | " + recipe.yields,
+            paragraph(),
+        ]
+        + ingredients
+        + [EMPTY_COMMENT]
+        + instructions
+        + [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
+    )
+
+    return md
+
+
+def re2txt(recipe: h2r.Recipe) -> list[str]:
+    title = recipe.title if recipe.title != h2r.NA else recipe.url
+    txt = [
+        title,
+        os.linesep * 2,
+        recipe.total_time + " min | " + recipe.yields + os.linesep * 2,
+        recipe.ingredients,
+        os.linesep * 2,
+        recipe.instructions.replace(os.linesep, os.linesep * 2),
+        os.linesep * 2,
+        "from: " + recipe.url,
+        os.linesep * 5,
+    ]
+    return txt
+
+
 def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[str]:
     if file_extension not in (FileExtension.md, FileExtension.txt):
         raise ValueError(f"{file_extension} is not a valid extension for this function")
@@ -181,9 +223,9 @@ def gen_formatted(filenames: list[str], file_extension: FileExtension) -> list[s
             logger.info("Generating %s from %s", formatted_file, parsed)
             recipe = parse_txt(parsed)
             if file_extension is FileExtension.md:
-                tmp_list = h2r._re2md(recipe)
+                tmp_list = re2md(recipe)
             else:
-                tmp_list = h2r._re2txt(recipe)
+                tmp_list = re2txt(recipe)
             formatted = "".join(tmp_list)
             formatted_file.write_text(formatted)
             formatted_recipes.append(formatted)
@@ -200,43 +242,67 @@ HTML_BAD: Final[tuple[str, bytes]] = (
     fetch_url(URL(_BAD_URL), gen_full_path("FAIL_RECIPE", FileExtension.html)),
 )
 RECIPE_LIST: Final[list[h2r.Recipe]] = gen_parsed(FILENAMES)
+RECIPE_LIST.sort(key=lambda x: x.title)
 MD_LIST: Final[list[str]] = gen_formatted(FILENAMES, FileExtension.md)
 TXT_LIST: Final[list[str]] = gen_formatted(FILENAMES, FileExtension.txt)
 
-db: AccessibleDatabase = ensure_accessible_db_critical(ROOT, "testfile_db.sqlite3")
+
+def recipes2str(recipes: list[h2r.Recipe], markdown: bool = False) -> list[str]:
+    lines = []
+    if markdown:
+        for recipe in recipes:
+            lines += re2md(recipe)
+    else:
+        for recipe in recipes:
+            lines += re2txt(recipe)
+
+    if len(recipes) > 3:
+        if markdown:
+            titles_md_fmt = [
+                f"{section_link(esc(recipe.title), fragmentified=True)} -"
+                f" {esc(recipe.host)}{os.linesep}"
+                for recipe in recipes
+            ]
+            titles = ordered(*titles_md_fmt)
+        else:
+            titles = [
+                f"{recipe.title} - {recipe.host}{os.linesep}" for recipe in recipes
+            ]
+            titles = (
+                [os.linesep]
+                + titles
+                + [paragraph(), ("-" * 10) + os.linesep * 2, paragraph()]
+            )
+    else:
+        titles = []
+
+    return titles + lines
 
 
-class TestFileFetcher(Fetcher):
-    URL2HTML: Final[dict[str, bytes]] = {
-        url: html for url, html in zip(URL_LIST, HTML_LIST)
-    }
+class TestRecipeWriter:
 
-    def fetch(self, urls: set[URL]) -> None:
-        urls = super().require_fetching(urls)
-        for url in urls:
-            html = TestFileFetcher.URL2HTML[url]
-            self.html2db(url, html)  # type: ignore[arg-type]
-            # TODO
-        lines = self.gen_lines()
-        self.write(lines)
+    def __init__(self, out: File, markdown: bool):
+        self.out = out
+        self.markdown = markdown
+
+    def write(self, recipes: list[h2r.Recipe]) -> str:
+        lines = recipes2str(recipes, self.markdown)
+        text = "".join(lines)
+        self.out.write_text(text)
+        return text
 
 
-def gen_formatted_full(urls: set[URL], file_extension: FileExtension) -> list[str]:
+def gen_formatted_full(recipes: list[h2r.Recipe], file_extension: FileExtension) -> str:
     name = "recipes"
     file = gen_full_path(name, file_extension)
 
     if not file.stat().st_size > 0:
-        f = TestFileFetcher(output=file, database=db, caching_strategy=Cache.NEW)
-        f.markdown = file_extension is FileExtension.md
+        recipe_writer = TestRecipeWriter(file, file_extension == FileExtension.md)
         logger.info("Generating %s", file)
         with suppress_logging():
-            f.fetch(urls)
-    with open(file, "r") as to_read:
-        lines = to_read.readlines()
-
-    return lines
+            recipe_writer.write(recipes)
+    return file.read_text()
 
 
-url_set = set(URL_LIST)
-FULL_MD: Final[list[str]] = gen_formatted_full(url_set, FileExtension.md)
-FULL_TXT: Final[list[str]] = gen_formatted_full(url_set, FileExtension.txt)
+FULL_MD: Final[str] = gen_formatted_full(RECIPE_LIST, FileExtension.md)
+FULL_TXT: Final[str] = gen_formatted_full(RECIPE_LIST, FileExtension.txt)

@@ -18,10 +18,24 @@ import random
 import test.testfiles.permanent.testfile_generator as file_gen
 import unittest
 from test.test_helpers import TEST_PROJECT_TMPDIR, create_tmpdirs, delete_tmpdirs
-from test.test_sql import db_path, out_name_md, out_name_txt, out_path_md, out_path_txt
+from test.test_sql import db_path, out_name_md, out_name_txt, out_path_txt
+from typing import Final
 
-from recipe2txt.fetcher import Cache
-from recipe2txt.utils.misc import ensure_accessible_file, is_accessible_db
+from recipe2txt.fetcher import Cache, Fetcher
+from recipe2txt.sql import Database
+from recipe2txt.utils.misc import URL, ensure_accessible_file, is_accessible_db
+
+
+class TestFileFetcher(Fetcher):
+    URL2HTML: Final[dict[str, bytes]] = {
+        url: html for url, html in zip(file_gen.URL_LIST, file_gen.HTML_LIST)
+    }
+
+    def fetch(self, urls: set[URL]) -> None:
+        urls = super().require_fetching(urls)
+        for url in urls:
+            html = TestFileFetcher.URL2HTML[url]
+            self.html2db(url, html)  # type: ignore[arg-type]
 
 
 class Test(unittest.TestCase):
@@ -38,7 +52,7 @@ class Test(unittest.TestCase):
         delete_tmpdirs()
 
     def test_require_fetching(self):
-        tf = file_gen.TestFileFetcher(output=out_path_txt, database=db_path)
+        tf = TestFileFetcher(database=Database(db_path, out_path_txt))
 
         urls = file_gen.URL_LIST
         random.shuffle(urls)
@@ -62,27 +76,3 @@ class Test(unittest.TestCase):
         to_fetch = tf.require_fetching(urls)
         if len(urls) != len(to_fetch):
             self.fail(err_msg % f"{tf.cache=} | Got {to_fetch}, expected {urls}")
-
-    def test_write_txt(self):
-        tf = file_gen.TestFileFetcher(
-            output=out_path_txt, database=db_path, use_markdown=False
-        )
-
-        urls = file_gen.URL_LIST
-        tf.fetch(urls)
-        with open(out_path_txt, "r") as file:
-            for line, validation in zip(file, file_gen.FULL_TXT):
-                with self.subTest(line=line, validation=validation):
-                    self.assertEqual(line, validation)
-
-    def test_write_md(self):
-        tf = file_gen.TestFileFetcher(
-            output=out_path_md, database=db_path, use_markdown=True
-        )
-
-        urls = file_gen.URL_LIST
-        tf.fetch(urls)
-        with open(out_path_md, "r") as file:
-            for line, validation in zip(file, file_gen.FULL_MD):
-                with self.subTest(line=line, validation=validation):
-                    self.assertEqual(line, validation)

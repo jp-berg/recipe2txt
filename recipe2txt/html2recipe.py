@@ -57,16 +57,6 @@ from recipe_scrapers._exceptions import (
 from recipe2txt.parsing_error import handle_parsing_error
 from recipe2txt.utils.conditional_imports import LiteralString
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.markdown import (
-    EMPTY_COMMENT,
-    esc,
-    header,
-    italic,
-    link,
-    ordered,
-    paragraph,
-    unordered,
-)
 from recipe2txt.utils.misc import NEVER_CATCH, URL, Counts, dict2str, is_url
 
 logger = get_logger(__name__)
@@ -424,82 +414,6 @@ def parsed2recipe(parsed: Parsed) -> Recipe:
         nutrients=infos[7],
     )
     return recipe
-
-
-def _re2md(recipe: Recipe) -> list[str]:
-    title = recipe.title if recipe.title != NA else recipe.url
-    title = esc(title)
-    url = esc(recipe.url)
-    host = None if recipe.host == NA else italic(esc(recipe.host))
-
-    escaped = [esc(item) for item in recipe.ingredients.split(linesep)]
-    ingredients = unordered(*escaped)
-
-    escaped = [esc(step) for step in recipe.instructions.split(linesep)]
-    instructions = ordered(*escaped)
-
-    md = (
-        [
-            header(title, 2, True),
-            paragraph(),
-            recipe.total_time + " min | " + recipe.yields,
-            paragraph(),
-        ]
-        + ingredients
-        + [EMPTY_COMMENT]
-        + instructions
-        + [paragraph(), italic("from:"), " ", link(url, host), paragraph()]
-    )
-
-    return md
-
-
-def _re2txt(recipe: Recipe) -> list[str]:
-    title = recipe.title if recipe.title != NA else recipe.url
-    txt = [
-        title,
-        linesep * 2,
-        recipe.total_time + " min | " + recipe.yields + linesep * 2,
-        recipe.ingredients,
-        linesep * 2,
-        recipe.instructions.replace(linesep, linesep * 2),
-        linesep * 2,
-        "from: " + recipe.url,
-        linesep * 5,
-    ]
-    return txt
-
-
-def recipe2out(
-    recipe: Recipe, counts: Counts | None = None, md: bool = False
-) -> list[str] | None:
-    """
-    Formats a recipe for to be written to a file
-
-    Args:
-        recipe: The recipe to be formatted
-        counts: An optional Counts-object (if statistics should be collected)
-        md: Whether the recipe should be formatted for txt or for markdown
-
-    Returns:
-        A list of line-terminated strings, where each string represents one line in
-        the formatted recipe if the
-        recipe contains at least everything mentioned in :data:py:`ESSENTIAL'
-        (:py:class:`RecipeStatus` > :py:attr:`RecipeStatus.INCOMPLETE_ESSENTIAL`)
-        else None
-    """
-    if recipe.status <= RecipeStatus.INCOMPLETE_ESSENTIAL:
-        logger.error("Nothing worthwhile could be extracted. Skipping...")
-        return None
-    if counts:
-        if recipe.status == RecipeStatus.INCOMPLETE_ON_DISPLAY:
-            counts.parsed_partially += 1
-        else:
-            counts.parsed_successfully += 1
-
-    if md:
-        return _re2md(recipe)
-    return _re2txt(recipe)
 
 
 def update_counts(counts: Counts, recipes: list[Recipe]) -> Counts:
