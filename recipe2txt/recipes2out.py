@@ -29,9 +29,13 @@ from recipe2txt.utils.misc import File, get_all_dict
 @cache
 def get_env() -> Environment:
     """
+    Initializes a jinja-Environment
+
+    Adds all functions of the :py:mod:`markdown`-module to the list of available
+    filters.
 
     Returns:
-        The jinja-Environment with all markdown-functions made available
+        The jinja-Environment
 
     """
     env = Environment(undefined=StrictUndefined)
