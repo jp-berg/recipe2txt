@@ -25,24 +25,25 @@ and constructing a :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher` from 
             :py:mod:`recipe2txt.utils.ContextLogger`
 """
 import argparse
-import logging
 import os
 import sys
 import textwrap
 from functools import cache
 from pathlib import Path
-from typing import Final, Tuple, get_args
+from typing import Final, get_args
 
-from recipe2txt.fetcher import Cache
 from recipe2txt.file_setup import (
     CONFIG_FILE,
+    JINJA_TEMPLATE_DIR,
     PROGRAM_NAME,
     erase_files,
     get_db,
     get_default_output,
     get_files,
     get_log,
+    get_template_files,
 )
+from recipe2txt.sql import Database
 from recipe2txt.utils.ArgConfig import ArgConfig
 from recipe2txt.utils.ContextLogger import (
     LOG_LEVEL_NAMES,
@@ -50,15 +51,7 @@ from recipe2txt.utils.ContextLogger import (
     get_logger,
     root_log_setup,
 )
-from recipe2txt.utils.misc import (
-    URL,
-    Counts,
-    File,
-    dict2str,
-    ensure_accessible_file_critical,
-    extract_urls,
-    read_files,
-)
+from recipe2txt.utils.misc import URL, Counts, File, extract_urls, read_files
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
@@ -223,13 +216,23 @@ def mutex_args(a: argparse.Namespace) -> None:
     sys.exit(os.EX_OK)
 
 
-def sancheck_args(a: argparse.Namespace, output: File) -> None:
+def init_logging(debug: bool, verbosity: str) -> None:
+    """
+    Initializes the global logger
+    Args:
+        debug (): Whether the logger operates in debug-mode (affects placement of log files)
+        verbosity (): The verbosity of the logger
+    """
+    log_file = get_log(debug)
+    root_log_setup(STRING2LEVEL[verbosity], str(log_file))
+
+
+def sancheck_args(a: argparse.Namespace) -> None:
     """
     Responsible for quickly verifying certain parameters.
 
     Args:
         a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
-        output: The output file the recipes will be written to.
     """
     if not (a.file or a.url):
         get_parser().error("Nothing to process: No file or url passed")
@@ -244,78 +247,44 @@ def sancheck_args(a: argparse.Namespace, output: File) -> None:
         logger.warning("Network timeout equal to or smaller than 0, setting to 0.1")
         a.timeout = 0.1
 
-    ext = output.suffix
-    if a.markdown:
-        if ext != ".md":
-            logger.warning(
-                "The application is instructed to output a markdown file, but the"
-                " filename extension indicates otherwise:'%s'",
-                ext,
-            )
-    else:
-        if ext not in ("", ".txt"):
-            logger.warning(
-                "The application is instructed to output a text file, but the filename"
-                " extension indicates otherwise:'%s'",
-                ext,
-            )
-    if output.stat().st_size > 0:
-        logger.warning("The output-file already exists. It will be overwritten.")
-
     if CONFIG_FILE.stat().st_size == 0:
         logger.warning("The config-file %s is empty", CONFIG_FILE)
 
 
-def process_params(a: argparse.Namespace) -> Tuple[set[URL], Fetcher]:
+def init_database(debug: bool, out: File) -> Database:
     """
-    Responsible for  using the CLI-flags to construct a valid
-    :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`
-
+    Initializes the cache-database for the program
     Args:
-        a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
+        debug (): Whether the database operates in debug-mode
+        out (): The file the recipes will be written to during this session
 
     Returns:
-        A tuple of:
-            A set of all possible urls gathered from the CLI-arguments.
-            An :py:class:`recipe2txt.fetcher_abstract.AbstractFetcher`, initialized
-            with the validated parameters
-            gathered from :py:mod:`argparse`
-
+        A database
     """
-    log_file = get_log(a.debug)
-    root_log_setup(STRING2LEVEL[a.verbosity], str(log_file))
+    db_file = get_db(debug)
+    return Database(db_file, out)
 
-    if logger.isEnabledFor(logging.DEBUG):
-        logger.debug(
-            "CLI-ARGS: %s\t%s", os.linesep, dict2str(vars(a), os.linesep + "\t")
-        )
 
-    logger.info("--- Preparing arguments ---")
+def strings2urls(
+    url_str: list[str], files: list[str], counts: Counts | None = None
+) -> set[URL]:
+    """
+    Converts the input-strings to urls
 
-    db_file = get_db(a.debug)
-    recipe_file = ensure_accessible_file_critical(a.output)
-    logger.info("Output set to: %s", recipe_file)
 
-    sancheck_args(a, recipe_file)
+    Args:
+        url_str (): strings that could contain urls
+        files (): potential paths to files that contain urls
+        counts (): a counter to keep track of the sum of strings fed into the program
 
-    unprocessed: list[str] = read_files(*a.file)
-    unprocessed += a.url
-    processed: set[URL] = extract_urls(unprocessed)
-    if not processed:
+    Returns:
+        All strings that could be identified as urls
+    """
+    strings = url_str + read_files(*files)
+    urls = extract_urls(strings)
+    if not urls:
         logger.critical("No valid URL passed")
         sys.exit(os.EX_DATAERR)
-
-    counts = Counts()
-    counts.strings = len(unprocessed)
-
-    f = Fetcher(
-        output=recipe_file,
-        connections=a.connections,
-        counts=counts,
-        database=db_file,
-        timeout=a.timeout,
-        use_markdown=a.markdown,
-        caching_strategy=Cache(a.cache),
-    )
-
-    return processed, f
+    if counts:
+        counts.strings = len(strings)
+    return urls
