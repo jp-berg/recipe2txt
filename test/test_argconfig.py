@@ -473,7 +473,7 @@ standard_params = {
     "cache": "default",
     "debug": False,
     "timeout": Fetcher.timeout,
-    "markdown": False,
+    "output_format": "txt",
     "user_agent": Fetcher.user_agent,
     "erase_appdata": None,
 }
@@ -485,7 +485,7 @@ app_valid_string_1 = textwrap.dedent(
     connections = 3
     cache = 'new'
     debug = true
-    markdown = true
+    output-format = "md"
     
     """
 )
@@ -495,7 +495,7 @@ app_params_1 = {
     "connections": 3,
     "cache": "new",
     "debug": True,
-    "markdown": True,
+    "output_format": "md",
 }
 
 app_valid_string_2 = textwrap.dedent(
@@ -504,7 +504,7 @@ app_valid_string_2 = textwrap.dedent(
     
     #This comment should not matter
     user-agent = "popular-browser on popular-platform"
-    markdown = false
+    output-format = "txt"
     """
 )
 
@@ -512,6 +512,7 @@ app_params_2 = {
     "url": ["www.test.com"],
     "timeout": 9.3,
     "user_agent": "popular-browser on popular-platform",
+    "output_format": "txt",
 }
 
 app_params = [(app_params_1, app_valid_string_1), (app_params_2, app_valid_string_2)]
