@@ -1,68 +1,11 @@
-Au Jus Sandwich - en.wikibooks.org
-Asian Chicken Salad - en.wikibooks.org
+
 Arroz con Pollo - en.wikibooks.org
+Asian Chicken Salad - en.wikibooks.org
+Au Jus Sandwich - en.wikibooks.org
 Borscht - en.wikibooks.org
 
 
 ----------
-
-
-
-Au Jus Sandwich
-
-360.0 min | 4 servings
-
-3 tablespoons flour
-2–3 pounds (0.91–1.4 kg) roast or other cut of beef
-1 beef bouillon cube
-1 can (~2 cups / 16 oz / 470 ml) beef consommé, bouillon cube equivalent, or additional roast beef
-1 can (~2 cups / 16 oz / 470 ml) French onion soup
-1 cup (2 sticks / 250 g / 8.8 oz) butter
-1 can (16 oz / 470 ml) beer (optional)
-Spices (e.g. salt, pepper) (optional)
-4 French/sandwich/hoagie rolls
-
-Combine all the ingredients except the rolls in a slow cooker or crock pot. Let the mixture simmer for at least six hours. This step is critical because it makes the meat tender.
-
-Serve beef on split rolls.
-
-You can either pre-dip the sandwich, or serve with a bowl of meat drippings. When serving the drippings separately, remove the beef shreds from the juices and serve with a small bowl of meat drippings on the side. Dip the sandwiches in the drippings as you eat.
-
-from: https://en.wikibooks.org/wiki/Cookbook:Au_Jus_Sandwich
-
-
-
-
-Asian Chicken Salad
-
-15 min | 4 servings
-
-1½ cups broccoli flowerets
-½ cup pea pods
-6 cups torn mixed greens
-2 cups thinly-sliced Nappa cabbage
-½ cup julienned carrots
-1 package (6 oz) grilled chicken breast, cut in strips
-¾ cups salad dressing (teriyaki ginger, Asian sesame with ginger, or balsamic vinaigrette)
-1 mango, peeled, seeded, and thinly sliced (optional)
-Sesame crackers (optional)
-
-In large saucepan quickly plunge broccoli and pea pods into boiling water for 30 seconds. Drain vegetables. Quickly rinse with cold water. Drain well.
-
-In large bowl toss together the blanched broccoli and pea pods, greens, cabbage and carrots.
-
-Add chicken.
-
-Drizzle with salad dressing. Toss to coat.
-
-Arrange on 4 serving plates.
-
-Top with mango, if desired.
-
-Serve with crackers.
-
-from: https://en.wikibooks.org/wiki/Cookbook:Asian_Chicken_Salad
-
 
 
 
@@ -106,6 +49,64 @@ Add the chicken to the pot (if you removed it previously) and cover it with rice
 Sprinkle peas on top of the rice.
 
 from: https://en.wikibooks.org/wiki/Cookbook:Arroz_con_Pollo
+
+
+
+
+Asian Chicken Salad
+
+15 min | 4 servings
+
+1½ cups broccoli flowerets
+½ cup pea pods
+6 cups torn mixed greens
+2 cups thinly-sliced Nappa cabbage
+½ cup julienned carrots
+1 package (6 oz) grilled chicken breast, cut in strips
+¾ cups salad dressing (teriyaki ginger, Asian sesame with ginger, or balsamic vinaigrette)
+1 mango, peeled, seeded, and thinly sliced (optional)
+Sesame crackers (optional)
+
+In large saucepan quickly plunge broccoli and pea pods into boiling water for 30 seconds. Drain vegetables. Quickly rinse with cold water. Drain well.
+
+In large bowl toss together the blanched broccoli and pea pods, greens, cabbage and carrots.
+
+Add chicken.
+
+Drizzle with salad dressing. Toss to coat.
+
+Arrange on 4 serving plates.
+
+Top with mango, if desired.
+
+Serve with crackers.
+
+from: https://en.wikibooks.org/wiki/Cookbook:Asian_Chicken_Salad
+
+
+
+
+Au Jus Sandwich
+
+360.0 min | 4 servings
+
+3 tablespoons flour
+2–3 pounds (0.91–1.4 kg) roast or other cut of beef
+1 beef bouillon cube
+1 can (~2 cups / 16 oz / 470 ml) beef consommé, bouillon cube equivalent, or additional roast beef
+1 can (~2 cups / 16 oz / 470 ml) French onion soup
+1 cup (2 sticks / 250 g / 8.8 oz) butter
+1 can (16 oz / 470 ml) beer (optional)
+Spices (e.g. salt, pepper) (optional)
+4 French/sandwich/hoagie rolls
+
+Combine all the ingredients except the rolls in a slow cooker or crock pot. Let the mixture simmer for at least six hours. This step is critical because it makes the meat tender.
+
+Serve beef on split rolls.
+
+You can either pre-dip the sandwich, or serve with a bowl of meat drippings. When serving the drippings separately, remove the beef shreds from the juices and serve with a small bowl of meat drippings on the side. Dip the sandwiches in the drippings as you eat.
+
+from: https://en.wikibooks.org/wiki/Cookbook:Au_Jus_Sandwich
 
 
 

@@ -1,65 +1,10 @@
-1. [Au Jus Sandwich](#6bb7a50bc3ae647bdd1c3ed0d391da2b11495847) - en\.wikibooks\.org
+1. [Arroz con Pollo](#99391dec35ac1f7fedcaa6b2c7f464154a922c7e) - en\.wikibooks\.org
 
-2. [Borscht](#d6def971a394256fd32eaea02f2623f0e8325cc0) - en\.wikibooks\.org
+2. [Asian Chicken Salad](#5cd69d875ed46a42e5cb8cefbcea9643402edd35) - en\.wikibooks\.org
 
-3. [Arroz con Pollo](#99391dec35ac1f7fedcaa6b2c7f464154a922c7e) - en\.wikibooks\.org
+3. [Au Jus Sandwich](#6bb7a50bc3ae647bdd1c3ed0d391da2b11495847) - en\.wikibooks\.org
 
-4. [Asian Chicken Salad](#5cd69d875ed46a42e5cb8cefbcea9643402edd35) - en\.wikibooks\.org
-
-<div id="6bb7a50bc3ae647bdd1c3ed0d391da2b11495847"></div>
-
-## Au Jus Sandwich
-
-360.0 min | 4 servings
-
-* 3 tablespoons flour
-* 2–3 pounds \(0\.91–1\.4 kg\) roast or other cut of beef
-* 1 beef bouillon cube
-* 1 can \(~2 cups / 16 oz / 470 ml\) beef consommé, bouillon cube equivalent, or additional roast beef
-* 1 can \(~2 cups / 16 oz / 470 ml\) French onion soup
-* 1 cup \(2 sticks / 250 g / 8\.8 oz\) butter
-* 1 can \(16 oz / 470 ml\) beer \(optional\)
-* Spices \(e\.g\. salt, pepper\) \(optional\)
-* 4 French/sandwich/hoagie rolls
-
-<!-- -->
-1. Combine all the ingredients except the rolls in a slow cooker or crock pot\. Let the mixture simmer for at least six hours\. This step is critical because it makes the meat tender\.
-2. Serve beef on split rolls\.
-3. You can either pre\-dip the sandwich, or serve with a bowl of meat drippings\. When serving the drippings separately, remove the beef shreds from the juices and serve with a small bowl of meat drippings on the side\. Dip the sandwiches in the drippings as you eat\.
-
-
-_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Au\_Jus\_Sandwich)
-
-<div id="d6def971a394256fd32eaea02f2623f0e8325cc0"></div>
-
-## Borscht
-
-75 min | 6 servings
-
-* 1½ cups thinly\-sliced potatoes \(about 3 small potatoes\)
-* 1 cup thinly\-sliced beets\.
-* 4 cups water
-* 1–2 tablespoons butter
-* 1½ cups chopped onion \(about ⅓ of a large onion\)
-* 1½ teaspoons salt
-* 1 stalk celery, chopped
-* 1 medium carrot, chopped
-* 3–4 cups shredded cabbage \(about ⅓ of a large cabbage\)
-* a little fresh\-ground black pepper
-* 1 teaspoon dill weed
-* 1–2 tablespoons cider vinegar
-* 1–2 tablespoons brown sugar or honey
-* 1 cup tomato purée or ¼ to ½ cup tomato paste
-
-<!-- -->
-1. Place the potatoes, beets, and water in a medium\-sized saucepan\. Cover and cook over medium heat until tender \(20–30 minutes\)\. While that is cooking, proceed with thte recipe\.
-2. Melt the butter in a Dutch oven/soup pot\. Add the onion and salt\. Cook over medium heat, stirring occasionally, until the onions are translucent \(8–10 minutes\)\.
-3. Add the celery, carrots, cabbage, and 2 cups of the water in which the potatoes and beets are cooking\. Cover and cook over medium heat until the vegetables are tender \(8–10 minutes\)\.
-4. Add the remaining soup ingredients \(including the potatoes, beets, and the rest of the water in which they are cooking\)\. Cover and simmer for at least 15 more minutes\. Correct the seasonings\. If it is too thin, let it simmer uncovered, and maybe add a little more tomato paste\.
-5. Serve hot, topped with sour cream or yoghurt and sprinkled with dill\. If desired the sour cream or yoghurt can be served with the soup and used as a condiment to taste\.
-
-
-_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Borscht)
+4. [Borscht](#d6def971a394256fd32eaea02f2623f0e8325cc0) - en\.wikibooks\.org
 
 <div id="99391dec35ac1f7fedcaa6b2c7f464154a922c7e"></div>
 
@@ -124,4 +69,59 @@ _from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Arroz\_c
 
 
 _from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Asian\_Chicken\_Salad)
+
+<div id="6bb7a50bc3ae647bdd1c3ed0d391da2b11495847"></div>
+
+## Au Jus Sandwich
+
+360.0 min | 4 servings
+
+* 3 tablespoons flour
+* 2–3 pounds \(0\.91–1\.4 kg\) roast or other cut of beef
+* 1 beef bouillon cube
+* 1 can \(~2 cups / 16 oz / 470 ml\) beef consommé, bouillon cube equivalent, or additional roast beef
+* 1 can \(~2 cups / 16 oz / 470 ml\) French onion soup
+* 1 cup \(2 sticks / 250 g / 8\.8 oz\) butter
+* 1 can \(16 oz / 470 ml\) beer \(optional\)
+* Spices \(e\.g\. salt, pepper\) \(optional\)
+* 4 French/sandwich/hoagie rolls
+
+<!-- -->
+1. Combine all the ingredients except the rolls in a slow cooker or crock pot\. Let the mixture simmer for at least six hours\. This step is critical because it makes the meat tender\.
+2. Serve beef on split rolls\.
+3. You can either pre\-dip the sandwich, or serve with a bowl of meat drippings\. When serving the drippings separately, remove the beef shreds from the juices and serve with a small bowl of meat drippings on the side\. Dip the sandwiches in the drippings as you eat\.
+
+
+_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Au\_Jus\_Sandwich)
+
+<div id="d6def971a394256fd32eaea02f2623f0e8325cc0"></div>
+
+## Borscht
+
+75 min | 6 servings
+
+* 1½ cups thinly\-sliced potatoes \(about 3 small potatoes\)
+* 1 cup thinly\-sliced beets\.
+* 4 cups water
+* 1–2 tablespoons butter
+* 1½ cups chopped onion \(about ⅓ of a large onion\)
+* 1½ teaspoons salt
+* 1 stalk celery, chopped
+* 1 medium carrot, chopped
+* 3–4 cups shredded cabbage \(about ⅓ of a large cabbage\)
+* a little fresh\-ground black pepper
+* 1 teaspoon dill weed
+* 1–2 tablespoons cider vinegar
+* 1–2 tablespoons brown sugar or honey
+* 1 cup tomato purée or ¼ to ½ cup tomato paste
+
+<!-- -->
+1. Place the potatoes, beets, and water in a medium\-sized saucepan\. Cover and cook over medium heat until tender \(20–30 minutes\)\. While that is cooking, proceed with thte recipe\.
+2. Melt the butter in a Dutch oven/soup pot\. Add the onion and salt\. Cook over medium heat, stirring occasionally, until the onions are translucent \(8–10 minutes\)\.
+3. Add the celery, carrots, cabbage, and 2 cups of the water in which the potatoes and beets are cooking\. Cover and cook over medium heat until the vegetables are tender \(8–10 minutes\)\.
+4. Add the remaining soup ingredients \(including the potatoes, beets, and the rest of the water in which they are cooking\)\. Cover and simmer for at least 15 more minutes\. Correct the seasonings\. If it is too thin, let it simmer uncovered, and maybe add a little more tomato paste\.
+5. Serve hot, topped with sour cream or yoghurt and sprinkled with dill\. If desired the sour cream or yoghurt can be served with the soup and used as a condiment to taste\.
+
+
+_from:_ [_en\.wikibooks\.org_](https://en\.wikibooks\.org/wiki/Cookbook:Borscht)
 
