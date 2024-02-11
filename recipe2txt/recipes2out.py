@@ -93,7 +93,7 @@ class RecipeWriter:
             self.out.with_suffix("." + template_name)
         if self.out.stat().st_size > 0:
             logger.warning(
-                "The output-file already exists and will be overwritten:", out
+                "The output-file already exists and will be overwritten: %s", out
             )
 
         logger.info("Output set to: %s", self.out)
