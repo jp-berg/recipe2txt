@@ -166,7 +166,7 @@ def medium(session: nox.Session) -> None:
     session.notify("tidy")
     install_deps(session)
     args = ["--delete-database", "--long-timeout"]
-    args_md = args + ["--file-format", "md"]
+    args_md = args + ["--output-format", "md"]
     args_from_file = args + ["--input-format", "file"]
     args_serial = args + ["--connections", "1"]
     arg_permutations = [args_md, args_from_file, args_serial]

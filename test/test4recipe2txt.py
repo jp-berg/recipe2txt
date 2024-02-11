@@ -120,7 +120,7 @@ parser = argparse.ArgumentParser(
     prog=PROGRAM_NAME, description="End-to-end testing for recipe2txt."
 )
 
-FileFormatValues: TypeAlias = Literal["txt", "md", "both"]
+FileFormatValues: TypeAlias = Literal["txt", "md"]
 InputFormatValues: TypeAlias = Literal["url", "file"]
 
 parser.add_argument(
@@ -158,7 +158,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "-f",
-    "--file-format",
+    "--output-format",
     choices=get_args(FileFormatValues),
     default="txt",
     help="Which type of file should the testrun generate. (default is 'txt')",
@@ -183,7 +183,7 @@ def main(
     connections: int = 0,
     delete_database: bool = False,
     verbosity: LOG_LEVEL_NAMES = "info",
-    file_format: FileFormatValues = "txt",
+    output_format: FileFormatValues = "txt",
     input_format: InputFormatValues = "url",
     long_timeout: bool = False,
 ) -> None:
@@ -212,10 +212,20 @@ def main(
     ]
 
     output_file = report_dir / "output"
-    if file_format == "md":
-        args += ["--markdown", "--output", path2str(output_file.with_suffix(".md"))]
+    if output_format == "md":
+        args += [
+            "--output-format",
+            "md",
+            "--output",
+            path2str(output_file.with_suffix(".md")),
+        ]
     else:
-        args += ["--output", path2str(output_file.with_suffix(".txt"))]
+        args += [
+            "--output-format",
+            "txt",
+            "--output",
+            path2str(output_file.with_suffix(".txt")),
+        ]
 
     if input_format == "file":
         url_file = ensure_accessible_file_critical(TEST_PROJECT_TMPDIR, "urls.txt")
