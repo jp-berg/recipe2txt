@@ -1,1 +1,29 @@
-{{heading | bold}}
+{%- if recipes is defined and recipes|length > 3 -%}
+{%- for recipe in recipes | rejectattr('status', 'lt', 3) -%}
+{{loop.index}}. {% if recipe.title != NA -%} {{recipe.title | esc | section_link(None, True)}} {%- else -%} {{recipe.url | esc | section_link(None, True)}} {%- endif -%}
+{% if recipe.host != NA %} - {{recipe.host | esc}} {%- endif %}
+{% endfor %}
+
+----------
+
+
+
+{% endif -%}
+
+{%- for recipe in recipes | rejectattr('status', 'lt', 3) -%}
+
+{% if recipe.title != NA -%} {{recipe.title | esc | header(2, True)}} {%- else -%} {{recipe.url | esc | header(2, True)}} {%- endif %}
+
+{{recipe.total_time}} min | {{recipe.yields}}
+
+{% for ingredient in recipe.ingredients.split("\n") -%}
+* {{ingredient | esc}}
+{% endfor %}
+<!-- -->
+{% for instruction in recipe.instructions.split("\n") -%}
+{{loop.index}}. {{instruction | esc}}
+{% endfor %}
+
+{% if recipe.title != NA -%} _from:_ {{recipe.url | esc | link(recipe.host | esc | italic)}} {%- endif %}
+
+{% endfor -%}

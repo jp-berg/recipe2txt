@@ -257,22 +257,20 @@ def recipes2str(recipes: list[h2r.Recipe], markdown: bool = False) -> list[str]:
             lines += re2txt(recipe)
 
     if len(recipes) > 3:
+        titles = [""]
         if markdown:
             titles_md_fmt = [
                 f"{section_link(esc(recipe.title), fragmentified=True)} -"
-                f" {esc(recipe.host)}{os.linesep}"
+                f" {esc(recipe.host)}"
                 for recipe in recipes
             ]
-            titles = ordered(*titles_md_fmt)
+            titles += ordered(*titles_md_fmt)
         else:
-            titles = [
+            title_lines = [
                 f"{recipe.title} - {recipe.host}{os.linesep}" for recipe in recipes
             ]
-            titles = (
-                [os.linesep]
-                + titles
-                + [paragraph(), ("-" * 10) + os.linesep * 2, paragraph()]
-            )
+            titles += [os.linesep] + title_lines
+        titles += [paragraph(), ("-" * 10) + os.linesep * 2, paragraph()]
     else:
         titles = []
 
