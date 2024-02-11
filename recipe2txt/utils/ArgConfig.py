@@ -414,7 +414,12 @@ class ArgConfig:
                     print(msg, file=sys.stderr)
                     sys.exit(os.EX_DATAERR)
         else:
-            self.file.write_text(CFG_PREAMBLE % (80 * "*", parser.prog, 80 * "*"))
+            try:
+                self.file.write_text(CFG_PREAMBLE % parser.prog)
+            except Exception as e:
+                if self.file.is_file():
+                    os.remove(self.file)
+                    raise e
 
     def error_exit(self) -> None:
         if not self.existed_before:
@@ -432,7 +437,6 @@ class ArgConfig:
                 o.to_toml(self.file)
             o.add_to_parser(self.parser)
         except (argparse.ArgumentError, ValueError) as e:
-            print(f"{args=}")
             self.error_exit()
             raise ValueError(e) from None
         except Exception:
