@@ -145,16 +145,17 @@ def get_template_files(debug: bool = False) -> dict[str, File]:
         a dict, where the stem of the file is the key and the file itself is the value
 
     """
-    if debug and not JINJA_TEMPLATE_DIR.is_dir():
+    if not debug and not JINJA_TEMPLATE_DIR.is_dir():
         shutil.copytree(
             JINJA_TEMPLATE_ORIGIN_DIR, JINJA_TEMPLATE_DIR, dirs_exist_ok=True
         )
     template_dir = JINJA_TEMPLATE_ORIGIN_DIR if debug else JINJA_TEMPLATE_DIR
-    return {
+    d = {
         validated.stem: validated
         for f in template_dir.glob("*.jinja")
         if (validated := ensure_accessible_file(f))
     }
+    return d
 
 
 def get_default_output() -> str:
