@@ -21,7 +21,7 @@ import os
 import sys
 from logging import DEBUG
 
-from recipe2txt.fetcher import Cache, Fetcher
+from recipe2txt.fetcher import Cache
 from recipe2txt.html2recipe import update_counts
 from recipe2txt.parsing_error import write_errors
 from recipe2txt.recipes2out import RecipeWriter
@@ -35,6 +35,14 @@ from recipe2txt.user_interface import (
 )
 from recipe2txt.utils.ContextLogger import get_logger
 from recipe2txt.utils.misc import Counts, dict2str, ensure_accessible_file_critical
+
+try:
+    from recipe2txt.fetcher_async import AsyncFetcher as Fetcher
+except ImportError:
+    from recipe2txt.fetcher import (  # type: ignore[assignment] # isort: skip
+        Fetcher as Fetcher,
+    )
+
 
 logger = get_logger(__name__)
 
