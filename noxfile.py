@@ -34,7 +34,6 @@ def get_deps() -> list[tuple[str, str]] | None:
     if not (pyproject := get_pyproject()):
         return None
     dependencies = pyproject["project"]["dependencies"]
-    dependencies += pyproject["project"]["optional-dependencies"]["performance"]
     dependencies = [dep.split(" ", 1) for dep in dependencies]
     return dependencies  # type: ignore [no-any-return]
 

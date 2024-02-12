@@ -35,18 +35,17 @@ classifiers = [
 ]
 keywords = ["recipes", "cooking", "scraping", "website"]
 dependencies = [
-  "recipe-scrapers ~= 14.53",
+  "recipe-scrapers ~= 14.54",
   "xdg-base-dirs ~= 6.0",
   "validators ~= 0.22",
   "jinja2 ~= 3.1",
-  "importlib-metadata ~= 6.8",
+  "importlib-metadata ~= 7.0",
   "backports.strenum ~= 1.2; python_version < '3.11'",
   "typing_extensions ~= 4.6.2; python_version < '3.11'",
-  "tomli ~= 2.0; python_version < '3.11'"
+  "tomli ~= 2.0; python_version < '3.11'",
+  "aiohttp ~= 3.9",
+  "aiodns ~= 3.1"
 ]
-
-[project.optional-dependencies]
-performance = ["aiohttp ~= 3.8", "aiodns ~= 3.1"]
 
 [project.urls]
 "Homepage" = "https://github.com/jp-berg/recipe2txt"
