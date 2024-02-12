@@ -475,7 +475,8 @@ standard_params = {
     "timeout": Fetcher.timeout,
     "output_format": "txt",
     "user_agent": Fetcher.user_agent,
-    "erase_appdata": None,
+    "erase_appdata": False,
+    "version": False,
 }
 
 app_valid_string_1 = textwrap.dedent(

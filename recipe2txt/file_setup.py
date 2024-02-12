@@ -131,6 +131,8 @@ JINJA_TEMPLATE_ORIGIN_DIR: Final = SRC_DIR / "resources" / JINJA_TEMPLATE_DIR_NA
 JINJA_TEMPLATE_DIR: Final = DEFAULT_DIRS.config / JINJA_TEMPLATE_DIR_NAME
 HOW_TO_REPORT_NAME: Final = "how_to_report_errors.txt"
 """Name of the file containing instructions on how to report recipe_scrapers-errors"""
+PYPROJECT: Final = Path(__file__).parents[1] / "pyproject.toml"
+"""The pyproject.toml-file"""
 
 
 @cache

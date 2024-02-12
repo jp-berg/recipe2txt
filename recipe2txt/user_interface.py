@@ -36,6 +36,7 @@ from recipe2txt.file_setup import (
     CONFIG_FILE,
     JINJA_TEMPLATE_DIR,
     PROGRAM_NAME,
+    PYPROJECT,
     erase_files,
     get_db,
     get_default_output,
@@ -45,6 +46,7 @@ from recipe2txt.file_setup import (
 )
 from recipe2txt.sql import Database
 from recipe2txt.utils.ArgConfig import ArgConfig
+from recipe2txt.utils.conditional_imports import tomllib
 from recipe2txt.utils.ContextLogger import (
     LOG_LEVEL_NAMES,
     STRING2LEVEL,
@@ -59,6 +61,7 @@ except ImportError:
     from recipe2txt.fetcher import (  # type: ignore[assignment] # isort: skip
         Fetcher as Fetcher,
     )
+
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 
@@ -191,9 +194,14 @@ def config_args(config_file: Path) -> argparse.ArgumentParser:
         "Sets the user-agent to be used for the requests.",
         default=Fetcher.user_agent,
     )
-    arg_config.add_arg(
+    arg_config.add_bool(
         "--erase-appdata",
         "Erases all data- and cache-files (e.g. the files listed below)",
+        short=None,
+    )
+    arg_config.add_bool(
+        "--version",
+        "Displays the version number (SemVer)",
         short=None,
     )
 
@@ -207,7 +215,7 @@ def get_parser() -> argparse.ArgumentParser:
 
 def mutex_args(a: argparse.Namespace) -> None:
     """
-    Responsible for handling '--erase-appdata'.
+    Responsible for handling '--erase-appdata' and '--version'
 
     Raises:
         SystemExit:
@@ -217,12 +225,23 @@ def mutex_args(a: argparse.Namespace) -> None:
     Args:
         a: The result of a call to :py:method:`argparse.ArgumentParser.parse_args()`
     """
-    if not a.erase_appdata:
-        return
-    if len(sys.argv) > 2:
-        get_parser().error("--erase-appdata cannot be used with any other flags")
-    erase_files()
-    sys.exit(os.EX_OK)
+    if a.erase_appdata:
+        if len(sys.argv) > 2:
+            get_parser().error("--erase-appdata cannot be used with any other flags")
+        erase_files()
+        sys.exit(os.EX_OK)
+    if a.version:
+        if len(sys.argv) > 2:
+            get_parser().error("--version cannot be used with any other flags")
+        if not PYPROJECT.is_file():
+            print("pyproject.toml-file not found", sys.stderr)
+            sys.exit(os.EX_IOERR)
+        with PYPROJECT.open("rb") as pyproject:
+            toml = tomllib.load(pyproject)
+            version = toml["project"]["version"]
+
+        print(version)
+        sys.exit(os.EX_OK)
 
 
 def init_logging(debug: bool, verbosity: str) -> None:
