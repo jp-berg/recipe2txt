@@ -71,14 +71,14 @@ class RecipeWriter:
         self.out = out
         if not (template_files := get_template_files(debug)):
             raise FileNotFoundError(
-                "No templates found. Empty directory: %s", JINJA_TEMPLATE_DIR
+                f"No templates found. Empty directory: {JINJA_TEMPLATE_DIR}"
             )
         if not (template_path := template_files.get(template_name)):
-            raise ValueError("Template not found: %s", template_name)
+            raise ValueError(f"Template not found: {template_name}")
         if not (template_file := ensure_accessible_file(template_path)):
-            raise FileNotFoundError("Not an accessible File: %s", template_path)
+            raise FileNotFoundError(f"Not an accessible File: {template_path}")
         if not (template_str := template_file.read_text()):
-            raise ValueError("Template file is empty: %s", template_file)
+            raise ValueError(f"Template file is empty: {template_file}")
 
         ext = self.out.suffix
         if ext:
