@@ -35,9 +35,9 @@ __all__ = [
     "is_url",
     "extract_urls",
     "File",
-    "is_file",
+    "real_file",
     "Directory",
-    "is_dir",
+    "real_dir",
     "AccessibleDatabase",
     "is_accessible_db",
     "full_path",
@@ -97,14 +97,14 @@ def extract_urls(lines: list[str]) -> set[URL]:
 File = NewType("File", Path)
 
 
-def is_file(value: Path) -> TypeGuard[File]:
+def real_file(value: Path) -> TypeGuard[File]:
     return value.is_file()
 
 
 Directory = NewType("Directory", Path)
 
 
-def is_dir(value: Path) -> TypeGuard[Directory]:
+def real_dir(value: Path) -> TypeGuard[Directory]:
     return value.is_dir()
 
 
@@ -155,7 +155,7 @@ def _ensure_existence_dir(
                 ),
                 path,
             )
-        exists = is_dir(path)
+        exists = real_dir(path)
     except OSError as e:
         return None, (
             "Directory cannot be accessed: %s (%s)",
