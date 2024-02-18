@@ -13,6 +13,9 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # recipe2txt. If not, see <https://www.gnu.org/licenses/>.
+"""
+Module offering additional functions for filesystem-interactions.
+"""
 import os
 import sqlite3
 import sys
@@ -25,23 +28,36 @@ from recipe2txt.utils.ContextLogger import DO_NOT_LOG, get_logger
 logger = get_logger(__name__)
 
 File = NewType("File", Path)
+"""
+Type representing a path to a file. The type states that the file has existed at the point in time the Path-type
+was narrowed to the File-type, but does not represent a guarantee that the file still exists at a later point in time.
+"""
 
 
 def real_file(value: Path) -> TypeGuard[File]:
+    """Checks if the file 'path' points to is an :py:data:`File`"""
     return value.is_file()
 
 
 Directory = NewType("Directory", Path)
+"""
+Type representing a path to a directory. The type states that the directory has existed at the point in time the
+Path-type was narrowed to the Directory-type, but does not represent a guarantee that the file still exists at a later
+point in time.
+"""
 
 
 def real_dir(value: Path) -> TypeGuard[Directory]:
+    """Checks if the file 'path' points to is an :py:data:`Directory`"""
     return value.is_dir()
 
 
 AccessibleDatabase = NewType("AccessibleDatabase", Path)
-"""Type representing a database file, that was (at one point during program 
-execution) a valid and accessible
-Sqlite3-database"""
+"""
+Type representing a path to a sqlite3-database-file. The type states that the file has existed and represented a valid
+and accessible sqlite3-database-file at the point in time the Path-type was narrowed to the database-type, but does not 
+represent a guarantee that the file will hold those properties at a later point in time.
+"""
 
 
 def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
@@ -63,6 +79,19 @@ def is_accessible_db(path: Path) -> TypeGuard[AccessibleDatabase]:
 
 
 def full_path(*pathelements: str | Path) -> Path:
+    """
+    Creates an absolute path from pathelements
+
+    Will expand variables.
+    Will expand USER.
+    Will remove leading and trailing whitespace
+    Args:
+        *pathelements (): elements of the path to be formed (correctly ordered)
+
+    Returns:
+        An absolute path
+
+    """
     first = str(pathelements[0]).lstrip()
     last = str(pathelements[-1]).rstrip() if len(pathelements) > 1 else ""
 
@@ -106,6 +135,16 @@ def _ensure_existence_dir(
 
 
 def ensure_existence_dir(*path_elem: str | Path) -> Directory | None:
+    """
+    Constructs an absolute path from path_elem pointing to a directory
+
+    If the directory described by the path does not exist it will be created
+    Args:
+        *path_elem (): elements of the path to be formed (correctly ordered). The last will be the target directory
+
+    Returns:
+        An absolute path to an existing directory or None if the directory cannot be created
+    """
     path = full_path(*path_elem)
     directory, msg = _ensure_existence_dir(path)
     if not directory:
@@ -115,6 +154,20 @@ def ensure_existence_dir(*path_elem: str | Path) -> Directory | None:
 
 
 def ensure_existence_dir_critical(*path_elem: str | Path) -> Directory:
+    """
+    Constructs an absolute path from path_elem pointing to a directory
+
+    If the directory described by the path does not exist it will be created
+    Args:
+        *path_elem (): elements of the path to be formed (correctly ordered). The last will be the target directory
+
+    Returns:
+        An absolute path to an existing directory
+
+    Raises:
+        SystemExit: When the directory does not exist and cannot be created
+
+    """
     path = full_path(*path_elem)
     directory, msg = _ensure_existence_dir(path)
     if not directory:
@@ -124,6 +177,21 @@ def ensure_existence_dir_critical(*path_elem: str | Path) -> Directory:
 
 
 def create_timestamped_dir(*path_elem: str | Path, name: str = "") -> Directory | None:
+    """
+    Creates a directory at the tip of path_elem whose name is derived from the current time
+
+    The format for the name is 'YYYY-mm-DD_HH-MM-SS' if name is empty, otherwise name will be prepended
+    like this: 'NAME__YYYY-mm-DD_HH-MM-SS'.
+
+    Args:
+        *path_elem (): elements of the path pointing to the directory (correctly ordered)
+        name (): An optional name for the directory
+
+    Returns:
+        An absolute path to an existing directory with the current timestamp in its name or None if the directory could
+        not be created
+
+    """
     current_time = strftime("%Y-%m-%d_%H-%M-%S", localtime())
     parent = ensure_existence_dir(*path_elem)
     if not parent:
@@ -182,6 +250,21 @@ def _ensure_accessible_file(
 
 
 def ensure_accessible_file(*path_elem: str | Path) -> File | None:
+    """
+    Constructs an absolute path from path_elem pointing to a file
+
+    If the file described by the path does not exist it will be created.
+    The file is readable and writeable by this program
+
+    Args:
+        *path_elem (): elements of the path to be formed (correctly ordered). The last will be the target file
+
+    Returns:
+        An absolute path to an existing, readable, writeable file
+
+    Raises:
+        SystemExit: When the path does not describe a readable/writable file and no such file can be created
+    """
     path = full_path(*path_elem)
     file, msg = _ensure_accessible_file(path)
     if not file:
@@ -190,6 +273,18 @@ def ensure_accessible_file(*path_elem: str | Path) -> File | None:
 
 
 def ensure_accessible_file_critical(*path_elem: str | Path) -> File:
+    """
+    Constructs an absolute path from path_elem pointing to a file
+
+    If the file described by the path does not exist it will be created.
+    The file is readable and writeable by this program
+
+    Args:
+        *path_elem (): elements of the path to be formed (correctly ordered). The last will be the target file
+
+    Returns:
+        An absolute path to an existing, readable, writeable file or None if no such file can be created/found
+    """
     path = full_path(*path_elem)
     file, msg = _ensure_accessible_file(path)
     if not file:
@@ -209,7 +304,7 @@ def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
     Returns:
         A path to a valid Sqlite3-database-file, which is accessible by this program
     Raises:
-        SystemExit: If the database-file cannot be created.
+        SystemExit: If the database-file cannot be found/created.
 
     """
     db_path = full_path(*path_elem)
@@ -223,12 +318,23 @@ def ensure_accessible_db_critical(*path_elem: str | Path) -> AccessibleDatabase:
 
 
 def read_files(*possible_paths: str | Path) -> list[str]:
+    """
+    Reads multiple files and concatenates their lines into a list of strings.
+
+    Paths that do not point to readable textfiles will be skipped.
+
+    Args:
+        *possible_paths (): Paths to potential text-files
+
+    Returns:
+        A list of strings, where each string represents a line from one file.
+
+    """
     lines = []
     for p in possible_paths:
         path = full_path(p)
         if path.is_file():
             logger.info("Reading %s", path)
-            path.read_text()
             with path.open("r") as file:
                 lines += list(file.readlines())
         else:
