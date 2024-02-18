@@ -405,6 +405,12 @@ class TestAll(unittest.TestCase):
         if test_path.is_dir():
             shutil.rmtree(test_path)
         test_paths: list[File] = gen_logs(test_path)
+        self.assertEqual(len(log_paths), 5)
+        for i in range(len(log_paths) - 1):
+            with self.subTest(greater=log_paths[i], smaller=log_paths[i + 1]):
+                self.assertTrue(
+                    log_paths[i].stat().st_size > log_paths[i + 1].stat().st_size
+                )
         for test, validation in zip(test_paths, log_paths):
             with self.subTest(msg=f"While testing {test.name}"):
                 assertFilesEqual(self, test, validation)
