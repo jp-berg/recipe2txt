@@ -106,7 +106,7 @@ def gen_log() -> None:
     if dir_normal.is_dir():
         shutil.rmtree(dir_normal)
     queue = [-7, 29, 8, 41, 3, 44, -19, 2, 1, 6]
-    logging.info(
+    write_logger.info(
         "The values used are %s", queue
     )  # Check 'stringification of logged objects
     res = queue_processor(queue, dir_normal, dir_fail)
@@ -122,6 +122,7 @@ def inject_write_logger(logfile: File, level: int) -> Generator[None, None, None
 
     log_filter.set_handler(filehandler)
     log_filter.set_level(level)
+    write_logger.addFilter(log_filter)
 
     gen_stack_log, gen_stack.logger = gen_stack.logger, write_logger
     misc_log, filesystem.logger = filesystem.logger, write_logger
@@ -138,7 +139,7 @@ def gen_logs(folder: Path) -> list[File]:
     write_logger.filters.clear()
     paths = []
     for string, num in STRING2LEVEL.items():
-        file = misc.ensure_accessible_file_critical(folder, string)
+        file = ensure_accessible_file_critical(folder, string)
         if file.stat().st_size == 0:
             logger.info("Generating %s", file)
             with inject_write_logger(file, num):
