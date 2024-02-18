@@ -23,7 +23,8 @@ from typing import Final
 
 from recipe2txt.fetcher import Cache, Fetcher
 from recipe2txt.sql import Database
-from recipe2txt.utils.misc import URL, ensure_accessible_file, is_accessible_db
+from recipe2txt.utils.filesystem import ensure_accessible_file, is_accessible_db
+from recipe2txt.utils.misc import URL
 
 
 class TestFileFetcher(Fetcher):

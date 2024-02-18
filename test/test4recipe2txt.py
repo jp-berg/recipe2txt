@@ -28,7 +28,7 @@ from typing import Final, Literal, TypeAlias, get_args
 
 from recipe2txt.file_setup import DB_NAME, DEBUG_DIRS, LOG_NAME
 from recipe2txt.utils.ContextLogger import LOG_LEVEL_NAMES
-from recipe2txt.utils.misc import (
+from recipe2txt.utils.filesystem import (
     Directory,
     create_timestamped_dir,
     ensure_accessible_file_critical,

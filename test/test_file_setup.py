@@ -20,7 +20,7 @@ from test.test_helpers import TEST_PROJECT_TMPDIR, TESTFILE, assertAccessibleFil
 
 import recipe2txt.file_setup as fs
 from recipe2txt.utils.ContextLogger import disable_loggers
-from recipe2txt.utils.misc import (
+from recipe2txt.utils.filesystem import (
     ensure_accessible_file_critical,
     ensure_existence_dir,
     is_accessible_db,

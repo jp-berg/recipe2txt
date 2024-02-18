@@ -26,7 +26,7 @@ from test.testfiles.permanent.testfile_generator import (
 
 from recipe2txt.recipes2out import RecipeWriter
 from recipe2txt.utils.ContextLogger import suppress_logging
-from recipe2txt.utils.misc import ensure_accessible_file_critical
+from recipe2txt.utils.filesystem import ensure_accessible_file_critical
 
 TESTFILE_MD = TESTFILE.replace("txt", "md")
 

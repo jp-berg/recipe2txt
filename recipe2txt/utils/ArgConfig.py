@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import Any, Final, Generic, Iterable, Literal, TypeVar
 
 from recipe2txt.utils.conditional_imports import StrEnum, tomllib
-from recipe2txt.utils.misc import File, ensure_accessible_file_critical
+from recipe2txt.utils.filesystem import File, ensure_accessible_file_critical
 
 
 def short_flag(long_name: str) -> str:

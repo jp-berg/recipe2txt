@@ -34,7 +34,8 @@ from recipe2txt.user_interface import (
     strings2urls,
 )
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import Counts, dict2str, ensure_accessible_file_critical
+from recipe2txt.utils.filesystem import ensure_accessible_file_critical
+from recipe2txt.utils.misc import Counts, dict2str
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher

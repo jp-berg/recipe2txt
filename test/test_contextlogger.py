@@ -23,7 +23,7 @@ from typing import Any, Final, TypeVar
 
 import recipe2txt.utils.ContextLogger as CTXL
 from recipe2txt.utils.conditional_imports import LiteralString
-from recipe2txt.utils.misc import File
+from recipe2txt.utils.filesystem import File
 
 level = logging.WARNING
 test_msg = "THIS IS A TESTMESSAGE"

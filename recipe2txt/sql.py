@@ -37,7 +37,8 @@ from recipe2txt.utils.ContextLogger import get_logger
 from .html2recipe import METHODS, NA, RECIPE_ATTRIBUTES, SCRAPER_VERSION, Recipe
 from .html2recipe import RecipeStatus as RS
 from .html2recipe import gen_status, int2status, none2na
-from .utils.misc import URL, AccessibleDatabase, File, head_str, obj2sql_str
+from .utils.filesystem import AccessibleDatabase, File
+from .utils.misc import URL, head_str, obj2sql_str
 
 logger = get_logger(__name__)
 """The logger for the module. Receives the constructed logger from 

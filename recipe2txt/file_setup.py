@@ -48,7 +48,7 @@ from typing import Final, NamedTuple
 from xdg_base_dirs import xdg_config_home, xdg_data_home, xdg_state_home
 
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import (
+from recipe2txt.utils.filesystem import (
     AccessibleDatabase,
     Directory,
     File,

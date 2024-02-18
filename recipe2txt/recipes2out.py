@@ -25,7 +25,8 @@ from recipe2txt.file_setup import JINJA_TEMPLATE_DIR, get_template_files
 from recipe2txt.html2recipe import NA, Recipe
 from recipe2txt.utils import markdown
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import File, ensure_accessible_file, get_all_dict
+from recipe2txt.utils.filesystem import File, ensure_accessible_file
+from recipe2txt.utils.misc import get_all_dict
 
 logger = get_logger(__name__)
 

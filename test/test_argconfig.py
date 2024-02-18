@@ -31,7 +31,7 @@ from recipe2txt.file_setup import (
     get_default_output,
 )
 from recipe2txt.user_interface import config_args
-from recipe2txt.utils.misc import ensure_accessible_file, ensure_existence_dir
+from recipe2txt.utils.filesystem import ensure_accessible_file, ensure_existence_dir
 
 
 class TestFunctions(unittest.TestCase):

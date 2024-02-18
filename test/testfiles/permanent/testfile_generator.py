@@ -31,15 +31,9 @@ from recipe2txt.utils.ContextLogger import (
     root_log_setup,
     suppress_logging,
 )
+from recipe2txt.utils.filesystem import Directory, File, ensure_accessible_file_critical
 from recipe2txt.utils.markdown import *
-from recipe2txt.utils.misc import (
-    NEVER_CATCH,
-    URL,
-    Directory,
-    File,
-    ensure_accessible_file_critical,
-    is_url,
-)
+from recipe2txt.utils.misc import NEVER_CATCH, URL, is_url
 
 __all__ = [
     "HTML_LIST",

@@ -28,7 +28,7 @@ from test.test_helpers import (
 
 import recipe2txt.html2recipe as h2r
 import recipe2txt.sql as sql
-import recipe2txt.utils.misc as misc
+from recipe2txt.utils.filesystem import File, is_accessible_db
 
 db_name = "db_test.sqlite3"
 out_name = "out"
@@ -140,8 +140,8 @@ class TestDatabase(unittest.TestCase):
         self.db = None
 
     def setUp(self) -> None:
-        if misc.is_accessible_db(db_path):
-            self.db = sql.Database(db_path, misc.File(out_path_txt))
+        if is_accessible_db(db_path):
+            self.db = sql.Database(db_path, File(out_path_txt))
             for recipe in test_recipes:
                 with self.subTest(recipe=recipe.url):
                     try:

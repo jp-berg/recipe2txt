@@ -53,7 +53,8 @@ from recipe2txt.utils.ContextLogger import (
     get_logger,
     root_log_setup,
 )
-from recipe2txt.utils.misc import URL, Counts, File, extract_urls, read_files
+from recipe2txt.utils.filesystem import File, read_files
+from recipe2txt.utils.misc import URL, Counts, extract_urls
 
 try:
     from recipe2txt.fetcher_async import AsyncFetcher as Fetcher

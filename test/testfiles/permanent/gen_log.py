@@ -21,7 +21,7 @@ import test.testfiles.permanent.gen_stack as gen_stack
 from pathlib import Path
 from typing import Final, Generator
 
-import recipe2txt.utils.misc as misc
+from recipe2txt.utils import filesystem
 from recipe2txt.utils.ContextLogger import (
     _LOG_FORMAT_STREAM,
     STRING2LEVEL,
@@ -30,10 +30,11 @@ from recipe2txt.utils.ContextLogger import (
 )
 from recipe2txt.utils.ContextLogger import QueueContextManager as QCM
 from recipe2txt.utils.ContextLogger import get_logger
-from recipe2txt.utils.misc import (
+from recipe2txt.utils.filesystem import (
     Directory,
     File,
     ensure_accessible_file,
+    ensure_accessible_file_critical,
     ensure_existence_dir_critical,
 )
 
@@ -123,10 +124,10 @@ def inject_write_logger(logfile: File, level: int) -> Generator[None, None, None
     log_filter.set_level(level)
 
     gen_stack_log, gen_stack.logger = gen_stack.logger, write_logger
-    misc_log, misc.logger = misc.logger, write_logger
+    misc_log, filesystem.logger = filesystem.logger, write_logger
     yield
     gen_stack.logger = gen_stack_log
-    misc.logger = misc_log
+    filesystem.logger = misc_log
 
     write_logger.removeHandler(filehandler)
     filehandler.close()
@@ -143,7 +144,7 @@ def gen_logs(folder: Path) -> list[File]:
             with inject_write_logger(file, num):
                 gen_log()
 
-        paths.append(File(file))
+        paths.append(file)
     return paths
 
 
