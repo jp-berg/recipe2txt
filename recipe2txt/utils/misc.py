@@ -51,6 +51,8 @@ def extract_urls(lines: list[str]) -> set[URL]:
     for line in lines:
         strings = line.split()
         for string in strings:
+            if not (string := string.strip()):
+                continue
             tmp = string
             if not string.startswith("http"):
                 string = "http://" + string
