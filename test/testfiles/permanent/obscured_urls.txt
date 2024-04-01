@@ -9,4 +9,4 @@ https://www.bbc.co.uk/food/recipes/chorizo_gnocchi_48255 https://www.bbc.co.uk/f
 
 What about https://cooking.nytimes.com/recipes/1022562-silken-tofu-with-spicy-soy-dressing?action=click&region=Easy%20Summer%20Dinners&rank=3 ? Or would you prefer something different?
 
-https://www.shop.com/product?utm_source=searchpage https://www.info.net/important-message?user-id:12345
+https://www.shop.com/product?utm_source=searchpage https://www.info.net/important-message?user-id=12345
