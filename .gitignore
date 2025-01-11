@@ -7,6 +7,8 @@ test/testfiles/recipe_test*.txt
 test/testfiles/recipe_test*.md
 test/testfiles/markdown
 test/testfiles/permanent/testfile_db.sqlite3
+test/testfiles/permanent/logfiles/debug
+test/testfiles/permanent/logfiles/info
 test/testfiles/tmp*
 test/ignore_*
 test/reports_test4recipe2txt/*
