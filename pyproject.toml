@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "recipe2txt"
-version = "0.5.2"
+version = "0.5.3"
 authors = [
   { name="Jan Philipp Berg", email="git.7ksst@aleeas.com" },
 ]
